@@ -9,9 +9,16 @@ SERVICE_NAME=omp-template-api
 SERVICE_PATH=ozonmp/omp-template-api
 
 PGV_VERSION:="v0.6.1"
-GOOGLEAPIS_VERSION="master"
-BUF_VERSION:="v0.51.0"
-GOBIN?=$(GOPATH)/bin
+BUF_VERSION:="v0.56.0"
+
+OS_NAME=$(shell uname -s)
+OS_ARCH=$(shell uname -m)
+GO_BIN=$(shell go env GOPATH)/bin
+BUF_EXE=$(GO_BIN)/buf$(shell go env GOEXE)
+
+ifeq ("NT", "$(findstring NT,$(OS_NAME))")
+OS_NAME=Windows
+endif
 
 .PHONY: run
 run:
@@ -25,7 +32,7 @@ lint:
 .PHONY: test
 test:
 	go test -v -race -timeout 30s -coverprofile cover.out ./...
-	go tool cover -func cover.out | grep total | awk '{print $3}'
+	go tool cover -func cover.out | grep total | awk '{print $$3}'
 
 
 # ----------------------------------------------------------------
@@ -34,8 +41,11 @@ test:
 generate: .generate
 
 .generate:
-	@command -v buf 2>&1 > /dev/null || (mkdir -p $(GOBIN) && curl -sSL0 https://github.com/bufbuild/buf/releases/download/$(BUF_VERSION)/buf-$(shell uname -s)-$(shell uname -m) -o $(GOBIN)/buf && chmod +x $(GOBIN)/buf)
-	PATH=$(GOBIN):$(PATH) buf generate
+	@ command -v buf 2>&1 > /dev/null || (echo "Install buf" && \
+		mkdir -p "$(GO_BIN)" && \
+		curl -sSL0 https://github.com/bufbuild/buf/releases/download/$(BUF_VERSION)/buf-$(OS_NAME)-$(OS_ARCH)$(shell go env GOEXE) -o "$(BUF_EXE)" && \
+		chmod +x "$(BUF_EXE)")
+	$(BUF_EXE) generate
 	mv pkg/$(SERVICE_NAME)/github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME)/* pkg/$(SERVICE_NAME)
 	rm -rf pkg/$(SERVICE_NAME)/github.com/
 	cd pkg/$(SERVICE_NAME) && ls go.mod || (go mod init github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME) && go mod tidy)
@@ -57,10 +67,10 @@ deps: .deps
 build: generate .build
 
 .build:
-		go mod download && CGO_ENABLED=0  go build \
-			-tags='no_mysql no_sqlite3' \
-			-ldflags=" \
-				-X 'github.com/$(SERVICE_PATH)/internal/config.version=$(VERSION)' \
-				-X 'github.com/$(SERVICE_PATH)/internal/config.commitHash=$(COMMIT_HASH)' \
-			" \
-			-o ./bin/grpc-server ./cmd/grpc-server/main.go
+	go mod download && CGO_ENABLED=0  go build \
+		-tags='no_mysql no_sqlite3' \
+		-ldflags=" \
+			-X 'github.com/$(SERVICE_PATH)/internal/config.version=$(VERSION)' \
+			-X 'github.com/$(SERVICE_PATH)/internal/config.commitHash=$(COMMIT_HASH)' \
+		" \
+		-o ./bin/grpc-server$(shell go env GOEXE) ./cmd/grpc-server/main.go
