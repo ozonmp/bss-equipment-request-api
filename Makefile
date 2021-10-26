@@ -47,6 +47,7 @@ generate: .generate
 		chmod +x "$(BUF_EXE)")
 	$(BUF_EXE) generate
 	mv pkg/$(SERVICE_NAME)/github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME)/* pkg/$(SERVICE_NAME)
+	find pypkg/omp-template-api -type d -exec touch {}/__init__.py \;
 	rm -rf pkg/$(SERVICE_NAME)/github.com/
 	cd pkg/$(SERVICE_NAME) && ls go.mod || (go mod init github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME) && go mod tidy)
 
@@ -62,6 +63,7 @@ deps: .deps
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.5.0
 	go install github.com/envoyproxy/protoc-gen-validate@$(PGV_VERSION)
 	go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
+	python -m pip install grpcio-tools
 
 .PHONY: build
 build: generate .build

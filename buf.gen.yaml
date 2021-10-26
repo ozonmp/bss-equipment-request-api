@@ -4,21 +4,40 @@ plugins:
     out: pkg/omp-template-api
     opt:
       - paths=import
+    strategy: directory
+
   - name: go-grpc
     out: pkg/omp-template-api
     opt:
       - paths=import
+    strategy: directory
+
+  - name: python
+    out: pypkg/omp-template-api
+    strategy: directory
+
+  - name: grpc_python
+    out: pypkg/omp-template-api
+    # https://github.com/bufbuild/buf/issues/223
+    path: ./bin/macos/grpc_python_plugin
+    strategy: directory
+
   - name: grpc-gateway
     out: pkg/omp-template-api
     opt:
       - logtostderr=true
       - paths=import
+    strategy: directory
+
   - name: validate
     out: pkg/omp-template-api
     opt:
       - lang=go
+    strategy: directory
+
   - name: swagger
     out: swagger
     opt:
       - allow_merge=true
       - merge_file_name=api
+    strategy: directory
