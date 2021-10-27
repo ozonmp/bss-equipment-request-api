@@ -7,10 +7,10 @@ from ozonmp.omp_template_api.v1.omp_template_api_pb2 import DescribeTemplateV1Re
 
 async def main():
     async with Channel('127.0.0.1', 8082) as channel:
-        greeter = OmpTemplateApiServiceStub(channel)
+        client = OmpTemplateApiServiceStub(channel)
 
         req = DescribeTemplateV1Request(id=1)
-        reply = await greeter.DescribeTemplateV1(req)
+        reply = await client.DescribeTemplateV1(req)
         print(reply.message)
 
 
