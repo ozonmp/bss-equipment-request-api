@@ -63,7 +63,7 @@ deps: .deps
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.5.0
 	go install github.com/envoyproxy/protoc-gen-validate@$(PGV_VERSION)
 	go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
-	python -m pip install grpcio-tools
+	python -m pip install grpcio-tool grpclib protobuf
 
 .PHONY: build
 build: generate .build

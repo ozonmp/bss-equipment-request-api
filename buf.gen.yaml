@@ -16,10 +16,8 @@ plugins:
     out: pypkg/omp-template-api
     strategy: directory
 
-  - name: grpc_python
+  - name: grpclib_python
     out: pypkg/omp-template-api
-    # https://github.com/bufbuild/buf/issues/223
-    path: ./bin/macos/grpc_python_plugin
     strategy: directory
 
   - name: grpc-gateway

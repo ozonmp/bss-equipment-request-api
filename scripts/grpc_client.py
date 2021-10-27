@@ -1,11 +1,18 @@
-import grpc
-import ozonmp.omp_template_api.v1.omp_template_api_pb2_grpc as pb2_grpc
-import ozonmp.omp_template_api.v1.omp_template_api_pb2 as pb2
+import asyncio
 
-template_api_addr = '0.0.0.0:8082'
-with grpc.insecure_channel(template_api_addr) as channel:
-    template_api_client = pb2_grpc.OmpTemplateApiServiceStub(channel)
-    meta = (('omp-source', 'jupyterhub'),)
-    req = pb2.DescribeTemplateV1Request(id=1)
-    resp = template_api_client.DescribeTemplateV1(request=req, metadata=meta)
-    print(resp.value)
+from grpclib.client import Channel
+
+from ozonmp.omp_template_api.v1.omp_template_api_grpc import OmpTemplateApiServiceStub
+from ozonmp.omp_template_api.v1.omp_template_api_pb2 import DescribeTemplateV1Request
+
+async def main():
+    async with Channel('127.0.0.1', 8082) as channel:
+        greeter = OmpTemplateApiServiceStub(channel)
+
+        req = DescribeTemplateV1Request(id=1)
+        reply = await greeter.DescribeTemplateV1(req)
+        print(reply.message)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
