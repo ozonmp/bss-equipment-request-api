@@ -122,6 +122,21 @@ For the convenience of working with the database, you can use the [pgcli](https:
 $ pgcli "postgresql://docker:docker@localhost:5432/omp_template_api"
 ```
 
+### Python client
+
+```shell
+$ python -m venv .venv
+$ . .venv/bin/activate
+$ make deps
+$ make generate
+$ cd pypkg/omp-template-api
+$ python setup.py install
+$ cd ../..
+$ docker-compose up -d
+$ python scripts/grpc_client.py
+```
+
+
 ### Thanks
 
 - [Evald Smalyakov](https://github.com/evald24)
