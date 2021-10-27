@@ -20,6 +20,10 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+          architecture: 'x64'
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build
