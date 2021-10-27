@@ -22,4 +22,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Build
         shell: bash
-        run: make build
+        run: |
+          make deps
+          make build
