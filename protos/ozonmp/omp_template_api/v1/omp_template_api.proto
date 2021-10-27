@@ -22,6 +22,7 @@ service OmpTemplateApiService {
 message Template {
   uint64 id  = 1;
   uint64 foo = 2;
+  google.protobuf.Timestamp created = 3;
 }
 
 message DescribeTemplateV1Request {

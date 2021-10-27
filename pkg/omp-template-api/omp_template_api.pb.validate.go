@@ -44,6 +44,16 @@ func (m *Template) Validate() error {
 
 	// no validation rules for Foo
 
+	if v, ok := interface{}(m.GetCreated()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TemplateValidationError{
+				field:  "Created",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 
