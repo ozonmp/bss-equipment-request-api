@@ -1,6 +1,8 @@
 package consumer
 
 import (
+	"context"
+	"log"
 	"sync"
 	"time"
 
@@ -14,16 +16,13 @@ type Consumer interface {
 }
 
 type consumer struct {
-	n      uint64
-	events chan<- model.EquipmentRequestEvent
-
-	repo repo.EventRepo
-
+	n         uint64
 	batchSize uint64
 	timeout   time.Duration
-
-	done chan bool
-	wg   *sync.WaitGroup
+	repo      repo.EventRepo
+	ctx       context.Context
+	events    chan<- model.EquipmentRequestEvent
+	wg        *sync.WaitGroup
 }
 
 type Config struct {
@@ -32,6 +31,7 @@ type Config struct {
 	repo      repo.EventRepo
 	batchSize uint64
 	timeout   time.Duration
+	ctx       context.Context
 }
 
 func NewDbConsumer(
@@ -39,19 +39,19 @@ func NewDbConsumer(
 	batchSize uint64,
 	consumeTimeout time.Duration,
 	repo repo.EventRepo,
+	ctx context.Context,
 	events chan<- model.EquipmentRequestEvent) Consumer {
 
 	wg := &sync.WaitGroup{}
-	done := make(chan bool)
 
 	return &consumer{
 		n:         n,
 		batchSize: batchSize,
 		timeout:   consumeTimeout,
 		repo:      repo,
+		ctx:       ctx,
 		events:    events,
 		wg:        wg,
-		done:      done,
 	}
 }
 
@@ -67,12 +67,13 @@ func (c *consumer) Start() {
 				case <-ticker.C:
 					events, err := c.repo.Lock(c.batchSize)
 					if err != nil {
+						log.Printf("Unable to get and lock data from database: %v", err)
 						continue
 					}
 					for _, event := range events {
 						c.events <- event
 					}
-				case <-c.done:
+				case <-c.ctx.Done():
 					return
 				}
 			}
@@ -81,6 +82,5 @@ func (c *consumer) Start() {
 }
 
 func (c *consumer) Close() {
-	close(c.done)
 	c.wg.Wait()
 }
