@@ -42,7 +42,7 @@ func (o *templateAPI) DescribeTemplateV1(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	template, err := o.repo.DescribeTemplate(ctx, req.Id)
+	template, err := o.repo.DescribeTemplate(ctx, req.TemplateId)
 	if err != nil {
 		log.Error().Err(err).Msg("DescribeTemplateV1 -- failed")
 
@@ -50,7 +50,7 @@ func (o *templateAPI) DescribeTemplateV1(
 	}
 
 	if template == nil {
-		log.Debug().Uint64("templateId", req.Id).Msg("template not found")
+		log.Debug().Uint64("templateId", req.TemplateId).Msg("template not found")
 		totalTemplateNotFound.Inc()
 
 		return nil, status.Error(codes.NotFound, "template not found")

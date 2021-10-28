@@ -13,8 +13,7 @@ service OmpTemplateApiService {
   // DescribeTemplateV1 - Describe a template
   rpc DescribeTemplateV1(DescribeTemplateV1Request) returns (DescribeTemplateV1Response) {
     option (google.api.http) = {
-      post: "/v1/templates"
-      body: "*"
+      get: "/v1/templates/{template_id}"
     };
   }
 }
@@ -26,7 +25,7 @@ message Template {
 }
 
 message DescribeTemplateV1Request {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 template_id = 1 [(validate.rules).uint64.gt = 0];
 }
 
 message DescribeTemplateV1Response {

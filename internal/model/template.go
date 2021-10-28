@@ -1,4 +1,4 @@
-package models
+package model
 
 // Template - template entity.
 type Template struct {

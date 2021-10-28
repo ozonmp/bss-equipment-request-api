@@ -119,9 +119,9 @@ func (m *DescribeTemplateV1Request) Validate() error {
 		return nil
 	}
 
-	if m.GetId() <= 0 {
+	if m.GetTemplateId() <= 0 {
 		return DescribeTemplateV1RequestValidationError{
-			field:  "Id",
+			field:  "TemplateId",
 			reason: "value must be greater than 0",
 		}
 	}
