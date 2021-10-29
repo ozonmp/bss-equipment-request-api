@@ -6,73 +6,47 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/ozonmp/bss-equipment-request-api/internal/mocks"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"sync"
 	"testing"
 	"time"
 )
 
-type DbTestSuite struct {
-	suite.Suite
-	consumers   uint64
-	ctrl        *gomock.Controller
-	repo        *mocks.MockEventRepo
-	ctx         context.Context
-	ctxCancel   context.CancelFunc
-	events      chan model.EquipmentRequestEvent
-	db          Consumer
-	timeout     time.Duration
-	channelSize int
-	batchSize   uint64
-}
-
-func (suite *DbTestSuite) SetupTest() {
+func setUp(t *testing.T, consumers uint64, channelSize int, timeout time.Duration, batchSize uint64) (Config, chan model.EquipmentRequestEvent, *mocks.MockEventRepo, context.CancelFunc) {
 	parentCtx := context.Background()
-	suite.ctrl = gomock.NewController(suite.T())
-	suite.repo = mocks.NewMockEventRepo(suite.ctrl)
-	suite.ctx, suite.ctxCancel = context.WithCancel(parentCtx)
-}
+	ctrl := gomock.NewController(t)
+	repo := mocks.NewMockEventRepo(ctrl)
+	ctx, ctxCancel := context.WithCancel(parentCtx)
 
-func (suite *DbTestSuite) setDbItem(consumers uint64, channelSize int, timeout time.Duration, batchSize uint64) {
-	suite.consumers = consumers
-	suite.channelSize = channelSize
-	suite.timeout = timeout
-	suite.batchSize = batchSize
+	events := make(chan model.EquipmentRequestEvent, channelSize)
 
-	suite.events = make(chan model.EquipmentRequestEvent, suite.channelSize)
-
-	cfg := Config{
-		n:         suite.consumers,
-		events:    suite.events,
-		repo:      suite.repo,
-		batchSize: suite.batchSize,
-		timeout:   suite.timeout,
-		ctx:       suite.ctx,
+	config := Config{
+		N:         consumers,
+		Events:    events,
+		Repo:      repo,
+		BatchSize: batchSize,
+		Timeout:   timeout,
+		Ctx:       ctx,
 	}
 
-	suite.db = NewDbConsumer(
-		cfg.n,
-		cfg.batchSize,
-		cfg.timeout,
-		cfg.repo,
-		cfg.ctx,
-		suite.events)
+	return config, events, repo, ctxCancel
 }
 
-func (suite *DbTestSuite) TestStart() {
-	suite.setDbItem(2, 1, time.Millisecond, 1)
-	suite.repo.EXPECT().Lock(suite.batchSize).
-		Return([]model.EquipmentRequestEvent{}, nil).AnyTimes()
-
-	suite.db.Start()
-	defer func() {
-		suite.ctxCancel()
-		suite.db.Close()
-	}()
+func tearDown(db Consumer, ctxFunc context.CancelFunc) {
+	ctxFunc()
+	db.Close()
 }
 
-func (suite *DbTestSuite) TestStartAndGetOneEvent() {
-	suite.setDbItem(2, 2, time.Millisecond, 1)
+func TestStartAndGetOneEvent(t *testing.T) {
+	t.Parallel()
+	config, events, repo, ctxFunc := setUp(t, 5, 1, time.Millisecond, 1)
+	db := NewDbConsumer(
+		config.N,
+		config.BatchSize,
+		config.Timeout,
+		config.Repo,
+		config.Ctx,
+		config.Events)
+	defer tearDown(db, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
 		ID:     12,
@@ -81,36 +55,60 @@ func (suite *DbTestSuite) TestStartAndGetOneEvent() {
 		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
 	}
 
-	suite.repo.EXPECT().Lock(suite.batchSize).
-		Return([]model.EquipmentRequestEvent{event}, nil).Times(1)
-	suite.repo.EXPECT().Lock(gomock.Any()).Return(nil, errors.New("empty result error")).AnyTimes()
+	eventCount := int(config.N)
+	var wg sync.WaitGroup
+	wg.Add(eventCount)
+	defer wg.Wait()
 
-	suite.db.Start()
-	ev := <-suite.events
+	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
+		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+			wg.Done()
+			return []model.EquipmentRequestEvent{event}, nil
+		}).Times(eventCount)
 
-	assert.Equal(suite.T(), event.ID, ev.ID, "The two events should be the same.")
-
-	defer func() {
-		suite.ctxCancel()
-		suite.db.Close()
-	}()
+	db.Start()
+	for i := 0; i < eventCount; i++ {
+		<-events
+	}
 }
 
-func (suite *DbTestSuite) TestStartAndGetErrors() {
-	suite.setDbItem(2, 2, time.Millisecond, 1)
+func TestStartAndGetErrors(t *testing.T) {
+	t.Parallel()
+	config, _, repo, ctxFunc := setUp(t, 5, 10, time.Millisecond, 3)
+	db := NewDbConsumer(
+		config.N,
+		config.BatchSize,
+		config.Timeout,
+		config.Repo,
+		config.Ctx,
+		config.Events)
+	defer tearDown(db, ctxFunc)
 
-	suite.repo.EXPECT().Lock(suite.batchSize).Return(nil, errors.New("empty result error")).AnyTimes()
+	eventCount := int(config.N)
+	var wg sync.WaitGroup
+	wg.Add(eventCount)
+	defer wg.Wait()
 
-	suite.db.Start()
+	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
+		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+			wg.Done()
+			return nil, errors.New("empty result error")
+		}).Times(eventCount)
 
-	defer func() {
-		suite.ctxCancel()
-		suite.db.Close()
-	}()
+	db.Start()
 }
 
-func (suite *DbTestSuite) TestStartAndGetSeveralEvent() {
-	suite.setDbItem(1, 2, 5*time.Millisecond, 2)
+func TestStartAndGetSeveralEvent(t *testing.T) {
+	t.Parallel()
+	config, _, repo, ctxFunc := setUp(t, 3, 10, time.Millisecond, 2)
+	db := NewDbConsumer(
+		config.N,
+		config.BatchSize,
+		config.Timeout,
+		config.Repo,
+		config.Ctx,
+		config.Events)
+	defer tearDown(db, ctxFunc)
 
 	events := []model.EquipmentRequestEvent{
 		{
@@ -127,24 +125,23 @@ func (suite *DbTestSuite) TestStartAndGetSeveralEvent() {
 		},
 	}
 
-	suite.repo.EXPECT().Lock(suite.batchSize).
-		Return(events, nil).Times(1)
-	suite.repo.EXPECT().Lock(gomock.Any()).Return(nil, errors.New("empty result error")).AnyTimes()
+	eventCount := int(config.N)
 
-	suite.db.Start()
+	var wg sync.WaitGroup
+	wg.Add(eventCount)
+	defer wg.Wait()
 
-	ev := <-suite.events
-	assert.Equal(suite.T(), events[0].ID, ev.ID, "The two events should be the same.")
+	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
+		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+			wg.Done()
+			return events, nil
+		}).Times(1)
 
-	ev1 := <-suite.events
-	assert.Equal(suite.T(), events[1].ID, ev1.ID, "The two events should be the same.")
+	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
+		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+			wg.Done()
+			return nil, errors.New("empty result error")
+		}).Times(eventCount - 1)
 
-	defer func() {
-		suite.ctxCancel()
-		suite.db.Close()
-	}()
-}
-
-func TestDbTestSuite(t *testing.T) {
-	suite.Run(t, new(DbTestSuite))
+	db.Start()
 }

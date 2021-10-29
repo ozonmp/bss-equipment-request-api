@@ -26,12 +26,12 @@ type consumer struct {
 }
 
 type Config struct {
-	n         uint64
-	events    chan<- model.EquipmentRequestEvent
-	repo      repo.EventRepo
-	batchSize uint64
-	timeout   time.Duration
-	ctx       context.Context
+	N         uint64
+	Events    chan<- model.EquipmentRequestEvent
+	Repo      repo.EventRepo
+	BatchSize uint64
+	Timeout   time.Duration
+	Ctx       context.Context
 }
 
 func NewDbConsumer(
@@ -62,18 +62,40 @@ func (c *consumer) Start() {
 		go func() {
 			defer c.wg.Done()
 			ticker := time.NewTicker(c.timeout)
+			currentEvents := make([]model.EquipmentRequestEvent, 0, c.batchSize)
 			for {
 				select {
 				case <-ticker.C:
 					events, err := c.repo.Lock(c.batchSize)
+
 					if err != nil {
 						log.Printf("Unable to get and lock data from database: %v", err)
 						continue
 					}
-					for _, event := range events {
+
+					currentEvents = append(currentEvents, events...)
+
+					for i, event := range currentEvents {
 						c.events <- event
+						if len(currentEvents) == 1 {
+							currentEvents = currentEvents[:0]
+						} else {
+							currentEvents = append(currentEvents[:i], currentEvents[i+1:]...)
+						}
 					}
 				case <-c.ctx.Done():
+					if (len(currentEvents)) > 0 {
+						eventIds := make([]uint64, 0, len(currentEvents))
+						for _, event := range currentEvents {
+							eventIds = append(eventIds, event.ID)
+						}
+						err := c.repo.Unlock(eventIds)
+						if err != nil {
+							log.Printf("Unable to unlock data from database: %v", err)
+							return
+						}
+					}
+
 					return
 				}
 			}

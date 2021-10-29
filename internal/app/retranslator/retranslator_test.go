@@ -2,9 +2,8 @@ package retranslator
 
 import (
 	"context"
-	"errors"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
-	"github.com/stretchr/testify/suite"
+	"sync"
 	"testing"
 	"time"
 
@@ -12,52 +11,43 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/mocks"
 )
 
-type RetranslatorTestSuite struct {
-	suite.Suite
-	ctrl         *gomock.Controller
-	repo         *mocks.MockEventRepo
-	sender       *mocks.MockEventSender
-	ctx          context.Context
-	ctxCancel    context.CancelFunc
-	retranslator Retranslator
-}
-
-func (suite *RetranslatorTestSuite) SetupTest() {
+func setUp(t *testing.T) (Config, *mocks.MockEventRepo, *mocks.MockEventSender, context.CancelFunc) {
 	parentCtx := context.Background()
-	suite.ctrl = gomock.NewController(suite.T())
-	suite.repo = mocks.NewMockEventRepo(suite.ctrl)
-	suite.sender = mocks.NewMockEventSender(suite.ctrl)
-	suite.ctx, suite.ctxCancel = context.WithCancel(parentCtx)
-}
+	ctrl := gomock.NewController(t)
 
-func (suite *RetranslatorTestSuite) setRetranslatorItem() {
-	cfg := Config{
+	repo := mocks.NewMockEventRepo(ctrl)
+	sender := mocks.NewMockEventSender(ctrl)
+
+	ctx, ctxCancel := context.WithCancel(parentCtx)
+
+	config := Config{
 		ChannelSize:     512,
 		ConsumerCount:   2,
 		ConsumeSize:     10,
 		ConsumeTimeout:  50 * time.Millisecond,
 		ProducerCount:   2,
 		ProducerTimeout: 50 * time.Millisecond,
-		BatchSize:       5,
+		BatchSize:       1,
 		WorkerCount:     2,
-		Repo:            suite.repo,
-		Sender:          suite.sender,
-		Ctx:             suite.ctx,
-		CancelCtxFunc:   suite.ctxCancel,
+		Repo:            repo,
+		Sender:          sender,
+		Ctx:             ctx,
+		CancelCtxFunc:   ctxCancel,
 	}
 
-	suite.retranslator = NewRetranslator(cfg)
+	return config, repo, sender, ctxCancel
 }
 
-func (suite *RetranslatorTestSuite) TestStart() {
-	suite.setRetranslatorItem()
-
-	suite.retranslator.Start()
-	defer suite.retranslator.Close()
+func tearDown(retranslator Retranslator, ctxFunc context.CancelFunc) {
+	ctxFunc()
+	retranslator.Close()
 }
 
-func (suite *RetranslatorTestSuite) TestStartAndWork() {
-	suite.setRetranslatorItem()
+func TestStartAndGetOneEvent(t *testing.T) {
+	t.Parallel()
+	config, repo, sender, ctxFunc := setUp(t)
+	retranslator := NewRetranslator(config)
+	defer tearDown(retranslator, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
 		ID:     12,
@@ -66,18 +56,39 @@ func (suite *RetranslatorTestSuite) TestStartAndWork() {
 		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
 	}
 
-	suite.repo.EXPECT().Lock(uint64(10)).
-		Return([]model.EquipmentRequestEvent{event}, nil).Times(1)
-	suite.repo.EXPECT().Lock(gomock.Any()).Return(nil, errors.New("empty result error")).AnyTimes()
+	eventLockCount := int(config.ConsumerCount * config.BatchSize)
+	var wg sync.WaitGroup
+	wg.Add(eventLockCount)
+	defer wg.Wait()
 
-	suite.sender.EXPECT().Send(&event).Return(nil).Times(1)
-	suite.repo.EXPECT().Remove([]uint64{event.ID}).Times(1)
+	repo.EXPECT().Lock(config.ConsumeSize).DoAndReturn(
+		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+			wg.Done()
+			return []model.EquipmentRequestEvent{event}, nil
+		}).Times(eventLockCount)
 
-	suite.retranslator.Start()
-	time.Sleep(time.Second)
-	defer suite.retranslator.Close()
-}
+	eventSendCount := int(config.ProducerCount * config.BatchSize)
+	removeCount := int(config.ProducerCount * config.BatchSize)
 
-func TestRetranslatorTestSuite(t *testing.T) {
-	suite.Run(t, new(RetranslatorTestSuite))
+	var wgSender sync.WaitGroup
+	wgSender.Add(eventSendCount)
+	defer wgSender.Wait()
+
+	var wgRepo sync.WaitGroup
+	wgRepo.Add(removeCount)
+	defer wgRepo.Wait()
+
+	sender.EXPECT().Send(&event).DoAndReturn(
+		func(*model.EquipmentRequestEvent) error {
+			wgSender.Done()
+			return nil
+		}).Times(eventSendCount)
+
+	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
+		func([]uint64) error {
+			wgRepo.Done()
+			return nil
+		}).Times(removeCount)
+
+	retranslator.Start()
 }

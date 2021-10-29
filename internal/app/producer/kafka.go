@@ -31,14 +31,14 @@ type producer struct {
 }
 
 type Config struct {
-	n          uint64
-	sender     sender.EventSender
-	eventRepo  repo.EventRepo
-	timeout    time.Duration
-	events     <-chan model.EquipmentRequestEvent
-	ctx        context.Context
-	batchSize  uint64
-	workerPool *workerpool.WorkerPool
+	N          uint64
+	Sender     sender.EventSender
+	EventRepo  repo.EventRepo
+	Timeout    time.Duration
+	Events     <-chan model.EquipmentRequestEvent
+	Ctx        context.Context
+	BatchSize  uint64
+	WorkerPool *workerpool.WorkerPool
 }
 
 func NewKafkaProducer(
@@ -98,6 +98,19 @@ func (p *producer) Start() {
 					p.sendToUnlockBatch(&toUnlockBatch)
 					p.sendToRemoveBatch(&toRemoveBatch)
 				case <-p.ctx.Done():
+					for len(p.events) > 0 {
+						event, ok := <-p.events
+						if !ok {
+							log.Fatal("unable to read from the channel")
+							return
+						}
+						if err := p.sender.Send(&event); err != nil {
+							p.addToUnlockBatch(&toUnlockBatch, event.ID)
+						} else {
+							p.addToRemoveBatch(&toRemoveBatch, event.ID)
+						}
+					}
+
 					return
 				}
 			}
@@ -141,7 +154,6 @@ func (p *producer) sendToRemoveBatch(toRemoveBatch *[]uint64) {
 }
 
 func (p *producer) addToRemoveBatch(toRemoveBatch *[]uint64, eventId uint64) {
-
 	if uint64(len(*toRemoveBatch)) < p.batchSize {
 		*toRemoveBatch = append(*toRemoveBatch, eventId)
 		if uint64(len(*toRemoveBatch)) == p.batchSize {

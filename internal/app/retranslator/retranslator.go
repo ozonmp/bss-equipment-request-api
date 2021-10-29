@@ -75,11 +75,14 @@ func NewRetranslator(cfg Config) Retranslator {
 }
 
 func (r *retranslator) Start() {
-	r.producer.Start()
 	r.consumer.Start()
+	r.producer.Start()
 }
 
 func (r *retranslator) Close() {
 	r.cancelCtxFunc()
+	r.consumer.Close()
+	r.producer.Close()
 	r.workerPool.StopWait()
+	close(r.events)
 }

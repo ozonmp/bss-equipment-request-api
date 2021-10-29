@@ -7,79 +7,55 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/ozonmp/bss-equipment-request-api/internal/mocks"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
-	"github.com/stretchr/testify/suite"
+	"sync"
 	"testing"
 	"time"
 )
 
-type KafkaTestSuite struct {
-	suite.Suite
-	producers   uint64
-	ctrl        *gomock.Controller
-	repo        *mocks.MockEventRepo
-	sender      *mocks.MockEventSender
-	ctx         context.Context
-	ctxCancel   context.CancelFunc
-	events      chan model.EquipmentRequestEvent
-	kafka       Producer
-	timeout     time.Duration
-	channelSize int
-	batchSize   uint64
-	workers     int
-}
-
-func (suite *KafkaTestSuite) SetupTest() {
+func setUp(t *testing.T, producers uint64, channelSize int, timeout time.Duration, batchSize uint64, workers int) (Config, chan model.EquipmentRequestEvent, *mocks.MockEventRepo, *mocks.MockEventSender, context.CancelFunc) {
 	parentCtx := context.Background()
-	suite.ctrl = gomock.NewController(suite.T())
-	suite.repo = mocks.NewMockEventRepo(suite.ctrl)
-	suite.sender = mocks.NewMockEventSender(suite.ctrl)
-	suite.ctx, suite.ctxCancel = context.WithCancel(parentCtx)
-}
+	ctrl := gomock.NewController(t)
 
-func (suite *KafkaTestSuite) setKafkaItem(producers uint64, channelSize int, timeout time.Duration, batchSize uint64, workers int) {
-	suite.producers = producers
-	suite.channelSize = channelSize
-	suite.timeout = timeout
-	suite.batchSize = batchSize
-	suite.workers = workers
+	repo := mocks.NewMockEventRepo(ctrl)
+	sender := mocks.NewMockEventSender(ctrl)
 
-	suite.events = make(chan model.EquipmentRequestEvent, suite.channelSize)
-	workerPool := workerpool.New(suite.workers)
+	ctx, ctxCancel := context.WithCancel(parentCtx)
 
-	cfg := Config{
-		n:          suite.producers,
-		sender:     suite.sender,
-		eventRepo:  suite.repo,
-		timeout:    suite.timeout,
-		events:     suite.events,
-		ctx:        suite.ctx,
-		batchSize:  suite.batchSize,
-		workerPool: workerPool,
+	events := make(chan model.EquipmentRequestEvent, channelSize)
+	workerPool := workerpool.New(workers)
+
+	config := Config{
+		N:          producers,
+		Sender:     sender,
+		EventRepo:  repo,
+		Timeout:    timeout,
+		Events:     events,
+		Ctx:        ctx,
+		BatchSize:  batchSize,
+		WorkerPool: workerPool,
 	}
 
-	suite.kafka = NewKafkaProducer(
-		cfg.n,
-		cfg.sender,
-		cfg.eventRepo,
-		cfg.timeout,
-		cfg.events,
-		cfg.ctx,
-		cfg.batchSize,
-		cfg.workerPool)
+	return config, events, repo, sender, ctxCancel
 }
 
-func (suite *KafkaTestSuite) TestStart() {
-	suite.setKafkaItem(2, 2, 2*time.Millisecond, 5, 2)
-
-	suite.kafka.Start()
-	defer func() {
-		suite.ctxCancel()
-		suite.kafka.Close()
-	}()
+func tearDown(kafka Producer, ctxFunc context.CancelFunc) {
+	ctxFunc()
+	kafka.Close()
 }
 
-func (suite *KafkaTestSuite) TestStartAndRemoveByDefer() {
-	suite.setKafkaItem(2, 2, time.Second, 2, 2)
+func TestStartAndGetOneEvent(t *testing.T) {
+	t.Parallel()
+	config, events, repo, sender, ctxFunc := setUp(t, 2, 2, time.Millisecond, 1, 2)
+	kafka := NewKafkaProducer(
+		config.N,
+		config.Sender,
+		config.EventRepo,
+		config.Timeout,
+		config.Events,
+		config.Ctx,
+		config.BatchSize,
+		config.WorkerPool)
+	defer tearDown(kafka, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
 		ID:     12,
@@ -88,22 +64,48 @@ func (suite *KafkaTestSuite) TestStartAndRemoveByDefer() {
 		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
 	}
 
-	suite.sender.EXPECT().Send(&event).Return(nil).Times(1)
-	suite.repo.EXPECT().Remove([]uint64{event.ID}).Times(1)
+	evensCount := int(config.N * config.BatchSize)
+	removeCount := int(config.N)
 
-	suite.kafka.Start()
+	var wgSender sync.WaitGroup
+	wgSender.Add(evensCount)
+	defer wgSender.Wait()
 
-	suite.events <- event
-	time.Sleep(time.Millisecond)
+	var wgRepo sync.WaitGroup
+	wgRepo.Add(removeCount)
+	defer wgRepo.Wait()
 
-	defer func() {
-		suite.ctxCancel()
-		suite.kafka.Close()
-	}()
+	sender.EXPECT().Send(&event).DoAndReturn(
+		func(*model.EquipmentRequestEvent) error {
+			wgSender.Done()
+			return nil
+		}).Times(evensCount)
+
+	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
+		func([]uint64) error {
+			wgRepo.Done()
+			return nil
+		}).Times(removeCount)
+
+	kafka.Start()
+	for i := 0; i < evensCount; i++ {
+		events <- event
+	}
 }
 
-func (suite *KafkaTestSuite) TestStartAndRemoveByTicker() {
-	suite.setKafkaItem(2, 2, time.Second, 2, 2)
+func TestStartAndRemoveByTicker(t *testing.T) {
+	t.Parallel()
+	config, events, repo, sender, ctxFunc := setUp(t, 2, 2, time.Millisecond, 1, 2)
+	kafka := NewKafkaProducer(
+		config.N,
+		config.Sender,
+		config.EventRepo,
+		config.Timeout,
+		config.Events,
+		config.Ctx,
+		config.BatchSize,
+		config.WorkerPool)
+	defer tearDown(kafka, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
 		ID:     12,
@@ -112,22 +114,103 @@ func (suite *KafkaTestSuite) TestStartAndRemoveByTicker() {
 		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
 	}
 
-	suite.sender.EXPECT().Send(&event).Return(nil).Times(1)
-	suite.repo.EXPECT().Remove([]uint64{event.ID}).Times(1)
+	evensCount := int(config.N * config.BatchSize)
+	removeCount := int(config.N)
 
-	suite.kafka.Start()
+	var wgSender sync.WaitGroup
+	wgSender.Add(evensCount)
+	defer wgSender.Wait()
 
-	suite.events <- event
-	time.Sleep(2 * time.Second)
+	var wgRepo sync.WaitGroup
+	wgRepo.Add(removeCount)
+	defer wgRepo.Wait()
 
-	defer func() {
-		suite.ctxCancel()
-		suite.kafka.Close()
-	}()
+	sender.EXPECT().Send(&event).DoAndReturn(
+		func(*model.EquipmentRequestEvent) error {
+			wgSender.Done()
+			time.Sleep(time.Second)
+			return nil
+		}).Times(evensCount)
+
+	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
+		func([]uint64) error {
+			wgRepo.Done()
+			return nil
+		}).Times(removeCount)
+
+	kafka.Start()
+	for i := 0; i < evensCount; i++ {
+		events <- event
+	}
 }
 
-func (suite *KafkaTestSuite) TestStartAndUnlockByDefer() {
-	suite.setKafkaItem(2, 2, time.Second, 2, 2)
+func TestStartAndRemoveByDefer(t *testing.T) {
+	t.Parallel()
+	config, events, repo, sender, ctxFunc := setUp(t, 2, 5, time.Millisecond, 1, 2)
+	kafka := NewKafkaProducer(
+		config.N,
+		config.Sender,
+		config.EventRepo,
+		config.Timeout,
+		config.Events,
+		config.Ctx,
+		config.BatchSize,
+		config.WorkerPool)
+	defer kafka.Close()
+
+	event := model.EquipmentRequestEvent{
+		ID:     1,
+		Type:   model.Created,
+		Status: model.Deferred,
+		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+	}
+
+	evensCount := int(config.N * config.BatchSize)
+	removeCount := int(config.N)
+
+	var wgSender sync.WaitGroup
+	wgSender.Add(evensCount)
+	defer wgSender.Wait()
+
+	var wgRepo sync.WaitGroup
+	wgRepo.Add(removeCount)
+	defer wgRepo.Wait()
+
+	sender.EXPECT().Send(&event).DoAndReturn(
+		func(*model.EquipmentRequestEvent) error {
+			wgSender.Done()
+			return nil
+		}).Times(evensCount)
+
+	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
+		func([]uint64) error {
+			wgRepo.Done()
+			return nil
+		}).Times(removeCount)
+
+	kafka.Start()
+	for i := 0; i < evensCount; i++ {
+		events <- event
+
+		if i == removeCount/2 {
+			ctxFunc()
+		}
+	}
+}
+
+func TestStartAndUnlockByTicker(t *testing.T) {
+	t.Parallel()
+	config, events, repo, sender, ctxFunc := setUp(t, 2, 2, time.Millisecond, 1, 2)
+	kafka := NewKafkaProducer(
+		config.N,
+		config.Sender,
+		config.EventRepo,
+		config.Timeout,
+		config.Events,
+		config.Ctx,
+		config.BatchSize,
+		config.WorkerPool)
+	defer tearDown(kafka, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
 		ID:     12,
@@ -136,88 +219,86 @@ func (suite *KafkaTestSuite) TestStartAndUnlockByDefer() {
 		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
 	}
 
-	suite.sender.EXPECT().Send(&event).Return(errors.New("error during send")).Times(1)
-	suite.repo.EXPECT().Unlock([]uint64{event.ID}).Times(1)
+	evensCount := int(config.N * config.BatchSize)
+	unlockCount := int(config.N)
 
-	suite.kafka.Start()
+	var wgSender sync.WaitGroup
+	wgSender.Add(evensCount)
+	defer wgSender.Wait()
 
-	suite.events <- event
-	time.Sleep(time.Millisecond)
+	var wgRepo sync.WaitGroup
+	wgRepo.Add(unlockCount)
+	defer wgRepo.Wait()
 
-	defer func() {
-		suite.ctxCancel()
-		suite.kafka.Close()
-	}()
+	sender.EXPECT().Send(&event).DoAndReturn(
+		func(*model.EquipmentRequestEvent) error {
+			wgSender.Done()
+			time.Sleep(time.Second)
+			return errors.New("error during send")
+		}).Times(evensCount)
+
+	repo.EXPECT().Unlock([]uint64{event.ID}).DoAndReturn(
+		func([]uint64) error {
+			wgRepo.Done()
+			return nil
+		}).Times(unlockCount)
+
+	kafka.Start()
+	for i := 0; i < evensCount; i++ {
+		events <- event
+	}
 }
 
-func (suite *KafkaTestSuite) TestStartAndUnlockByTicker() {
-	suite.setKafkaItem(2, 2, time.Second, 2, 2)
+func TestStartAndUnlockByDefer(t *testing.T) {
+	t.Parallel()
+	config, events, repo, sender, ctxFunc := setUp(t, 4, 5, time.Millisecond, 1, 2)
+	kafka := NewKafkaProducer(
+		config.N,
+		config.Sender,
+		config.EventRepo,
+		config.Timeout,
+		config.Events,
+		config.Ctx,
+		config.BatchSize,
+		config.WorkerPool)
+	defer kafka.Close()
 
 	event := model.EquipmentRequestEvent{
-		ID:     12,
+		ID:     1,
 		Type:   model.Created,
 		Status: model.Deferred,
 		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
 	}
 
-	suite.sender.EXPECT().Send(&event).Return(errors.New("error during send")).Times(1)
-	suite.repo.EXPECT().Unlock([]uint64{event.ID}).Times(1)
+	evensCount := int(config.N * config.BatchSize)
+	unlockCount := int(config.N)
 
-	suite.kafka.Start()
+	var wgSender sync.WaitGroup
+	wgSender.Add(evensCount)
+	defer wgSender.Wait()
 
-	suite.events <- event
-	time.Sleep(2 * time.Second)
+	var wgRepo sync.WaitGroup
+	wgRepo.Add(unlockCount)
+	defer wgRepo.Wait()
 
-	defer func() {
-		suite.ctxCancel()
-		suite.kafka.Close()
-	}()
-}
+	sender.EXPECT().Send(&event).DoAndReturn(
+		func(*model.EquipmentRequestEvent) error {
+			wgSender.Done()
+			return errors.New("error during send")
+		}).Times(evensCount)
 
-func (suite *KafkaTestSuite) TestStartAndMultipleEvents() {
-	suite.setKafkaItem(1, 2, time.Second, 2, 2)
+	repo.EXPECT().Unlock([]uint64{event.ID}).DoAndReturn(
+		func([]uint64) error {
+			wgRepo.Done()
+			return nil
+		}).Times(unlockCount)
 
-	events := []model.EquipmentRequestEvent{
-		{
-			ID:     12,
-			Type:   model.Created,
-			Status: model.Deferred,
-			Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
-		},
-		{
-			ID:     14,
-			Type:   model.Created,
-			Status: model.Deferred,
-			Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
-		},
-		{
-			ID:     20,
-			Type:   model.Created,
-			Status: model.Deferred,
-			Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
-		},
+	kafka.Start()
+	for i := 0; i < evensCount; i++ {
+		events <- event
+
+		if i == unlockCount/2 {
+			ctxFunc()
+		}
 	}
-
-	suite.sender.EXPECT().Send(&events[0]).Return(nil).Times(1)
-	suite.sender.EXPECT().Send(&events[1]).Return(nil).Times(1)
-	suite.sender.EXPECT().Send(&events[2]).Return(nil).Times(1)
-
-	suite.repo.EXPECT().Remove([]uint64{12, 14}).Times(1)
-	suite.repo.EXPECT().Remove([]uint64{20}).Times(1)
-
-	suite.kafka.Start()
-
-	for _, v := range events {
-		suite.events <- v
-		time.Sleep(time.Millisecond)
-	}
-
-	defer func() {
-		suite.ctxCancel()
-		suite.kafka.Close()
-	}()
-}
-
-func TestKafkaTestSuite(t *testing.T) {
-	suite.Run(t, new(KafkaTestSuite))
 }
