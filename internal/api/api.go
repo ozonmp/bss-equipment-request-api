@@ -27,6 +27,7 @@ type templateAPI struct {
 	repo repo.Repo
 }
 
+// NewTemplateAPI returns api of omp-template-api service
 func NewTemplateAPI(r repo.Repo) pb.OmpTemplateApiServiceServer {
 	return &templateAPI{repo: r}
 }

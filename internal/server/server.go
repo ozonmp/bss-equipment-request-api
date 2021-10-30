@@ -30,11 +30,13 @@ import (
 	pb "github.com/ozonmp/omp-template-api/pkg/omp-template-api"
 )
 
+// GrpcServer is gRPC server
 type GrpcServer struct {
 	db        *sqlx.DB
 	batchSize uint
 }
 
+// NewGrpcServer returns gRPC server with supporting of batch listing
 func NewGrpcServer(db *sqlx.DB, batchSize uint) *GrpcServer {
 	return &GrpcServer{
 		db:        db,
@@ -42,6 +44,7 @@ func NewGrpcServer(db *sqlx.DB, batchSize uint) *GrpcServer {
 	}
 }
 
+// Start method runs server
 func (s *GrpcServer) Start(cfg *config.Config) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

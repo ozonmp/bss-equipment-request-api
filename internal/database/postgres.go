@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// NewPostgres returns DB
 func NewPostgres(dsn, driver string) (*sqlx.DB, error) {
 	db, err := sqlx.Open(driver, dsn)
 	if err != nil {

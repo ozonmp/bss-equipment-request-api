@@ -2,18 +2,20 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
 
 // Build information -ldflags .
-var (
+const (
 	version    string = "dev"
 	commitHash string = "-"
 )
 
 var cfg *Config
 
+// GetConfigInstance returns service config
 func GetConfigInstance() Config {
 	if cfg != nil {
 		return *cfg
@@ -80,7 +82,7 @@ type Kafka struct {
 	Brokers  []string `yaml:"brokers"`
 }
 
-// Service status config.
+// Status config for service.
 type Status struct {
 	Port          int    `yaml:"port"`
 	Host          string `yaml:"host"`
@@ -102,16 +104,18 @@ type Config struct {
 }
 
 // ReadConfigYML - read configurations from file and init instance Config.
-func ReadConfigYML(configYML string) error {
+func ReadConfigYML(filePath string) error {
 	if cfg != nil {
 		return nil
 	}
 
-	file, err := os.Open(configYML)
+	file, err := os.Open(filepath.Clean(filePath))
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	decoder := yaml.NewDecoder(file)
 	if err := decoder.Decode(&cfg); err != nil {
