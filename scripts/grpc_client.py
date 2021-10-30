@@ -9,7 +9,7 @@ async def main():
     async with Channel('127.0.0.1', 8082) as channel:
         client = OmpTemplateApiServiceStub(channel)
 
-        req = DescribeTemplateV1Request(id=1)
+        req = DescribeTemplateV1Request(template_id=1)
         reply = await client.DescribeTemplateV1(req)
         print(reply.message)
 
