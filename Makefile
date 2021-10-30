@@ -38,35 +38,53 @@ test:
 # ----------------------------------------------------------------
 
 .PHONY: generate
-generate: .generate
+generate: .generate-install-buf .generate-go .generate-python .generate-finalize-go .generate-finalize-python
 
-.generate:
+.PHONY: generate
+generate-go: .generate-install-buf .generate-go .generate-finalize-go
+
+.generate-install-buf:
 	@ command -v buf 2>&1 > /dev/null || (echo "Install buf" && \
-		mkdir -p "$(GO_BIN)" && \
-		curl -sSL0 https://github.com/bufbuild/buf/releases/download/$(BUF_VERSION)/buf-$(OS_NAME)-$(OS_ARCH)$(shell go env GOEXE) -o "$(BUF_EXE)" && \
-		chmod +x "$(BUF_EXE)")
+    		mkdir -p "$(GO_BIN)" && \
+    		curl -sSL0 https://github.com/bufbuild/buf/releases/download/$(BUF_VERSION)/buf-$(OS_NAME)-$(OS_ARCH)$(shell go env GOEXE) -o "$(BUF_EXE)" && \
+    		chmod +x "$(BUF_EXE)")
+
+.generate-go:
 	$(BUF_EXE) generate
+
+.generate-python:
+	$(BUF_EXE) generate --template buf.gen.python.yaml
+
+.generate-finalize-go:
 	mv pkg/$(SERVICE_NAME)/github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME)/* pkg/$(SERVICE_NAME)
-	find pypkg/omp-template-api -type d -exec touch {}/__init__.py \;
 	rm -rf pkg/$(SERVICE_NAME)/github.com/
 	cd pkg/$(SERVICE_NAME) && ls go.mod || (go mod init github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME) && go mod tidy)
+
+.generate-finalize-python:
+	find pypkg/omp-template-api -type d -exec touch {}/__init__.py \;
 
 # ----------------------------------------------------------------
 
 .PHONY: deps
-deps: .deps
+deps: deps-go .deps-python
 
-.deps:
+.PHONY: deps-go
+deps-go:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27.1
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1.0
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.5.0
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.5.0
 	go install github.com/envoyproxy/protoc-gen-validate@$(PGV_VERSION)
 	go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
+
+.deps-python:
 	python -m pip install grpcio-tools grpclib protobuf
 
 .PHONY: build
 build: generate .build
+
+.PHONY: build-go
+build-go: generate-go .build
 
 .build:
 	go mod download && CGO_ENABLED=0  go build \

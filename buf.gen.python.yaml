@@ -1,15 +1,11 @@
 version: v1
 plugins:
-  - name: go
-    out: pkg/omp-template-api
-    opt:
-      - paths=import
+  - name: python
+    out: pypkg/omp-template-api
     strategy: directory
 
-  - name: go-grpc
-    out: pkg/omp-template-api
-    opt:
-      - paths=import
+  - name: grpclib_python
+    out: pypkg/omp-template-api
     strategy: directory
 
   - name: grpc-gateway
