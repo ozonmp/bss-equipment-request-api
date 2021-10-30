@@ -1,6 +1,6 @@
 # More info on config here: https://golangci-lint.run/usage/configuration/#config-file
 run:
-  timeout: 10s
+  timeout: 1m
   issues-exit-code: 1
   tests: true
   skip-dirs:
