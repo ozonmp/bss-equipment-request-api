@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/ozonmp/omp-template-api/internal/database"
 	"github.com/ozonmp/omp-template-api/internal/server"
 	"github.com/ozonmp/omp-template-api/internal/tracer"
-	"github.com/pressly/goose/v3"
 )
 
 var (
@@ -58,6 +58,7 @@ func main() {
 	}
 	defer db.Close()
 
+	*migration = false // todo: need to delete this line for homework-4
 	if *migration {
 		if err = goose.Up(db.DB, cfg.Database.Migrations); err != nil {
 			log.Error().Err(err).Msg("Migration failed")
