@@ -123,9 +123,9 @@ services:
       - 8081:8080
     restart: always
     volumes:
-      - ./swagger:/docs
+      - ./swagger:/swagger
     environment:
-      SWAGGER_JSON: /docs/api.swagger.json
+      SWAGGER_JSON: /swagger/ozonmp/omp_template_api/v1/omp_template_api.swagger.json
     depends_on:
       - omp-template-api
     networks:
