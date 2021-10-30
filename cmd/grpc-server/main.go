@@ -52,7 +52,6 @@ func main() {
 		cfg.Database.SslMode,
 	)
 
-	var err error
 	db, err := database.NewPostgres(dsn, cfg.Database.Driver)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed init postgres")
