@@ -20,7 +20,7 @@ services:
       - postgres
       - kafka
     ports:
-      - 8081:8081 # REST
+      - 8080:8080 # REST
       - 8082:8082 # gRPC
       - 9100:9100 # Metrics prometheus
       - 8000:8000 # Status prometheus
@@ -120,7 +120,7 @@ services:
   swagger-ui:
     image: swaggerapi/swagger-ui
     ports:
-      - 8080:8080
+      - 8081:8080
     restart: always
     volumes:
       - ./swagger:/docs

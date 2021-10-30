@@ -28,7 +28,7 @@ $ docker-compose up -d
 
 The Swagger UI is an open source project to visually render documentation for an API defined with the OpenAPI (Swagger) Specification
 
-- http://localhost:8080
+- http://localhost:8081
 
 ### Grafana:
 
@@ -50,11 +50,11 @@ Rpc failed with status code 5, error message: template not found
 
 It reads protobuf service definitions and generates a reverse-proxy server which translates a RESTful HTTP API into gRPC
 
-- http://localhost:8081
+- http://localhost:8080
 
 ```sh
 [I] ➜ curl -s -X 'POST' \
-  'http://localhost:8081/v1/templates' \
+  'http://localhost:8080/v1/templates' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
