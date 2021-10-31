@@ -1,22 +1,22 @@
 version: v1
 plugins:
   - name: python
-    out: pypkg/omp-template-api
+    out: pypkg/bss-equipment-request-api
     strategy: directory
 
   - name: grpclib_python
-    out: pypkg/omp-template-api
+    out: pypkg/bss-equipment-request-api
     strategy: directory
 
   - name: grpc-gateway
-    out: pkg/omp-template-api
+    out: pkg/bss-equipment-request-api
     opt:
       - logtostderr=true
       - paths=import
     strategy: directory
 
   - name: validate
-    out: pkg/omp-template-api
+    out: pkg/bss-equipment-request-api
     opt:
       - lang=go
     strategy: directory

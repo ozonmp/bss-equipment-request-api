@@ -1,26 +1,26 @@
 version: v1
 plugins:
   - name: go
-    out: pkg/omp-template-api
+    out: pkg/bss-equipment-request-api
     opt:
       - paths=import
     strategy: directory
 
   - name: go-grpc
-    out: pkg/omp-template-api
+    out: pkg/bss-equipment-request-api
     opt:
       - paths=import
     strategy: directory
 
   - name: grpc-gateway
-    out: pkg/omp-template-api
+    out: pkg/bss-equipment-request-api
     opt:
       - logtostderr=true
       - paths=import
     strategy: directory
 
   - name: validate
-    out: pkg/omp-template-api
+    out: pkg/bss-equipment-request-api
     opt:
       - lang=go
     strategy: directory

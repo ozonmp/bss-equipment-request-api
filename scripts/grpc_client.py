@@ -2,8 +2,8 @@ import asyncio
 
 from grpclib.client import Channel
 
-from ozonmp.omp_template_api.v1.omp_template_api_grpc import OmpTemplateApiServiceStub
-from ozonmp.omp_template_api.v1.omp_template_api_pb2 import DescribeTemplateV1Request
+from ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_grpc import OmpTemplateApiServiceStub
+from ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2 import DescribeTemplateV1Request
 
 async def main():
     async with Channel('127.0.0.1', 8082) as channel:

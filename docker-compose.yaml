@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  omp-template-api:
+  bss-equipment-request-api:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +10,7 @@ services:
       driver: 'gelf'
       options:
         gelf-address: 'udp://localhost:12201'
-        tag: omp-template-api
+        tag: bss-equipment-request-api
     networks:
       - ompnw
     depends_on:
@@ -53,7 +53,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: omp_template_api
+      POSTGRES_DB: bss_equipment_request_api
       APP_DB_USER: docker
       APP_DB_PASS: docker
     networks:
@@ -125,9 +125,9 @@ services:
     volumes:
       - ./swagger:/swagger
     environment:
-      SWAGGER_JSON: /swagger/ozonmp/omp_template_api/v1/omp_template_api.swagger.json
+      SWAGGER_JSON: /swagger/ozonmp/bss_equipment_request_api/v1/bss_equipment_request_api.swagger.json
     depends_on:
-      - omp-template-api
+      - bss-equipment-request-api
     networks:
       - ompnw
 

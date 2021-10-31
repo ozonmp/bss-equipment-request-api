@@ -20,7 +20,7 @@ metrics:
   path: /metrics
 
 jaeger:
-  service: "omp-template-api"
+  service: "bss-equipment-request-api"
   host: "jaeger"
   port: ":6831"
 
@@ -36,15 +36,15 @@ database:
   port: 5432
   user: docker
   password: docker
-  name: omp_template_api
+  name: bss-equipment-request-api
   sslmode: disable
   migrations: migrations
   driver: pgx
 
 kafka:
   capacity: 512
-  topic: "omp-template-events"
-  groupId: "omp-template-api"
+  topic: "bss-equipment-request-events"
+  groupId: "bss-equipment-request-api"
   brokers:
     - "kafka:9092"
     - "localhost:9094"

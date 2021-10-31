@@ -1,4 +1,4 @@
-module github.com/ozonmp/omp-template-api/pkg/omp-template-api
+module github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api
 
 go 1.17
 

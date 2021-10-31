@@ -5,11 +5,11 @@ endif
 
 export GO111MODULE=on
 
-SERVICE_NAME=omp-template-api
-SERVICE_PATH=ozonmp/omp-template-api
+SERVICE_NAME=bss-equipment-request-api
+SERVICE_PATH=ozonmp/bss-equipment-request-api
 
 PGV_VERSION:="v0.6.1"
-BUF_VERSION:="v0.56.0"
+BUF_VERSION:="v1.0.0-rc3"
 
 OS_NAME=$(shell uname -s)
 OS_ARCH=$(shell uname -m)
@@ -61,7 +61,7 @@ generate-go: .generate-install-buf .generate-go .generate-finalize-go
 	cd pkg/$(SERVICE_NAME) && ls go.mod || (go mod init github.com/$(SERVICE_PATH)/pkg/$(SERVICE_NAME) && go mod tidy)
 
 .generate-finalize-python:
-	find pypkg/omp-template-api -type d -exec touch {}/__init__.py \;
+	find pypkg/bss-equipment-request-api -type d -exec touch {}/__init__.py \;
 
 # ----------------------------------------------------------------
 
@@ -78,7 +78,7 @@ deps-go:
 	go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
 
 .deps-python:
-	python -m pip install grpcio-tools grpclib protobuf
+	python3 -m pip install grpcio-tools grpclib protobuf
 
 .PHONY: build
 build: generate .build

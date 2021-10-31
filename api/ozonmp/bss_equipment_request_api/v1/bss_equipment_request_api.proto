@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package ozonmp.bss_equipment_request_api.v1;
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api;bss_equipment_request_api";
+
+// BssEquipmentRequestApiService - Service for working with equipment requests
+service BssEquipmentRequestApiService {
+  // DescribeEquipmentRequestV1 - Describe a equipment request
+  rpc DescribeEquipmentRequestV1(DescribeEquipmentRequestV1Request) returns (DescribeEquipmentRequestV1Response) {
+    option (google.api.http) = {
+      post: "/v1/equipment_requests/{id}",
+      body: "*"
+    };
+  }
+}
+
+message EquipmentRequest {
+  uint64 id = 1;
+  uint64 employeeId = 2;
+  uint64 equipmentId = 3;
+  google.protobuf.Timestamp createdAt = 4;
+  google.protobuf.Timestamp doneAt = 5;
+  uint64 equipmentRequestStatusId = 6;
+}
+
+message DescribeEquipmentRequestV1Request {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message DescribeEquipmentRequestV1Response {
+  EquipmentRequest result = 1;
+}
