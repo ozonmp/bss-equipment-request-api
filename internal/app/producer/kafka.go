@@ -1,6 +1,9 @@
 package producer
 
 import (
+	"context"
+	"github.com/ozonmp/bss-equipment-request-api/internal/app/repo"
+	"log"
 	"sync"
 	"time"
 
@@ -16,36 +19,51 @@ type Producer interface {
 }
 
 type producer struct {
-	n       uint64
-	timeout time.Duration
-
-	sender sender.EventSender
-	events <-chan model.EquipmentRequestEvent
-
+	n          uint64
+	sender     sender.EventSender
+	repo       repo.EventRepo
+	timeout    time.Duration
+	events     <-chan model.EquipmentRequestEvent
+	ctx        context.Context
+	batchSize  uint64
 	workerPool *workerpool.WorkerPool
-
-	wg   *sync.WaitGroup
-	done chan bool
+	wg         *sync.WaitGroup
 }
 
-// todo for students: add repo
+type Config struct {
+	N          uint64
+	Sender     sender.EventSender
+	EventRepo  repo.EventRepo
+	Timeout    time.Duration
+	Events     <-chan model.EquipmentRequestEvent
+	Ctx        context.Context
+	BatchSize  uint64
+	WorkerPool *workerpool.WorkerPool
+}
+
 func NewKafkaProducer(
 	n uint64,
 	sender sender.EventSender,
+	eventRepo repo.EventRepo,
+	timeout time.Duration,
 	events <-chan model.EquipmentRequestEvent,
+	ctx context.Context,
+	batchSize uint64,
 	workerPool *workerpool.WorkerPool,
 ) Producer {
 
 	wg := &sync.WaitGroup{}
-	done := make(chan bool)
 
 	return &producer{
 		n:          n,
 		sender:     sender,
+		repo:       eventRepo,
+		timeout:    timeout,
 		events:     events,
+		ctx:        ctx,
+		batchSize:  batchSize,
 		workerPool: workerPool,
 		wg:         wg,
-		done:       done,
 	}
 }
 
@@ -53,20 +71,46 @@ func (p *producer) Start() {
 	for i := uint64(0); i < p.n; i++ {
 		p.wg.Add(1)
 		go func() {
-			defer p.wg.Done()
+			ticker := time.NewTicker(p.timeout)
+
+			var toUnlockBatch = make([]uint64, 0, p.batchSize)
+			var toRemoveBatch = make([]uint64, 0, p.batchSize)
+
+			defer func() {
+				p.wg.Done()
+				p.sendToUnlockBatch(&toUnlockBatch)
+				p.sendToRemoveBatch(&toRemoveBatch)
+			}()
+
 			for {
 				select {
-				case event := <-p.events:
-					if err := p.sender.Send(&event); err != nil {
-						p.workerPool.Submit(func() {
-							// ...
-						})
-					} else {
-						p.workerPool.Submit(func() {
-							// ...
-						})
+				case event, ok := <-p.events:
+					if !ok {
+						log.Fatal("unable to read from the channel")
+						return
 					}
-				case <-p.done:
+					if err := p.sender.Send(&event); err != nil {
+						p.addToUnlockBatch(&toUnlockBatch, event.ID)
+					} else {
+						p.addToRemoveBatch(&toRemoveBatch, event.ID)
+					}
+				case <-ticker.C:
+					p.sendToUnlockBatch(&toUnlockBatch)
+					p.sendToRemoveBatch(&toRemoveBatch)
+				case <-p.ctx.Done():
+					for len(p.events) > 0 {
+						event, ok := <-p.events
+						if !ok {
+							log.Fatal("unable to read from the channel")
+							return
+						}
+						if err := p.sender.Send(&event); err != nil {
+							p.addToUnlockBatch(&toUnlockBatch, event.ID)
+						} else {
+							p.addToRemoveBatch(&toRemoveBatch, event.ID)
+						}
+					}
+
 					return
 				}
 			}
@@ -74,7 +118,71 @@ func (p *producer) Start() {
 	}
 }
 
+func (p *producer) addToUnlockBatch(toUnlockBatch *[]uint64, eventId uint64) {
+	if uint64(len(*toUnlockBatch)) < p.batchSize {
+		*toUnlockBatch = append(*toUnlockBatch, eventId)
+
+		if uint64(len(*toUnlockBatch)) == p.batchSize {
+			p.sendToUnlockBatch(toUnlockBatch)
+		}
+	} else {
+		p.sendToUnlockBatch(toUnlockBatch)
+		*toUnlockBatch = append(*toUnlockBatch, eventId)
+	}
+}
+
+func (p *producer) sendToUnlockBatch(toUnlockBatch *[]uint64) {
+	if uint64(len(*toUnlockBatch)) > 0 {
+		var tmp = make([]uint64, len(*toUnlockBatch))
+		copy(tmp, *toUnlockBatch)
+		p.workerPool.Submit(func() {
+			p.unlockBatch(tmp)
+		})
+		p.cleanBatch(toUnlockBatch)
+	}
+}
+
+func (p *producer) sendToRemoveBatch(toRemoveBatch *[]uint64) {
+	if uint64(len(*toRemoveBatch)) > 0 {
+		var tmp = make([]uint64, len(*toRemoveBatch))
+		copy(tmp, *toRemoveBatch)
+		p.workerPool.Submit(func() {
+			p.removeBatch(tmp)
+		})
+		p.cleanBatch(toRemoveBatch)
+	}
+}
+
+func (p *producer) addToRemoveBatch(toRemoveBatch *[]uint64, eventId uint64) {
+	if uint64(len(*toRemoveBatch)) < p.batchSize {
+		*toRemoveBatch = append(*toRemoveBatch, eventId)
+		if uint64(len(*toRemoveBatch)) == p.batchSize {
+			p.sendToRemoveBatch(toRemoveBatch)
+		}
+	} else {
+		p.sendToRemoveBatch(toRemoveBatch)
+		*toRemoveBatch = append(*toRemoveBatch, eventId)
+	}
+}
+
+func (p *producer) unlockBatch(toUnlockBatch []uint64) {
+	err := p.repo.Unlock(toUnlockBatch)
+	if err != nil {
+		log.Fatalf("unable to Unlock %v, %v", toUnlockBatch, err)
+	}
+}
+
+func (p *producer) removeBatch(toRemoveBatch []uint64) {
+	err := p.repo.Remove(toRemoveBatch)
+	if err != nil {
+		log.Fatalf("unable to Remove %v, %v", toRemoveBatch, err)
+	}
+}
+
+func (p *producer) cleanBatch(batch *[]uint64) {
+	*batch = (*batch)[:0]
+}
+
 func (p *producer) Close() {
-	close(p.done)
 	p.wg.Wait()
 }

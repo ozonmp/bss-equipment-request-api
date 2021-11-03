@@ -1,13 +1,13 @@
 package retranslator
 
 import (
-	"time"
-
+	"context"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/consumer"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/producer"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/repo"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/sender"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
+	"time"
 
 	"github.com/gammazero/workerpool"
 )
@@ -24,18 +24,24 @@ type Config struct {
 	ConsumeSize    uint64
 	ConsumeTimeout time.Duration
 
-	ProducerCount uint64
-	WorkerCount   int
+	ProducerCount   uint64
+	ProducerTimeout time.Duration
+	WorkerCount     int
+	BatchSize       uint64
 
 	Repo   repo.EventRepo
 	Sender sender.EventSender
+
+	Ctx           context.Context
+	CancelCtxFunc context.CancelFunc
 }
 
 type retranslator struct {
-	events     chan model.EquipmentRequestEvent
-	consumer   consumer.Consumer
-	producer   producer.Producer
-	workerPool *workerpool.WorkerPool
+	events        chan model.EquipmentRequestEvent
+	consumer      consumer.Consumer
+	producer      producer.Producer
+	workerPool    *workerpool.WorkerPool
+	cancelCtxFunc context.CancelFunc
 }
 
 func NewRetranslator(cfg Config) Retranslator {
@@ -47,28 +53,36 @@ func NewRetranslator(cfg Config) Retranslator {
 		cfg.ConsumeSize,
 		cfg.ConsumeTimeout,
 		cfg.Repo,
+		cfg.Ctx,
 		events)
 	producer := producer.NewKafkaProducer(
 		cfg.ProducerCount,
 		cfg.Sender,
+		cfg.Repo,
+		cfg.ProducerTimeout,
 		events,
+		cfg.Ctx,
+		cfg.BatchSize,
 		workerPool)
 
 	return &retranslator{
-		events:     events,
-		consumer:   consumer,
-		producer:   producer,
-		workerPool: workerPool,
+		events:        events,
+		consumer:      consumer,
+		producer:      producer,
+		workerPool:    workerPool,
+		cancelCtxFunc: cfg.CancelCtxFunc,
 	}
 }
 
 func (r *retranslator) Start() {
-	r.producer.Start()
 	r.consumer.Start()
+	r.producer.Start()
 }
 
 func (r *retranslator) Close() {
+	r.cancelCtxFunc()
 	r.consumer.Close()
 	r.producer.Close()
 	r.workerPool.StopWait()
+	close(r.events)
 }
