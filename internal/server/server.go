@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ozonmp/bss-equipment-request-api/internal/service/equipment_request"
 	"net"
 	"net/http"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -26,21 +26,18 @@ import (
 
 	"github.com/ozonmp/bss-equipment-request-api/internal/api"
 	"github.com/ozonmp/bss-equipment-request-api/internal/config"
-	"github.com/ozonmp/bss-equipment-request-api/internal/repo"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 )
 
 // GrpcServer is gRPC server
 type GrpcServer struct {
-	db        *sqlx.DB
-	batchSize uint
+	equipmentRequestService equipment_request.Service
 }
 
 // NewGrpcServer returns gRPC server with supporting of batch listing
-func NewGrpcServer(db *sqlx.DB, batchSize uint) *GrpcServer {
+func NewGrpcServer(equipmentRequestService equipment_request.Service) *GrpcServer {
 	return &GrpcServer{
-		db:        db,
-		batchSize: batchSize,
+		equipmentRequestService: equipmentRequestService,
 	}
 }
 
@@ -107,9 +104,7 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 		)),
 	)
 
-	r := repo.NewRepo(s.db, s.batchSize)
-
-	pb.RegisterBssEquipmentRequestApiServiceServer(grpcServer, api.NewEquipmentRequestAPI(r))
+	pb.RegisterBssEquipmentRequestApiServiceServer(grpcServer, api.NewEquipmentRequestAPI(s.equipmentRequestService))
 	grpc_prometheus.EnableHandlingTimeHistogram()
 	grpc_prometheus.Register(grpcServer)
 

@@ -1,11 +1,11 @@
 import setuptools
 
 setuptools.setup(
-    name="grpc-omp-template-api",
+    name="bss-equipment-request-api",
     version="1.0.0",
-    author="rusdevop",
-    author_email="rusdevops@gmail.com",
-    description="GRPC python client for omp-template-api",
+    author="valeviy",
+    author_email="valeriayurinskaya@gmail.com",
+    description="GRPC python client for bss-equipment-request-api",
     url="https://github.com/ozonmp/bss-equipment-request-api",
     packages=setuptools.find_packages(),
     python_requires='>=3.5',

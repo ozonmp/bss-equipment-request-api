@@ -13,7 +13,30 @@ service BssEquipmentRequestApiService {
   // DescribeEquipmentRequestV1 - Describe a equipment request
   rpc DescribeEquipmentRequestV1(DescribeEquipmentRequestV1Request) returns (DescribeEquipmentRequestV1Response) {
     option (google.api.http) = {
-      post: "/v1/equipment_requests/{id}",
+      post: "/api/v1/equipment_requests/{equipment_request_id}",
+      body: "*"
+    };
+  }
+  // CreateEquipmentRequestV1 - Create a new equipment request
+  rpc CreateEquipmentRequestV1(CreateEquipmentRequestV1Request) returns (CreateEquipmentRequestV1Response) {
+    option (google.api.http) = {
+      post: "/api/v1/equipment_requests/create",
+      body: "*"
+    };
+  }
+
+  // ListEquipmentRequestV1 - Get list of all equipment requests
+  rpc ListEquipmentRequestV1(ListEquipmentRequestV1Request) returns (ListEquipmentRequestV1Response) {
+    option (google.api.http) = {
+      post: "/api/v1/equipment_requests/list",
+      body: "*"
+    };
+  }
+
+  // RemoveEquipmentRequestV1 - Remove one equipment request
+  rpc RemoveEquipmentRequestV1(RemoveEquipmentRequestV1Request) returns (RemoveEquipmentRequestV1Response) {
+    option (google.api.http) = {
+      post: "/api/v1/equipment_requests/remove",
       body: "*"
     };
   }
@@ -29,9 +52,43 @@ message EquipmentRequest {
 }
 
 message DescribeEquipmentRequestV1Request {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 equipment_request_id = 1 [(validate.rules).uint64.gt = 0];
 }
 
 message DescribeEquipmentRequestV1Response {
-  EquipmentRequest result = 1;
+  EquipmentRequest equipment_request = 1;
+}
+
+enum EquipmentRequestStatus {
+  DO = 0;
+  IN_PROGRESS = 1;
+  DONE = 2;
+  CANCELLED = 3;
+}
+
+message CreateEquipmentRequestV1Request {
+  uint64 employee_id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 equipment_id = 2 [(validate.rules).uint64.gt = 0];
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp done_at = 4;
+  EquipmentRequestStatus equipment_request_status_id = 5 [(validate.rules).enum.defined_only = true];
+}
+
+message CreateEquipmentRequestV1Response {
+  uint64 equipment_request_id = 1;
+}
+
+message ListEquipmentRequestV1Request {
+}
+
+message ListEquipmentRequestV1Response {
+  repeated EquipmentRequest items = 1;
+}
+
+message RemoveEquipmentRequestV1Request {
+  uint64 equipment_request_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message RemoveEquipmentRequestV1Response {
+  bool removed = 1;
 }

@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/ozonmp/bss-equipment-request-api/internal/repo"
+	"github.com/ozonmp/bss-equipment-request-api/internal/service/equipment_request"
 
 	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog"
@@ -75,7 +77,10 @@ func main() {
 	}
 	defer tracing.Close()
 
-	if err := server.NewGrpcServer(db, batchSize).Start(&cfg); err != nil {
+	r := repo.NewRepo(db, batchSize)
+	equipmentRequestService := equipment_request.New(r)
+
+	if err := server.NewGrpcServer(equipmentRequestService).Start(&cfg); err != nil {
 		log.Error().Err(err).Msg("Failed creating gRPC server")
 
 		return
