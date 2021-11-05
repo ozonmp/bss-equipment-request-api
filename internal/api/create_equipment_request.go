@@ -21,11 +21,11 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 	}
 
 	id, err := o.equipmentRequestService.CreateEquipmentRequest(ctx,
-		req.GetEquipmentId(),
-		req.GetEmployeeId(),
-		req.GetCreatedAt(),
-		req.GetDoneAt(),
-		req.GetEquipmentRequestStatusId())
+		req.EquipmentId,
+		req.EmployeeId,
+		req.CreatedAt,
+		req.DoneAt,
+		req.EquipmentRequestStatusId)
 
 	if err != nil {
 		log.Error().Err(err).Msg("CreateEquipmentRequestV1 -- failed")
@@ -35,11 +35,11 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 
 	if id == 0 {
 		log.Debug().Uint64(
-			"employeeId", req.GetEmployeeId()).Uint64(
-			"equipmentId", req.GetEquipmentId()).Time(
-			"createdAt", req.GetCreatedAt().AsTime()).Time(
-			"doneAt", req.GetDoneAt().AsTime()).Int32(
-			"equipmentRequestStatusId", int32(req.GetEquipmentRequestStatusId())).Msg(
+			"employeeId", req.EquipmentId).Uint64(
+			"equipmentId", req.EmployeeId).Time(
+			"createdAt", req.CreatedAt.AsTime()).Time(
+			"doneAt", req.DoneAt.AsTime()).Int32(
+			"equipmentRequestStatusId", int32(req.EquipmentRequestStatusId)).Msg(
 			"equipment request does not created")
 		totalEquipmentRequestNotFound.Inc()
 

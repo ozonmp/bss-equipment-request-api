@@ -7,6 +7,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,7 +24,7 @@ type BssEquipmentRequestApiServiceClient interface {
 	// CreateEquipmentRequestV1 - Create a new equipment request
 	CreateEquipmentRequestV1(ctx context.Context, in *CreateEquipmentRequestV1Request, opts ...grpc.CallOption) (*CreateEquipmentRequestV1Response, error)
 	// ListEquipmentRequestV1 - Get list of all equipment requests
-	ListEquipmentRequestV1(ctx context.Context, in *ListEquipmentRequestV1Request, opts ...grpc.CallOption) (*ListEquipmentRequestV1Response, error)
+	ListEquipmentRequestV1(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListEquipmentRequestV1Response, error)
 	// RemoveEquipmentRequestV1 - Remove one equipment request
 	RemoveEquipmentRequestV1(ctx context.Context, in *RemoveEquipmentRequestV1Request, opts ...grpc.CallOption) (*RemoveEquipmentRequestV1Response, error)
 }
@@ -54,7 +55,7 @@ func (c *bssEquipmentRequestApiServiceClient) CreateEquipmentRequestV1(ctx conte
 	return out, nil
 }
 
-func (c *bssEquipmentRequestApiServiceClient) ListEquipmentRequestV1(ctx context.Context, in *ListEquipmentRequestV1Request, opts ...grpc.CallOption) (*ListEquipmentRequestV1Response, error) {
+func (c *bssEquipmentRequestApiServiceClient) ListEquipmentRequestV1(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListEquipmentRequestV1Response, error) {
 	out := new(ListEquipmentRequestV1Response)
 	err := c.cc.Invoke(ctx, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/ListEquipmentRequestV1", in, out, opts...)
 	if err != nil {
@@ -81,7 +82,7 @@ type BssEquipmentRequestApiServiceServer interface {
 	// CreateEquipmentRequestV1 - Create a new equipment request
 	CreateEquipmentRequestV1(context.Context, *CreateEquipmentRequestV1Request) (*CreateEquipmentRequestV1Response, error)
 	// ListEquipmentRequestV1 - Get list of all equipment requests
-	ListEquipmentRequestV1(context.Context, *ListEquipmentRequestV1Request) (*ListEquipmentRequestV1Response, error)
+	ListEquipmentRequestV1(context.Context, *emptypb.Empty) (*ListEquipmentRequestV1Response, error)
 	// RemoveEquipmentRequestV1 - Remove one equipment request
 	RemoveEquipmentRequestV1(context.Context, *RemoveEquipmentRequestV1Request) (*RemoveEquipmentRequestV1Response, error)
 	mustEmbedUnimplementedBssEquipmentRequestApiServiceServer()
@@ -97,7 +98,7 @@ func (UnimplementedBssEquipmentRequestApiServiceServer) DescribeEquipmentRequest
 func (UnimplementedBssEquipmentRequestApiServiceServer) CreateEquipmentRequestV1(context.Context, *CreateEquipmentRequestV1Request) (*CreateEquipmentRequestV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEquipmentRequestV1 not implemented")
 }
-func (UnimplementedBssEquipmentRequestApiServiceServer) ListEquipmentRequestV1(context.Context, *ListEquipmentRequestV1Request) (*ListEquipmentRequestV1Response, error) {
+func (UnimplementedBssEquipmentRequestApiServiceServer) ListEquipmentRequestV1(context.Context, *emptypb.Empty) (*ListEquipmentRequestV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEquipmentRequestV1 not implemented")
 }
 func (UnimplementedBssEquipmentRequestApiServiceServer) RemoveEquipmentRequestV1(context.Context, *RemoveEquipmentRequestV1Request) (*RemoveEquipmentRequestV1Response, error) {
@@ -154,7 +155,7 @@ func _BssEquipmentRequestApiService_CreateEquipmentRequestV1_Handler(srv interfa
 }
 
 func _BssEquipmentRequestApiService_ListEquipmentRequestV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListEquipmentRequestV1Request)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -166,7 +167,7 @@ func _BssEquipmentRequestApiService_ListEquipmentRequestV1_Handler(srv interface
 		FullMethod: "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/ListEquipmentRequestV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BssEquipmentRequestApiServiceServer).ListEquipmentRequestV1(ctx, req.(*ListEquipmentRequestV1Request))
+		return srv.(BssEquipmentRequestApiServiceServer).ListEquipmentRequestV1(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -7,8 +7,8 @@ type EquipmentRequest struct {
 	ID                       uint64                 `db:"id"`
 	EmployeeID               uint64                 `db:"employee_id"`
 	EquipmentID              uint64                 `db:"equipment_id"`
-	CreatedAt                time.Time              `db:"created_at"`
-	DoneAt                   time.Time              `db:"done_at"`
+	CreatedAt                *time.Time             `db:"created_at"`
+	DoneAt                   *time.Time             `db:"done_at"`
 	EquipmentRequestStatusID EquipmentRequestStatus `db:"equipment_request_status_id"`
 }
 

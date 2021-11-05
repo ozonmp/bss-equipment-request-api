@@ -10,6 +10,7 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 )
 
+// Consumer is a public interface for events consumers
 type Consumer interface {
 	Start()
 	Close()
@@ -25,6 +26,7 @@ type consumer struct {
 	wg        *sync.WaitGroup
 }
 
+// Config is a config for events consumer
 type Config struct {
 	N         uint64
 	Events    chan<- model.EquipmentRequestEvent
@@ -34,12 +36,13 @@ type Config struct {
 	Ctx       context.Context
 }
 
+// NewDbConsumer used to create a new db consumer
 func NewDbConsumer(
+	ctx context.Context,
 	n uint64,
 	batchSize uint64,
 	consumeTimeout time.Duration,
 	repo repo.EventRepo,
-	ctx context.Context,
 	events chan<- model.EquipmentRequestEvent) Consumer {
 
 	wg := &sync.WaitGroup{}

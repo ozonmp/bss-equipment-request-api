@@ -47,12 +47,12 @@ func TestStartAndGetOneEvent(t *testing.T) {
 	t.Parallel()
 	config, events, repo, sender, ctxFunc := setUp(t, 2, 2, time.Millisecond, 1, 2)
 	kafka := NewKafkaProducer(
+		config.Ctx,
 		config.N,
 		config.Sender,
 		config.EventRepo,
 		config.Timeout,
 		config.Events,
-		config.Ctx,
 		config.BatchSize,
 		config.WorkerPool)
 	defer tearDown(kafka, ctxFunc)
@@ -61,7 +61,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -97,12 +97,12 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 	t.Parallel()
 	config, events, repo, sender, ctxFunc := setUp(t, 2, 2, time.Millisecond, 1, 2)
 	kafka := NewKafkaProducer(
+		config.Ctx,
 		config.N,
 		config.Sender,
 		config.EventRepo,
 		config.Timeout,
 		config.Events,
-		config.Ctx,
 		config.BatchSize,
 		config.WorkerPool)
 	defer tearDown(kafka, ctxFunc)
@@ -111,7 +111,7 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -148,12 +148,12 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 	t.Parallel()
 	config, events, repo, sender, ctxFunc := setUp(t, 2, 5, time.Millisecond, 1, 2)
 	kafka := NewKafkaProducer(
+		config.Ctx,
 		config.N,
 		config.Sender,
 		config.EventRepo,
 		config.Timeout,
 		config.Events,
-		config.Ctx,
 		config.BatchSize,
 		config.WorkerPool)
 	defer kafka.Close()
@@ -162,7 +162,7 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 		ID:     1,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -202,12 +202,12 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 	t.Parallel()
 	config, events, repo, sender, ctxFunc := setUp(t, 2, 2, time.Millisecond, 1, 2)
 	kafka := NewKafkaProducer(
+		config.Ctx,
 		config.N,
 		config.Sender,
 		config.EventRepo,
 		config.Timeout,
 		config.Events,
-		config.Ctx,
 		config.BatchSize,
 		config.WorkerPool)
 	defer tearDown(kafka, ctxFunc)
@@ -216,7 +216,7 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -253,12 +253,12 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 	t.Parallel()
 	config, events, repo, sender, ctxFunc := setUp(t, 4, 5, time.Millisecond, 1, 2)
 	kafka := NewKafkaProducer(
+		config.Ctx,
 		config.N,
 		config.Sender,
 		config.EventRepo,
 		config.Timeout,
 		config.Events,
-		config.Ctx,
 		config.BatchSize,
 		config.WorkerPool)
 	defer kafka.Close()
@@ -267,7 +267,7 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 		ID:     1,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)

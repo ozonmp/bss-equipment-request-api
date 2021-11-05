@@ -8,6 +8,7 @@ import (
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
 type Service struct {
@@ -60,11 +61,22 @@ func (s Service) CreateEquipmentRequest(
 	doneAt *timestamppb.Timestamp,
 	equipmentRequestStatusId pb.EquipmentRequestStatus) (uint64, error) {
 
+	var newCreatedAt time.Time
+	var newDoneAt time.Time
+
+	if createdAt != nil {
+		newCreatedAt = createdAt.AsTime()
+	}
+
+	if doneAt != nil {
+		newDoneAt = doneAt.AsTime()
+	}
+
 	newEquipmentRequest := &model.EquipmentRequest{
 		EquipmentID:              equipmentId,
 		EmployeeID:               employeeId,
-		CreatedAt:                createdAt.AsTime(),
-		DoneAt:                   doneAt.AsTime(),
+		CreatedAt:                &newCreatedAt,
+		DoneAt:                   &newDoneAt,
 		EquipmentRequestStatusID: model.EquipmentRequestStatus(equipmentRequestStatusId),
 	}
 

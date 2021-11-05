@@ -4,21 +4,14 @@ import (
 	"context"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (o *equipmentRequestAPI) ListEquipmentRequestV1(
-	ctx context.Context,
-	req *pb.ListEquipmentRequestV1Request,
-) (*pb.ListEquipmentRequestV1Response, error) {
-
-	if err := req.Validate(); err != nil {
-		log.Error().Err(err).Msg("ListEquipmentRequestV1 - invalid argument")
-
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
+func (o *equipmentRequestAPI) ListEquipmentRequestV1(ctx context.Context, empty *emptypb.Empty) (
+	*pb.ListEquipmentRequestV1Response, error) {
 
 	equipmentRequests, err := o.equipmentRequestService.ListEquipmentRequest(ctx)
 

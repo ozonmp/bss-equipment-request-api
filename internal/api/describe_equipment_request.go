@@ -20,7 +20,7 @@ func (o *equipmentRequestAPI) DescribeEquipmentRequestV1(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	equipmentRequest, err := o.equipmentRequestService.DescribeEquipmentRequest(ctx, req.GetEquipmentRequestId())
+	equipmentRequest, err := o.equipmentRequestService.DescribeEquipmentRequest(ctx, req.EquipmentRequestId)
 	if err != nil {
 		log.Error().Err(err).Msg("DescribeEquipmentRequestV1 -- failed")
 

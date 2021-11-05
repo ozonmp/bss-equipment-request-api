@@ -20,7 +20,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	exists, err := o.equipmentRequestService.CheckExistsEquipmentRequest(ctx, req.GetEquipmentRequestId())
+	exists, err := o.equipmentRequestService.CheckExistsEquipmentRequest(ctx, req.EquipmentRequestId)
 	if err != nil {
 		log.Error().Err(err).Msg("RemoveEquipmentRequestV1 -- failed")
 

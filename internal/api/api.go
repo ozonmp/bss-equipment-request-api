@@ -32,8 +32,8 @@ func (o *equipmentRequestAPI) convertEquipmentRequestToPb(equipmentRequest *mode
 		Id:                       equipmentRequest.ID,
 		EmployeeId:               equipmentRequest.EmployeeID,
 		EquipmentId:              equipmentRequest.EquipmentID,
-		CreatedAt:                timestamppb.New(equipmentRequest.CreatedAt),
-		DoneAt:                   timestamppb.New(equipmentRequest.DoneAt),
+		CreatedAt:                timestamppb.New(*equipmentRequest.CreatedAt),
+		DoneAt:                   timestamppb.New(*equipmentRequest.DoneAt),
 		EquipmentRequestStatusId: uint64(equipmentRequest.EquipmentRequestStatusID),
 	}
 }

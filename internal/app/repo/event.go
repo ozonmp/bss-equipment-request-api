@@ -4,6 +4,7 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 )
 
+// EventRepo is repository for events
 type EventRepo interface {
 
 	/**

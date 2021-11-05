@@ -56,88 +56,171 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return listener.Dial()
 }
 
-func Test_DescribeEquipmentRequestV1(t *testing.T) {
+func Test_DescribeEquipmentRequestV1_EmptyRequest(t *testing.T) {
 	conn, ctx, closeFunc := setUp(t)
 
 	defer closeFunc(conn)
 
 	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
 
-	derRequests := []*pb.DescribeEquipmentRequestV1Request{
-		{},
-		{EquipmentRequestId: 0},
-	}
+	request := pb.DescribeEquipmentRequestV1Request{}
 
-	for _, v := range derRequests {
-		equipmentRequest, err := client.DescribeEquipmentRequestV1(ctx, v)
+	equipmentRequest, err := client.DescribeEquipmentRequestV1(ctx, &request)
 
-		assert.NotNil(t, err)
-		assert.Nil(t, equipmentRequest)
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
 
-		er, _ := status.FromError(err)
+	er, _ := status.FromError(err)
 
-		assert.Equal(t, codes.InvalidArgument, er.Code())
-	}
+	assert.Equal(t, codes.InvalidArgument, er.Code())
 }
 
-func Test_RemoveEquipmentRequestV1(t *testing.T) {
+func Test_DescribeEquipmentRequestV1_WrongFormat(t *testing.T) {
 	conn, ctx, closeFunc := setUp(t)
 
 	defer closeFunc(conn)
 
 	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
 
-	derRequests := []*pb.RemoveEquipmentRequestV1Request{
-		{},
-		{EquipmentRequestId: 0},
+	request := pb.DescribeEquipmentRequestV1Request{
+		EquipmentRequestId: 0,
 	}
 
-	for _, v := range derRequests {
-		equipmentRequest, err := client.RemoveEquipmentRequestV1(ctx, v)
+	equipmentRequest, err := client.DescribeEquipmentRequestV1(ctx, &request)
 
-		assert.NotNil(t, err)
-		assert.Nil(t, equipmentRequest)
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
 
-		er, _ := status.FromError(err)
+	er, _ := status.FromError(err)
 
-		assert.Equal(t, codes.InvalidArgument, er.Code())
-	}
+	assert.Equal(t, codes.InvalidArgument, er.Code())
+
 }
 
-func Test_CreateEquipmentRequestV1(t *testing.T) {
+func Test_RemoveEquipmentRequestV1_EmptyRequest(t *testing.T) {
 	conn, ctx, closeFunc := setUp(t)
 
 	defer closeFunc(conn)
 
 	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
 
-	derRequests := []*pb.CreateEquipmentRequestV1Request{
-		{},
-		{
-			EmployeeId:               0,
-			EquipmentId:              0,
-			EquipmentRequestStatusId: 0,
-		},
-		{
-			EmployeeId:               2,
-			EquipmentId:              0,
-			EquipmentRequestStatusId: 0,
-		},
-		{
-			EmployeeId:               2,
-			EquipmentId:              1,
-			EquipmentRequestStatusId: 10,
-		},
+	request := pb.RemoveEquipmentRequestV1Request{}
+
+	equipmentRequest, err := client.RemoveEquipmentRequestV1(ctx, &request)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
+
+	er, _ := status.FromError(err)
+
+	assert.Equal(t, codes.InvalidArgument, er.Code())
+}
+
+func Test_RemoveEquipmentRequestV1_WrongFormat(t *testing.T) {
+	conn, ctx, closeFunc := setUp(t)
+
+	defer closeFunc(conn)
+
+	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
+
+	request := pb.RemoveEquipmentRequestV1Request{
+		EquipmentRequestId: 0,
 	}
 
-	for _, v := range derRequests {
-		equipmentRequest, err := client.CreateEquipmentRequestV1(ctx, v)
+	equipmentRequest, err := client.RemoveEquipmentRequestV1(ctx, &request)
 
-		assert.NotNil(t, err)
-		assert.Nil(t, equipmentRequest)
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
 
-		er, _ := status.FromError(err)
+	er, _ := status.FromError(err)
 
-		assert.Equal(t, codes.InvalidArgument, er.Code())
+	assert.Equal(t, codes.InvalidArgument, er.Code())
+}
+
+func Test_CreateEquipmentRequestV1_EmptyRequest(t *testing.T) {
+	conn, ctx, closeFunc := setUp(t)
+
+	defer closeFunc(conn)
+
+	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
+
+	request := pb.CreateEquipmentRequestV1Request{}
+
+	equipmentRequest, err := client.CreateEquipmentRequestV1(ctx, &request)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
+
+	er, _ := status.FromError(err)
+
+	assert.Equal(t, codes.InvalidArgument, er.Code())
+}
+
+func Test_CreateEquipmentRequestV1_WrongEmployeeId(t *testing.T) {
+	conn, ctx, closeFunc := setUp(t)
+
+	defer closeFunc(conn)
+
+	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
+
+	request := pb.CreateEquipmentRequestV1Request{
+		EmployeeId:               0,
+		EquipmentId:              12,
+		EquipmentRequestStatusId: 2,
 	}
+
+	equipmentRequest, err := client.CreateEquipmentRequestV1(ctx, &request)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
+
+	er, _ := status.FromError(err)
+
+	assert.Equal(t, codes.InvalidArgument, er.Code())
+}
+
+func Test_CreateEquipmentRequestV1_WrongEquipmentId(t *testing.T) {
+	conn, ctx, closeFunc := setUp(t)
+
+	defer closeFunc(conn)
+
+	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
+
+	request := pb.CreateEquipmentRequestV1Request{
+		EmployeeId:               2,
+		EquipmentId:              0,
+		EquipmentRequestStatusId: 0,
+	}
+
+	equipmentRequest, err := client.CreateEquipmentRequestV1(ctx, &request)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
+
+	er, _ := status.FromError(err)
+
+	assert.Equal(t, codes.InvalidArgument, er.Code())
+}
+
+func Test_CreateEquipmentRequestV1_WrongEquipmentRequestStatusId(t *testing.T) {
+	conn, ctx, closeFunc := setUp(t)
+
+	defer closeFunc(conn)
+
+	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
+
+	request := pb.CreateEquipmentRequestV1Request{
+		EmployeeId:               2,
+		EquipmentId:              1,
+		EquipmentRequestStatusId: 10,
+	}
+
+	equipmentRequest, err := client.CreateEquipmentRequestV1(ctx, &request)
+
+	assert.NotNil(t, err)
+	assert.Nil(t, equipmentRequest)
+
+	er, _ := status.FromError(err)
+
+	assert.Equal(t, codes.InvalidArgument, er.Code())
 }

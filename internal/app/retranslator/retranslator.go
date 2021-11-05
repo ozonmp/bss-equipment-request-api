@@ -12,11 +12,13 @@ import (
 	"github.com/gammazero/workerpool"
 )
 
+// Retranslator is a public interface for events translators
 type Retranslator interface {
 	Start()
 	Close()
 }
 
+// Config is a config for events retranslator
 type Config struct {
 	ChannelSize uint64
 
@@ -44,24 +46,25 @@ type retranslator struct {
 	cancelCtxFunc context.CancelFunc
 }
 
+// NewRetranslator used to create a new retranslator
 func NewRetranslator(cfg Config) Retranslator {
 	events := make(chan model.EquipmentRequestEvent, cfg.ChannelSize)
 	workerPool := workerpool.New(cfg.WorkerCount)
 
 	consumer := consumer.NewDbConsumer(
+		cfg.Ctx,
 		cfg.ConsumerCount,
 		cfg.ConsumeSize,
 		cfg.ConsumeTimeout,
 		cfg.Repo,
-		cfg.Ctx,
 		events)
 	producer := producer.NewKafkaProducer(
+		cfg.Ctx,
 		cfg.ProducerCount,
 		cfg.Sender,
 		cfg.Repo,
 		cfg.ProducerTimeout,
 		events,
-		cfg.Ctx,
 		cfg.BatchSize,
 		workerPool)
 

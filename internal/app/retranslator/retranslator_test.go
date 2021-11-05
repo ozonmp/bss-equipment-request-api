@@ -53,7 +53,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
 	}
 
 	eventLockCount := int(config.ConsumerCount * config.BatchSize)

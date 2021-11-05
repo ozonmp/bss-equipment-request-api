@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -134,7 +135,7 @@ func local_request_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0(ctx 
 }
 
 func request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, client BssEquipmentRequestApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListEquipmentRequestV1Request
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -151,7 +152,7 @@ func request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx context.
 }
 
 func local_request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, server BssEquipmentRequestApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListEquipmentRequestV1Request
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
