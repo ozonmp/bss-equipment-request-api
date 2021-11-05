@@ -5,7 +5,6 @@ package ozonmp.bss_equipment_request_api.v1;
 import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 option go_package = "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api;bss_equipment_request_api";
 
@@ -27,7 +26,7 @@ service BssEquipmentRequestApiService {
   }
 
   // ListEquipmentRequestV1 - Get list of all equipment requests
-  rpc ListEquipmentRequestV1(google.protobuf.Empty) returns (ListEquipmentRequestV1Response) {
+  rpc ListEquipmentRequestV1(ListEquipmentRequestV1Request) returns (ListEquipmentRequestV1Response) {
     option (google.api.http) = {
       post: "/api/v1/equipment_requests/list",
       body: "*"
@@ -78,6 +77,10 @@ message CreateEquipmentRequestV1Request {
 
 message CreateEquipmentRequestV1Response {
   uint64 equipment_request_id = 1;
+}
+
+message ListEquipmentRequestV1Request {
+
 }
 
 message ListEquipmentRequestV1Response {

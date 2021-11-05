@@ -12,7 +12,6 @@ if typing.TYPE_CHECKING:
 import validate.validate_pb2
 import google.api.annotations_pb2
 import google.protobuf.timestamp_pb2
-import google.protobuf.empty_pb2
 import ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2
 
 
@@ -27,7 +26,7 @@ class BssEquipmentRequestApiServiceBase(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def ListEquipmentRequestV1(self, stream: 'grpclib.server.Stream[google.protobuf.empty_pb2.Empty, ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Response]') -> None:
+    async def ListEquipmentRequestV1(self, stream: 'grpclib.server.Stream[ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Request, ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Response]') -> None:
         pass
 
     @abc.abstractmethod
@@ -51,7 +50,7 @@ class BssEquipmentRequestApiServiceBase(abc.ABC):
             '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/ListEquipmentRequestV1': grpclib.const.Handler(
                 self.ListEquipmentRequestV1,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                google.protobuf.empty_pb2.Empty,
+                ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Request,
                 ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Response,
             ),
             '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/RemoveEquipmentRequestV1': grpclib.const.Handler(
@@ -81,7 +80,7 @@ class BssEquipmentRequestApiServiceStub:
         self.ListEquipmentRequestV1 = grpclib.client.UnaryUnaryMethod(
             channel,
             '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/ListEquipmentRequestV1',
-            google.protobuf.empty_pb2.Empty,
+            ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Request,
             ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.ListEquipmentRequestV1Response,
         )
         self.RemoveEquipmentRequestV1 = grpclib.client.UnaryUnaryMethod(

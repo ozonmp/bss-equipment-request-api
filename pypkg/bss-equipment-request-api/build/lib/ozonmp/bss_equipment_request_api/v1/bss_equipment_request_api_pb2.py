@@ -16,10 +16,9 @@ _sym_db = _symbol_database.Default()
 from validate import validate_pb2 as validate_dot_validate__pb2
 from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nCozonmp/bss_equipment_request_api/v1/bss_equipment_request_api.proto\x12#ozonmp.bss_equipment_request_api.v1\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x95\x02\n\x10\x45quipmentRequest\x12\x0e\n\x02id\x18\x01 \x01(\x04R\x02id\x12\x1f\n\x0b\x65mployee_id\x18\x02 \x01(\x04R\nemployeeId\x12!\n\x0c\x65quipment_id\x18\x03 \x01(\x04R\x0b\x65quipmentId\x12\x39\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x33\n\x07\x64one_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x06\x64oneAt\x12=\n\x1b\x65quipment_request_status_id\x18\x06 \x01(\x04R\x18\x65quipmentRequestStatusId\"^\n!DescribeEquipmentRequestV1Request\x12\x39\n\x14\x65quipment_request_id\x18\x01 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\x12\x65quipmentRequestId\"\x88\x01\n\"DescribeEquipmentRequestV1Response\x12\x62\n\x11\x65quipment_request\x18\x01 \x01(\x0b\x32\x35.ozonmp.bss_equipment_request_api.v1.EquipmentRequestR\x10\x65quipmentRequest\"\xee\x02\n\x1f\x43reateEquipmentRequestV1Request\x12(\n\x0b\x65mployee_id\x18\x01 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\nemployeeId\x12*\n\x0c\x65quipment_id\x18\x02 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\x0b\x65quipmentId\x12\x39\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x33\n\x07\x64one_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x06\x64oneAt\x12\x84\x01\n\x1b\x65quipment_request_status_id\x18\x05 \x01(\x0e\x32;.ozonmp.bss_equipment_request_api.v1.EquipmentRequestStatusB\x08\xfa\x42\x05\x82\x01\x02\x10\x01R\x18\x65quipmentRequestStatusId\"T\n CreateEquipmentRequestV1Response\x12\x30\n\x14\x65quipment_request_id\x18\x01 \x01(\x04R\x12\x65quipmentRequestId\"m\n\x1eListEquipmentRequestV1Response\x12K\n\x05items\x18\x01 \x03(\x0b\x32\x35.ozonmp.bss_equipment_request_api.v1.EquipmentRequestR\x05items\"\\\n\x1fRemoveEquipmentRequestV1Request\x12\x39\n\x14\x65quipment_request_id\x18\x01 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\x12\x65quipmentRequestId\"<\n RemoveEquipmentRequestV1Response\x12\x18\n\x07removed\x18\x01 \x01(\x08R\x07removed*\xe7\x01\n\x16\x45quipmentRequestStatus\x12+\n\'EQUIPMENT_REQUEST_STATUS_ID_UNSPECIFIED\x10\x00\x12\"\n\x1e\x45QUIPMENT_REQUEST_STATUS_ID_DO\x10\x01\x12+\n\'EQUIPMENT_REQUEST_STATUS_ID_IN_PROGRESS\x10\x02\x12$\n EQUIPMENT_REQUEST_STATUS_ID_DONE\x10\x03\x12)\n%EQUIPMENT_REQUEST_STATUS_ID_CANCELLED\x10\x04\x32\xe1\x06\n\x1d\x42ssEquipmentRequestApiService\x12\xeb\x01\n\x1a\x44\x65scribeEquipmentRequestV1\x12\x46.ozonmp.bss_equipment_request_api.v1.DescribeEquipmentRequestV1Request\x1aG.ozonmp.bss_equipment_request_api.v1.DescribeEquipmentRequestV1Response\"<\x82\xd3\xe4\x93\x02\x36\"1/api/v1/equipment_requests/{equipment_request_id}:\x01*\x12\xd5\x01\n\x18\x43reateEquipmentRequestV1\x12\x44.ozonmp.bss_equipment_request_api.v1.CreateEquipmentRequestV1Request\x1a\x45.ozonmp.bss_equipment_request_api.v1.CreateEquipmentRequestV1Response\",\x82\xd3\xe4\x93\x02&\"!/api/v1/equipment_requests/create:\x01*\x12\xa1\x01\n\x16ListEquipmentRequestV1\x12\x16.google.protobuf.Empty\x1a\x43.ozonmp.bss_equipment_request_api.v1.ListEquipmentRequestV1Response\"*\x82\xd3\xe4\x93\x02$\"\x1f/api/v1/equipment_requests/list:\x01*\x12\xd5\x01\n\x18RemoveEquipmentRequestV1\x12\x44.ozonmp.bss_equipment_request_api.v1.RemoveEquipmentRequestV1Request\x1a\x45.ozonmp.bss_equipment_request_api.v1.RemoveEquipmentRequestV1Response\",\x82\xd3\xe4\x93\x02&\"!/api/v1/equipment_requests/remove:\x01*BeZcgithub.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api;bss_equipment_request_apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nCozonmp/bss_equipment_request_api/v1/bss_equipment_request_api.proto\x12#ozonmp.bss_equipment_request_api.v1\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x95\x02\n\x10\x45quipmentRequest\x12\x0e\n\x02id\x18\x01 \x01(\x04R\x02id\x12\x1f\n\x0b\x65mployee_id\x18\x02 \x01(\x04R\nemployeeId\x12!\n\x0c\x65quipment_id\x18\x03 \x01(\x04R\x0b\x65quipmentId\x12\x39\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x33\n\x07\x64one_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x06\x64oneAt\x12=\n\x1b\x65quipment_request_status_id\x18\x06 \x01(\x04R\x18\x65quipmentRequestStatusId\"^\n!DescribeEquipmentRequestV1Request\x12\x39\n\x14\x65quipment_request_id\x18\x01 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\x12\x65quipmentRequestId\"\x88\x01\n\"DescribeEquipmentRequestV1Response\x12\x62\n\x11\x65quipment_request\x18\x01 \x01(\x0b\x32\x35.ozonmp.bss_equipment_request_api.v1.EquipmentRequestR\x10\x65quipmentRequest\"\xee\x02\n\x1f\x43reateEquipmentRequestV1Request\x12(\n\x0b\x65mployee_id\x18\x01 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\nemployeeId\x12*\n\x0c\x65quipment_id\x18\x02 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\x0b\x65quipmentId\x12\x39\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x33\n\x07\x64one_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x06\x64oneAt\x12\x84\x01\n\x1b\x65quipment_request_status_id\x18\x05 \x01(\x0e\x32;.ozonmp.bss_equipment_request_api.v1.EquipmentRequestStatusB\x08\xfa\x42\x05\x82\x01\x02\x10\x01R\x18\x65quipmentRequestStatusId\"T\n CreateEquipmentRequestV1Response\x12\x30\n\x14\x65quipment_request_id\x18\x01 \x01(\x04R\x12\x65quipmentRequestId\"\x1f\n\x1dListEquipmentRequestV1Request\"m\n\x1eListEquipmentRequestV1Response\x12K\n\x05items\x18\x01 \x03(\x0b\x32\x35.ozonmp.bss_equipment_request_api.v1.EquipmentRequestR\x05items\"\\\n\x1fRemoveEquipmentRequestV1Request\x12\x39\n\x14\x65quipment_request_id\x18\x01 \x01(\x04\x42\x07\xfa\x42\x04\x32\x02 \x00R\x12\x65quipmentRequestId\"<\n RemoveEquipmentRequestV1Response\x12\x18\n\x07removed\x18\x01 \x01(\x08R\x07removed*\xe7\x01\n\x16\x45quipmentRequestStatus\x12+\n\'EQUIPMENT_REQUEST_STATUS_ID_UNSPECIFIED\x10\x00\x12\"\n\x1e\x45QUIPMENT_REQUEST_STATUS_ID_DO\x10\x01\x12+\n\'EQUIPMENT_REQUEST_STATUS_ID_IN_PROGRESS\x10\x02\x12$\n EQUIPMENT_REQUEST_STATUS_ID_DONE\x10\x03\x12)\n%EQUIPMENT_REQUEST_STATUS_ID_CANCELLED\x10\x04\x32\x8d\x07\n\x1d\x42ssEquipmentRequestApiService\x12\xeb\x01\n\x1a\x44\x65scribeEquipmentRequestV1\x12\x46.ozonmp.bss_equipment_request_api.v1.DescribeEquipmentRequestV1Request\x1aG.ozonmp.bss_equipment_request_api.v1.DescribeEquipmentRequestV1Response\"<\x82\xd3\xe4\x93\x02\x36\"1/api/v1/equipment_requests/{equipment_request_id}:\x01*\x12\xd5\x01\n\x18\x43reateEquipmentRequestV1\x12\x44.ozonmp.bss_equipment_request_api.v1.CreateEquipmentRequestV1Request\x1a\x45.ozonmp.bss_equipment_request_api.v1.CreateEquipmentRequestV1Response\",\x82\xd3\xe4\x93\x02&\"!/api/v1/equipment_requests/create:\x01*\x12\xcd\x01\n\x16ListEquipmentRequestV1\x12\x42.ozonmp.bss_equipment_request_api.v1.ListEquipmentRequestV1Request\x1a\x43.ozonmp.bss_equipment_request_api.v1.ListEquipmentRequestV1Response\"*\x82\xd3\xe4\x93\x02$\"\x1f/api/v1/equipment_requests/list:\x01*\x12\xd5\x01\n\x18RemoveEquipmentRequestV1\x12\x44.ozonmp.bss_equipment_request_api.v1.RemoveEquipmentRequestV1Request\x1a\x45.ozonmp.bss_equipment_request_api.v1.RemoveEquipmentRequestV1Response\",\x82\xd3\xe4\x93\x02&\"!/api/v1/equipment_requests/remove:\x01*BeZcgithub.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api;bss_equipment_request_apib\x06proto3')
 
 _EQUIPMENTREQUESTSTATUS = DESCRIPTOR.enum_types_by_name['EquipmentRequestStatus']
 EquipmentRequestStatus = enum_type_wrapper.EnumTypeWrapper(_EQUIPMENTREQUESTSTATUS)
@@ -35,6 +34,7 @@ _DESCRIBEEQUIPMENTREQUESTV1REQUEST = DESCRIPTOR.message_types_by_name['DescribeE
 _DESCRIBEEQUIPMENTREQUESTV1RESPONSE = DESCRIPTOR.message_types_by_name['DescribeEquipmentRequestV1Response']
 _CREATEEQUIPMENTREQUESTV1REQUEST = DESCRIPTOR.message_types_by_name['CreateEquipmentRequestV1Request']
 _CREATEEQUIPMENTREQUESTV1RESPONSE = DESCRIPTOR.message_types_by_name['CreateEquipmentRequestV1Response']
+_LISTEQUIPMENTREQUESTV1REQUEST = DESCRIPTOR.message_types_by_name['ListEquipmentRequestV1Request']
 _LISTEQUIPMENTREQUESTV1RESPONSE = DESCRIPTOR.message_types_by_name['ListEquipmentRequestV1Response']
 _REMOVEEQUIPMENTREQUESTV1REQUEST = DESCRIPTOR.message_types_by_name['RemoveEquipmentRequestV1Request']
 _REMOVEEQUIPMENTREQUESTV1RESPONSE = DESCRIPTOR.message_types_by_name['RemoveEquipmentRequestV1Response']
@@ -72,6 +72,13 @@ CreateEquipmentRequestV1Response = _reflection.GeneratedProtocolMessageType('Cre
   # @@protoc_insertion_point(class_scope:ozonmp.bss_equipment_request_api.v1.CreateEquipmentRequestV1Response)
   })
 _sym_db.RegisterMessage(CreateEquipmentRequestV1Response)
+
+ListEquipmentRequestV1Request = _reflection.GeneratedProtocolMessageType('ListEquipmentRequestV1Request', (_message.Message,), {
+  'DESCRIPTOR' : _LISTEQUIPMENTREQUESTV1REQUEST,
+  '__module__' : 'ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2'
+  # @@protoc_insertion_point(class_scope:ozonmp.bss_equipment_request_api.v1.ListEquipmentRequestV1Request)
+  })
+_sym_db.RegisterMessage(ListEquipmentRequestV1Request)
 
 ListEquipmentRequestV1Response = _reflection.GeneratedProtocolMessageType('ListEquipmentRequestV1Response', (_message.Message,), {
   'DESCRIPTOR' : _LISTEQUIPMENTREQUESTV1RESPONSE,
@@ -117,24 +124,26 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _BSSEQUIPMENTREQUESTAPISERVICE.methods_by_name['ListEquipmentRequestV1']._serialized_options = b'\202\323\344\223\002$\"\037/api/v1/equipment_requests/list:\001*'
   _BSSEQUIPMENTREQUESTAPISERVICE.methods_by_name['RemoveEquipmentRequestV1']._options = None
   _BSSEQUIPMENTREQUESTAPISERVICE.methods_by_name['RemoveEquipmentRequestV1']._serialized_options = b'\202\323\344\223\002&\"!/api/v1/equipment_requests/remove:\001*'
-  _EQUIPMENTREQUESTSTATUS._serialized_start=1463
-  _EQUIPMENTREQUESTSTATUS._serialized_end=1694
-  _EQUIPMENTREQUEST._serialized_start=226
-  _EQUIPMENTREQUEST._serialized_end=503
-  _DESCRIBEEQUIPMENTREQUESTV1REQUEST._serialized_start=505
-  _DESCRIBEEQUIPMENTREQUESTV1REQUEST._serialized_end=599
-  _DESCRIBEEQUIPMENTREQUESTV1RESPONSE._serialized_start=602
-  _DESCRIBEEQUIPMENTREQUESTV1RESPONSE._serialized_end=738
-  _CREATEEQUIPMENTREQUESTV1REQUEST._serialized_start=741
-  _CREATEEQUIPMENTREQUESTV1REQUEST._serialized_end=1107
-  _CREATEEQUIPMENTREQUESTV1RESPONSE._serialized_start=1109
-  _CREATEEQUIPMENTREQUESTV1RESPONSE._serialized_end=1193
-  _LISTEQUIPMENTREQUESTV1RESPONSE._serialized_start=1195
-  _LISTEQUIPMENTREQUESTV1RESPONSE._serialized_end=1304
-  _REMOVEEQUIPMENTREQUESTV1REQUEST._serialized_start=1306
-  _REMOVEEQUIPMENTREQUESTV1REQUEST._serialized_end=1398
-  _REMOVEEQUIPMENTREQUESTV1RESPONSE._serialized_start=1400
-  _REMOVEEQUIPMENTREQUESTV1RESPONSE._serialized_end=1460
-  _BSSEQUIPMENTREQUESTAPISERVICE._serialized_start=1697
-  _BSSEQUIPMENTREQUESTAPISERVICE._serialized_end=2562
+  _EQUIPMENTREQUESTSTATUS._serialized_start=1467
+  _EQUIPMENTREQUESTSTATUS._serialized_end=1698
+  _EQUIPMENTREQUEST._serialized_start=197
+  _EQUIPMENTREQUEST._serialized_end=474
+  _DESCRIBEEQUIPMENTREQUESTV1REQUEST._serialized_start=476
+  _DESCRIBEEQUIPMENTREQUESTV1REQUEST._serialized_end=570
+  _DESCRIBEEQUIPMENTREQUESTV1RESPONSE._serialized_start=573
+  _DESCRIBEEQUIPMENTREQUESTV1RESPONSE._serialized_end=709
+  _CREATEEQUIPMENTREQUESTV1REQUEST._serialized_start=712
+  _CREATEEQUIPMENTREQUESTV1REQUEST._serialized_end=1078
+  _CREATEEQUIPMENTREQUESTV1RESPONSE._serialized_start=1080
+  _CREATEEQUIPMENTREQUESTV1RESPONSE._serialized_end=1164
+  _LISTEQUIPMENTREQUESTV1REQUEST._serialized_start=1166
+  _LISTEQUIPMENTREQUESTV1REQUEST._serialized_end=1197
+  _LISTEQUIPMENTREQUESTV1RESPONSE._serialized_start=1199
+  _LISTEQUIPMENTREQUESTV1RESPONSE._serialized_end=1308
+  _REMOVEEQUIPMENTREQUESTV1REQUEST._serialized_start=1310
+  _REMOVEEQUIPMENTREQUESTV1REQUEST._serialized_end=1402
+  _REMOVEEQUIPMENTREQUESTV1RESPONSE._serialized_start=1404
+  _REMOVEEQUIPMENTREQUESTV1RESPONSE._serialized_end=1464
+  _BSSEQUIPMENTREQUESTAPISERVICE._serialized_start=1701
+  _BSSEQUIPMENTREQUESTAPISERVICE._serialized_end=2610
 # @@protoc_insertion_point(module_scope)

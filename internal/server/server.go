@@ -31,11 +31,11 @@ import (
 
 // GrpcServer is gRPC server
 type GrpcServer struct {
-	equipmentRequestService equipment_request.Service
+	equipmentRequestService equipment_request.ServiceInterface
 }
 
 // NewGrpcServer returns gRPC server with supporting of batch listing
-func NewGrpcServer(equipmentRequestService equipment_request.Service) *GrpcServer {
+func NewGrpcServer(equipmentRequestService equipment_request.ServiceInterface) *GrpcServer {
 	return &GrpcServer{
 		equipmentRequestService: equipmentRequestService,
 	}
@@ -87,6 +87,7 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
+	//nolint
 	defer l.Close()
 
 	grpcServer := grpc.NewServer(

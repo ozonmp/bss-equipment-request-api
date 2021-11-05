@@ -19,11 +19,11 @@ var (
 
 type equipmentRequestAPI struct {
 	pb.UnimplementedBssEquipmentRequestApiServiceServer
-	equipmentRequestService equipment_request.Service
+	equipmentRequestService equipment_request.ServiceInterface
 }
 
 // NewEquipmentRequestAPI returns api of bss-equipment-request-api service
-func NewEquipmentRequestAPI(equipmentRequestService equipment_request.Service) pb.BssEquipmentRequestApiServiceServer {
+func NewEquipmentRequestAPI(equipmentRequestService equipment_request.ServiceInterface) pb.BssEquipmentRequestApiServiceServer {
 	return &equipmentRequestAPI{equipmentRequestService: equipmentRequestService}
 }
 

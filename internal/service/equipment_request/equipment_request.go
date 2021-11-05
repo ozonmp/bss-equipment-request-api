@@ -11,36 +11,45 @@ import (
 	"time"
 )
 
-type Service struct {
+type service struct {
 	repository repo.Repo
 }
 
+// ServiceInterface is a interface for equipment request service
 type ServiceInterface interface {
 	DescribeEquipmentRequest(ctx context.Context, id uint64) (*model.EquipmentRequest, error)
 	CreateEquipmentRequest(
 		ctx context.Context,
-		equipmentId uint64,
-		employeeId uint64,
+		equipmentID uint64,
+		employeeID uint64,
 		createdAt *timestamppb.Timestamp,
 		doneAt *timestamppb.Timestamp,
-		equipmentRequestStatusId pb.EquipmentRequestStatus) (uint64, error)
+		equipmentRequestStatusID pb.EquipmentRequestStatus) (uint64, error)
 	ListEquipmentRequest(ctx context.Context) ([]model.EquipmentRequest, error)
 	RemoveEquipmentRequest(ctx context.Context, id uint64) (bool, error)
 	CheckExistsEquipmentRequest(ctx context.Context, id uint64) (bool, error)
 }
 
-func New(repository repo.Repo) Service {
-	return Service{
+// New is a function to create a new service
+func New(repository repo.Repo) ServiceInterface {
+	return service{
 		repository: repository,
 	}
 }
 
+// ErrNoEquipmentRequest is a "equipment request not founded" error
 var ErrNoEquipmentRequest = errors.Wrap(internal_errors.ErrNotFound, "no equipment request")
+
+// ErrNoCreatedEquipmentRequest is a "unable to create equipment request" error
 var ErrNoCreatedEquipmentRequest = errors.Wrap(internal_errors.ErrNotCreated, "unable to create equipment request")
+
+// ErrNoListEquipmentRequest is a "unable to get list of equipment requests" error
 var ErrNoListEquipmentRequest = errors.Wrap(internal_errors.ErrNotFound, "unable to get list of equipment requests")
+
+// ErrNoRemovedEquipmentRequest is a "unable to remove equipment request" error
 var ErrNoRemovedEquipmentRequest = errors.Wrap(internal_errors.ErrNotRemoved, "unable to remove equipment request")
 
-func (s Service) DescribeEquipmentRequest(ctx context.Context, id uint64) (*model.EquipmentRequest, error) {
+func (s service) DescribeEquipmentRequest(ctx context.Context, id uint64) (*model.EquipmentRequest, error) {
 	equipmentRequest, err := s.repository.DescribeEquipmentRequest(ctx, id)
 	if err != nil {
 		return nil, errors.Wrap(err, "repository.DescribeEquipmentRequest")
@@ -53,13 +62,13 @@ func (s Service) DescribeEquipmentRequest(ctx context.Context, id uint64) (*mode
 	return equipmentRequest, nil
 }
 
-func (s Service) CreateEquipmentRequest(
+func (s service) CreateEquipmentRequest(
 	ctx context.Context,
-	equipmentId uint64,
-	employeeId uint64,
+	equipmentID uint64,
+	employeeID uint64,
 	createdAt *timestamppb.Timestamp,
 	doneAt *timestamppb.Timestamp,
-	equipmentRequestStatusId pb.EquipmentRequestStatus) (uint64, error) {
+	equipmentRequestStatusID pb.EquipmentRequestStatus) (uint64, error) {
 
 	var newCreatedAt time.Time
 	var newDoneAt time.Time
@@ -73,11 +82,11 @@ func (s Service) CreateEquipmentRequest(
 	}
 
 	newEquipmentRequest := &model.EquipmentRequest{
-		EquipmentID:              equipmentId,
-		EmployeeID:               employeeId,
+		EquipmentID:              equipmentID,
+		EmployeeID:               employeeID,
 		CreatedAt:                &newCreatedAt,
 		DoneAt:                   &newDoneAt,
-		EquipmentRequestStatusID: model.EquipmentRequestStatus(equipmentRequestStatusId),
+		EquipmentRequestStatusID: model.EquipmentRequestStatus(equipmentRequestStatusID),
 	}
 
 	id, err := s.repository.CreateEquipmentRequest(ctx, newEquipmentRequest)
@@ -92,7 +101,7 @@ func (s Service) CreateEquipmentRequest(
 	return id, nil
 }
 
-func (s Service) ListEquipmentRequest(ctx context.Context) ([]model.EquipmentRequest, error) {
+func (s service) ListEquipmentRequest(ctx context.Context) ([]model.EquipmentRequest, error) {
 
 	equipmentRequests, err := s.repository.ListEquipmentRequest(ctx)
 	if err != nil {
@@ -106,7 +115,7 @@ func (s Service) ListEquipmentRequest(ctx context.Context) ([]model.EquipmentReq
 	return equipmentRequests, nil
 }
 
-func (s Service) CheckExistsEquipmentRequest(ctx context.Context, id uint64) (bool, error) {
+func (s service) CheckExistsEquipmentRequest(ctx context.Context, id uint64) (bool, error) {
 
 	exists, err := s.repository.Exists(ctx, id)
 
@@ -121,7 +130,7 @@ func (s Service) CheckExistsEquipmentRequest(ctx context.Context, id uint64) (bo
 	return exists, nil
 }
 
-func (s Service) RemoveEquipmentRequest(ctx context.Context, id uint64) (bool, error) {
+func (s service) RemoveEquipmentRequest(ctx context.Context, id uint64) (bool, error) {
 
 	result, err := s.repository.RemoveEquipmentRequest(ctx, id)
 

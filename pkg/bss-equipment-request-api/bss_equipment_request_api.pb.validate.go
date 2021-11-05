@@ -458,6 +458,74 @@ var _ interface {
 	ErrorName() string
 } = CreateEquipmentRequestV1ResponseValidationError{}
 
+// Validate checks the field values on ListEquipmentRequestV1Request with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListEquipmentRequestV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// ListEquipmentRequestV1RequestValidationError is the validation error
+// returned by ListEquipmentRequestV1Request.Validate if the designated
+// constraints aren't met.
+type ListEquipmentRequestV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListEquipmentRequestV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListEquipmentRequestV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListEquipmentRequestV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListEquipmentRequestV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListEquipmentRequestV1RequestValidationError) ErrorName() string {
+	return "ListEquipmentRequestV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListEquipmentRequestV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListEquipmentRequestV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListEquipmentRequestV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListEquipmentRequestV1RequestValidationError{}
+
 // Validate checks the field values on ListEquipmentRequestV1Response with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
