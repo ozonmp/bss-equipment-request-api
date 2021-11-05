@@ -52,7 +52,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 	}
 
 	eventCount := int(config.N)
@@ -115,13 +115,13 @@ func TestStartAndGetSeveralEvent(t *testing.T) {
 			ID:     12,
 			Type:   model.Created,
 			Status: model.Deferred,
-			Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+			Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 		},
 		{
 			ID:     14,
 			Type:   model.Updated,
 			Status: model.Processed,
-			Entity: &model.EquipmentRequest{Id: 12, EmployeeId: 3, EquipmentType: "Laptop2", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+			Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 		},
 	}
 

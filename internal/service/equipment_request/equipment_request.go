@@ -61,11 +61,11 @@ func (s Service) CreateEquipmentRequest(
 	equipmentRequestStatusId pb.EquipmentRequestStatus) (uint64, error) {
 
 	newEquipmentRequest := &model.EquipmentRequest{
-		EquipmentId:              equipmentId,
-		EmployeeId:               employeeId,
+		EquipmentID:              equipmentId,
+		EmployeeID:               employeeId,
 		CreatedAt:                createdAt.AsTime(),
 		DoneAt:                   doneAt.AsTime(),
-		EquipmentRequestStatusId: model.EquipmentRequestStatus(equipmentRequestStatusId),
+		EquipmentRequestStatusID: model.EquipmentRequestStatus(equipmentRequestStatusId),
 	}
 
 	id, err := s.repository.CreateEquipmentRequest(ctx, newEquipmentRequest)

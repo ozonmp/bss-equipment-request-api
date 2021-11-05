@@ -44,11 +44,11 @@ service BssEquipmentRequestApiService {
 
 message EquipmentRequest {
   uint64 id = 1;
-  uint64 employeeId = 2;
-  uint64 equipmentId = 3;
-  google.protobuf.Timestamp createdAt = 4;
-  google.protobuf.Timestamp doneAt = 5;
-  uint64 equipmentRequestStatusId = 6;
+  uint64 employee_id = 2;
+  uint64 equipment_id = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp done_at = 5;
+  uint64 equipment_request_status_id = 6;
 }
 
 message DescribeEquipmentRequestV1Request {
@@ -60,10 +60,11 @@ message DescribeEquipmentRequestV1Response {
 }
 
 enum EquipmentRequestStatus {
-  DO = 0;
-  IN_PROGRESS = 1;
-  DONE = 2;
-  CANCELLED = 3;
+  EQUIPMENT_REQUEST_STATUS_ID_UNSPECIFIED = 0;
+  EQUIPMENT_REQUEST_STATUS_ID_DO = 1;
+  EQUIPMENT_REQUEST_STATUS_ID_IN_PROGRESS = 2;
+  EQUIPMENT_REQUEST_STATUS_ID_DONE = 3;
+  EQUIPMENT_REQUEST_STATUS_ID_CANCELLED = 4;
 }
 
 message CreateEquipmentRequestV1Request {

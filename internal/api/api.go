@@ -29,20 +29,20 @@ func NewEquipmentRequestAPI(equipmentRequestService equipment_request.Service) p
 
 func (o *equipmentRequestAPI) convertEquipmentRequestToPb(equipmentRequest *model.EquipmentRequest) *pb.EquipmentRequest {
 	return &pb.EquipmentRequest{
-		Id:                       equipmentRequest.Id,
-		EmployeeId:               equipmentRequest.EmployeeId,
-		EquipmentId:              equipmentRequest.EquipmentId,
+		Id:                       equipmentRequest.ID,
+		EmployeeId:               equipmentRequest.EmployeeID,
+		EquipmentId:              equipmentRequest.EquipmentID,
 		CreatedAt:                timestamppb.New(equipmentRequest.CreatedAt),
 		DoneAt:                   timestamppb.New(equipmentRequest.DoneAt),
-		EquipmentRequestStatusId: uint64(equipmentRequest.EquipmentRequestStatusId),
+		EquipmentRequestStatusId: uint64(equipmentRequest.EquipmentRequestStatusID),
 	}
 }
 
 func (o *equipmentRequestAPI) convertRepeatedEquipmentRequestsToPb(equipmentRequests []model.EquipmentRequest) []*pb.EquipmentRequest {
 	var equipmentRequestsPb []*pb.EquipmentRequest
 
-	for _, v := range equipmentRequests {
-		equipmentRequestsPb = append(equipmentRequestsPb, o.convertEquipmentRequestToPb(&v))
+	for i := range equipmentRequests {
+		equipmentRequestsPb = append(equipmentRequestsPb, o.convertEquipmentRequestToPb(&equipmentRequests[i]))
 	}
 
 	return equipmentRequestsPb

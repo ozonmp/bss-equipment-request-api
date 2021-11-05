@@ -61,7 +61,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -111,7 +111,7 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -162,7 +162,7 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 		ID:     1,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -216,7 +216,7 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 		ID:     12,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -267,7 +267,7 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 		ID:     1,
 		Type:   model.Created,
 		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{Id: 1, EmployeeId: 1, EquipmentType: "Laptop", EquipmentId: 1, CreatedAt: "2020-01-19T10:00:00", DoneAt: "2020-01-19T10:00:00", Status: true},
+		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: time.Now(), DoneAt: time.Now(), EquipmentRequestStatusID: model.Done},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
