@@ -13,6 +13,7 @@ import (
 	"github.com/gammazero/workerpool"
 )
 
+// Producer is a public interface for events producers
 type Producer interface {
 	Start()
 	Close()
@@ -30,6 +31,7 @@ type producer struct {
 	wg         *sync.WaitGroup
 }
 
+// Config is a config for events producer
 type Config struct {
 	N          uint64
 	Sender     sender.EventSender
@@ -41,13 +43,14 @@ type Config struct {
 	WorkerPool *workerpool.WorkerPool
 }
 
+// NewKafkaProducer used to create a new kafka producer
 func NewKafkaProducer(
+	ctx context.Context,
 	n uint64,
 	sender sender.EventSender,
 	eventRepo repo.EventRepo,
 	timeout time.Duration,
 	events <-chan model.EquipmentRequestEvent,
-	ctx context.Context,
 	batchSize uint64,
 	workerPool *workerpool.WorkerPool,
 ) Producer {
@@ -118,16 +121,16 @@ func (p *producer) Start() {
 	}
 }
 
-func (p *producer) addToUnlockBatch(toUnlockBatch *[]uint64, eventId uint64) {
+func (p *producer) addToUnlockBatch(toUnlockBatch *[]uint64, eventID uint64) {
 	if uint64(len(*toUnlockBatch)) < p.batchSize {
-		*toUnlockBatch = append(*toUnlockBatch, eventId)
+		*toUnlockBatch = append(*toUnlockBatch, eventID)
 
 		if uint64(len(*toUnlockBatch)) == p.batchSize {
 			p.sendToUnlockBatch(toUnlockBatch)
 		}
 	} else {
 		p.sendToUnlockBatch(toUnlockBatch)
-		*toUnlockBatch = append(*toUnlockBatch, eventId)
+		*toUnlockBatch = append(*toUnlockBatch, eventID)
 	}
 }
 
@@ -153,15 +156,15 @@ func (p *producer) sendToRemoveBatch(toRemoveBatch *[]uint64) {
 	}
 }
 
-func (p *producer) addToRemoveBatch(toRemoveBatch *[]uint64, eventId uint64) {
+func (p *producer) addToRemoveBatch(toRemoveBatch *[]uint64, eventID uint64) {
 	if uint64(len(*toRemoveBatch)) < p.batchSize {
-		*toRemoveBatch = append(*toRemoveBatch, eventId)
+		*toRemoveBatch = append(*toRemoveBatch, eventID)
 		if uint64(len(*toRemoveBatch)) == p.batchSize {
 			p.sendToRemoveBatch(toRemoveBatch)
 		}
 	} else {
 		p.sendToRemoveBatch(toRemoveBatch)
-		*toRemoveBatch = append(*toRemoveBatch, eventId)
+		*toRemoveBatch = append(*toRemoveBatch, eventID)
 	}
 }
 

@@ -20,7 +20,7 @@ services:
       - postgres
       - kafka
     ports:
-      - 8080:8080 # REST
+      - 8083:8080 # REST
       - 8082:8082 # gRPC
       - 9100:9100 # Metrics prometheus
       - 8000:8000 # Status prometheus
@@ -234,6 +234,31 @@ services:
       # GELF UDP
       - 12201:12201/udp
     restart: always
+  nginx:
+    image: nginx:latest
+    links:
+      - swagger-ui
+      - bss-equipment-request-api
+    depends_on:
+      - swagger-ui
+      - bss-equipment-request-api
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - ompnw
+    ports:
+      - 8080:80
+
+  pypiserver-local-packages:
+    image: pypiserver/pypiserver:latest
+    networks:
+      - ompnw
+    volumes:
+      - type: bind
+        source: ./pypkg/bss-equipment-request-api
+        target: /data/packages
+    ports:
+      - "8085:8080"
 
 volumes:
   pgdata:

@@ -1,0 +1,11 @@
+Metadata-Version: 1.2
+Name: bss-equipment-request-api
+Version: 1.0.0
+Summary: GRPC python client for bss-equipment-request-api
+Home-page: https://github.com/ozonmp/bss-equipment-request-api
+Author: valeviy
+Author-email: valeriayurinskaya@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.5

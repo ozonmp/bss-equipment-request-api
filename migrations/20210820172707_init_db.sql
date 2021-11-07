@@ -1,8 +1,8 @@
 -- +goose Up
 CREATE TABLE equipment_request (
     id BIGSERIAL PRIMARY KEY,
-    employee_id bigint NOT NULL, -- other service responsible for employees
-    equipment_id bigint NOT NULL,  -- other service responsible for equipments (equipment_type moved to this service)
+    employee_id bigint NOT NULL, -- assumption, that other service will be responsible for employees
+    equipment_id bigint NOT NULL,  -- assumption, that other service will be responsible for equipments (equipment_type moved to this service)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     done_at TIMESTAMPTZ,
     equipment_request_status_id bigint,
@@ -11,7 +11,7 @@ CREATE TABLE equipment_request (
            REFERENCES equipment_request_status(id)
            ON DELETE SET NULL
 );
-
+-- questionable: use enum or additional table
 CREATE TABLE equipment_request_status (
     id BIGSERIAL PRIMARY KEY,
     name varchar(255) NOT NULL,

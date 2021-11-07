@@ -113,6 +113,8 @@ func ReadConfigYML(filePath string) error {
 	if err != nil {
 		return err
 	}
+
+	//nolint
 	defer func() {
 		_ = file.Close()
 	}()

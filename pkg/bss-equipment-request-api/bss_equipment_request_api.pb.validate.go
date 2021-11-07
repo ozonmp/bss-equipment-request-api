@@ -134,9 +134,9 @@ func (m *DescribeEquipmentRequestV1Request) Validate() error {
 		return nil
 	}
 
-	if m.GetId() <= 0 {
+	if m.GetEquipmentRequestId() <= 0 {
 		return DescribeEquipmentRequestV1RequestValidationError{
-			field:  "Id",
+			field:  "EquipmentRequestId",
 			reason: "value must be greater than 0",
 		}
 	}
@@ -209,10 +209,10 @@ func (m *DescribeEquipmentRequestV1Response) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetResult()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetEquipmentRequest()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DescribeEquipmentRequestV1ResponseValidationError{
-				field:  "Result",
+				field:  "EquipmentRequest",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -278,3 +278,478 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DescribeEquipmentRequestV1ResponseValidationError{}
+
+// Validate checks the field values on CreateEquipmentRequestV1Request with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateEquipmentRequestV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if m.GetEmployeeId() <= 0 {
+		return CreateEquipmentRequestV1RequestValidationError{
+			field:  "EmployeeId",
+			reason: "value must be greater than 0",
+		}
+	}
+
+	if m.GetEquipmentId() <= 0 {
+		return CreateEquipmentRequestV1RequestValidationError{
+			field:  "EquipmentId",
+			reason: "value must be greater than 0",
+		}
+	}
+
+	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateEquipmentRequestV1RequestValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetDoneAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateEquipmentRequestV1RequestValidationError{
+				field:  "DoneAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if _, ok := EquipmentRequestStatus_name[int32(m.GetEquipmentRequestStatusId())]; !ok {
+		return CreateEquipmentRequestV1RequestValidationError{
+			field:  "EquipmentRequestStatusId",
+			reason: "value must be one of the defined enum values",
+		}
+	}
+
+	return nil
+}
+
+// CreateEquipmentRequestV1RequestValidationError is the validation error
+// returned by CreateEquipmentRequestV1Request.Validate if the designated
+// constraints aren't met.
+type CreateEquipmentRequestV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateEquipmentRequestV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateEquipmentRequestV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateEquipmentRequestV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateEquipmentRequestV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateEquipmentRequestV1RequestValidationError) ErrorName() string {
+	return "CreateEquipmentRequestV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateEquipmentRequestV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateEquipmentRequestV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateEquipmentRequestV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateEquipmentRequestV1RequestValidationError{}
+
+// Validate checks the field values on CreateEquipmentRequestV1Response with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *CreateEquipmentRequestV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for EquipmentRequestId
+
+	return nil
+}
+
+// CreateEquipmentRequestV1ResponseValidationError is the validation error
+// returned by CreateEquipmentRequestV1Response.Validate if the designated
+// constraints aren't met.
+type CreateEquipmentRequestV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateEquipmentRequestV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateEquipmentRequestV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateEquipmentRequestV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateEquipmentRequestV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateEquipmentRequestV1ResponseValidationError) ErrorName() string {
+	return "CreateEquipmentRequestV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateEquipmentRequestV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateEquipmentRequestV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateEquipmentRequestV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateEquipmentRequestV1ResponseValidationError{}
+
+// Validate checks the field values on ListEquipmentRequestV1Request with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListEquipmentRequestV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// ListEquipmentRequestV1RequestValidationError is the validation error
+// returned by ListEquipmentRequestV1Request.Validate if the designated
+// constraints aren't met.
+type ListEquipmentRequestV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListEquipmentRequestV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListEquipmentRequestV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListEquipmentRequestV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListEquipmentRequestV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListEquipmentRequestV1RequestValidationError) ErrorName() string {
+	return "ListEquipmentRequestV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListEquipmentRequestV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListEquipmentRequestV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListEquipmentRequestV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListEquipmentRequestV1RequestValidationError{}
+
+// Validate checks the field values on ListEquipmentRequestV1Response with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListEquipmentRequestV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListEquipmentRequestV1ResponseValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ListEquipmentRequestV1ResponseValidationError is the validation error
+// returned by ListEquipmentRequestV1Response.Validate if the designated
+// constraints aren't met.
+type ListEquipmentRequestV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListEquipmentRequestV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListEquipmentRequestV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListEquipmentRequestV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListEquipmentRequestV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListEquipmentRequestV1ResponseValidationError) ErrorName() string {
+	return "ListEquipmentRequestV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListEquipmentRequestV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListEquipmentRequestV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListEquipmentRequestV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListEquipmentRequestV1ResponseValidationError{}
+
+// Validate checks the field values on RemoveEquipmentRequestV1Request with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *RemoveEquipmentRequestV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if m.GetEquipmentRequestId() <= 0 {
+		return RemoveEquipmentRequestV1RequestValidationError{
+			field:  "EquipmentRequestId",
+			reason: "value must be greater than 0",
+		}
+	}
+
+	return nil
+}
+
+// RemoveEquipmentRequestV1RequestValidationError is the validation error
+// returned by RemoveEquipmentRequestV1Request.Validate if the designated
+// constraints aren't met.
+type RemoveEquipmentRequestV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveEquipmentRequestV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveEquipmentRequestV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveEquipmentRequestV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveEquipmentRequestV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveEquipmentRequestV1RequestValidationError) ErrorName() string {
+	return "RemoveEquipmentRequestV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveEquipmentRequestV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveEquipmentRequestV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RemoveEquipmentRequestV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveEquipmentRequestV1RequestValidationError{}
+
+// Validate checks the field values on RemoveEquipmentRequestV1Response with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *RemoveEquipmentRequestV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Removed
+
+	return nil
+}
+
+// RemoveEquipmentRequestV1ResponseValidationError is the validation error
+// returned by RemoveEquipmentRequestV1Response.Validate if the designated
+// constraints aren't met.
+type RemoveEquipmentRequestV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveEquipmentRequestV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveEquipmentRequestV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveEquipmentRequestV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveEquipmentRequestV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveEquipmentRequestV1ResponseValidationError) ErrorName() string {
+	return "RemoveEquipmentRequestV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveEquipmentRequestV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveEquipmentRequestV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RemoveEquipmentRequestV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveEquipmentRequestV1ResponseValidationError{}
