@@ -36,7 +36,13 @@ func (o *equipmentRequestAPI) DescribeEquipmentRequestV1(
 
 	log.Debug().Msg("DescribeEquipmentRequestV1 - success")
 
-	equipmentRequestPb := o.convertEquipmentRequestToPb(equipmentRequest)
+	equipmentRequestPb, err := o.convertEquipmentRequestToPb(equipmentRequest)
+
+	if err != nil {
+		log.Error().Err(err).Msg("DescribeEquipmentRequestV1.convertEquipmentRequestToPb -- failed")
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &pb.DescribeEquipmentRequestV1Response{
 		EquipmentRequest: equipmentRequestPb,

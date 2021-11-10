@@ -18,7 +18,7 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-	equipmentRequests, err := o.equipmentRequestService.ListEquipmentRequest(ctx)
+	equipmentRequests, err := o.equipmentRequestService.ListEquipmentRequest(ctx, req.Limit, req.Offset)
 
 	if err != nil {
 		log.Error().Err(err).Msg("ListEquipmentRequestV1 -- failed")
@@ -36,7 +36,13 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 
 	log.Debug().Msg("ListEquipmentRequestV1 - success")
 
-	equipmentRequestPb := o.convertRepeatedEquipmentRequestsToPb(equipmentRequests)
+	equipmentRequestPb, err := o.convertRepeatedEquipmentRequestsToPb(equipmentRequests)
+
+	if err != nil {
+		log.Error().Err(err).Msg("ListEquipmentRequestV1.convertRepeatedEquipmentRequestsToPb -- failed")
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &pb.ListEquipmentRequestV1Response{
 		Items: equipmentRequestPb,

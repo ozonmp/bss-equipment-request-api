@@ -59,7 +59,7 @@ services:
     networks:
       - ompnw
     volumes:
-      # - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       - ./scripts/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
 
   zookeeper:

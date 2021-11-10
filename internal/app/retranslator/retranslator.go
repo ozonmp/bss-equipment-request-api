@@ -2,6 +2,7 @@ package retranslator
 
 import (
 	"context"
+	"github.com/jmoiron/sqlx"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/consumer"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/producer"
 	"github.com/ozonmp/bss-equipment-request-api/internal/app/repo"
@@ -20,6 +21,7 @@ type Retranslator interface {
 
 // Config is a config for events retranslator
 type Config struct {
+	DB          *sqlx.DB
 	ChannelSize uint64
 
 	ConsumerCount  uint64
@@ -57,7 +59,8 @@ func NewRetranslator(cfg Config) Retranslator {
 		cfg.ConsumeSize,
 		cfg.ConsumeTimeout,
 		cfg.Repo,
-		events)
+		events,
+		cfg.DB)
 	producer := producer.NewKafkaProducer(
 		cfg.Ctx,
 		cfg.ProducerCount,

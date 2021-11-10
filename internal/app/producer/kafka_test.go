@@ -58,10 +58,13 @@ func TestStartAndGetOneEvent(t *testing.T) {
 	defer tearDown(kafka, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
-		ID:     12,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
+		ID:                 12,
+		Type:               model.Created,
+		Status:             model.Unlocked,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+		EquipmentRequestID: 17,
+		Payload:            &model.EquipmentRequestEventPayload{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -81,8 +84,8 @@ func TestStartAndGetOneEvent(t *testing.T) {
 			return nil
 		}).Times(evensCount)
 
-	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
-		func([]uint64) error {
+	repo.EXPECT().Remove(config.Ctx, []uint64{event.ID}).DoAndReturn(
+		func(ctx context.Context, eventIDs []uint64) error {
 			wgRepo.Done()
 			return nil
 		}).Times(removeCount)
@@ -108,10 +111,13 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 	defer tearDown(kafka, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
-		ID:     12,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
+		ID:                 12,
+		Type:               model.Created,
+		Status:             model.Unlocked,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+		EquipmentRequestID: 17,
+		Payload:            &model.EquipmentRequestEventPayload{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -132,8 +138,8 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 			return nil
 		}).Times(evensCount)
 
-	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
-		func([]uint64) error {
+	repo.EXPECT().Remove(config.Ctx, []uint64{event.ID}).DoAndReturn(
+		func(ctx context.Context, eventIDs []uint64) error {
 			wgRepo.Done()
 			return nil
 		}).Times(removeCount)
@@ -159,10 +165,13 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 	defer kafka.Close()
 
 	event := model.EquipmentRequestEvent{
-		ID:     1,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
+		ID:                 12,
+		Type:               model.Created,
+		Status:             model.Unlocked,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+		EquipmentRequestID: 17,
+		Payload:            &model.EquipmentRequestEventPayload{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -182,8 +191,8 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 			return nil
 		}).Times(evensCount)
 
-	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
-		func([]uint64) error {
+	repo.EXPECT().Remove(config.Ctx, []uint64{event.ID}).DoAndReturn(
+		func(ctx context.Context, eventIDs []uint64) error {
 			wgRepo.Done()
 			return nil
 		}).Times(removeCount)
@@ -213,10 +222,13 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 	defer tearDown(kafka, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
-		ID:     12,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
+		ID:                 12,
+		Type:               model.Created,
+		Status:             model.Unlocked,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+		EquipmentRequestID: 17,
+		Payload:            &model.EquipmentRequestEventPayload{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -237,8 +249,8 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 			return errors.New("error during send")
 		}).Times(evensCount)
 
-	repo.EXPECT().Unlock([]uint64{event.ID}).DoAndReturn(
-		func([]uint64) error {
+	repo.EXPECT().Unlock(config.Ctx, []uint64{event.ID}).DoAndReturn(
+		func(ctx context.Context, eventIDs []uint64) error {
 			wgRepo.Done()
 			return nil
 		}).Times(unlockCount)
@@ -264,10 +276,13 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 	defer kafka.Close()
 
 	event := model.EquipmentRequestEvent{
-		ID:     1,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
+		ID:                 12,
+		Type:               model.Created,
+		Status:             model.Unlocked,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+		EquipmentRequestID: 17,
+		Payload:            &model.EquipmentRequestEventPayload{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -287,8 +302,8 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 			return errors.New("error during send")
 		}).Times(evensCount)
 
-	repo.EXPECT().Unlock([]uint64{event.ID}).DoAndReturn(
-		func([]uint64) error {
+	repo.EXPECT().Unlock(config.Ctx, []uint64{event.ID}).DoAndReturn(
+		func(ctx context.Context, eventIDs []uint64) error {
 			wgRepo.Done()
 			return nil
 		}).Times(unlockCount)

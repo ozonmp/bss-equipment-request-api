@@ -33,6 +33,14 @@ class BssEquipmentRequestApiServiceBase(abc.ABC):
     async def RemoveEquipmentRequestV1(self, stream: 'grpclib.server.Stream[ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.RemoveEquipmentRequestV1Request, ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.RemoveEquipmentRequestV1Response]') -> None:
         pass
 
+    @abc.abstractmethod
+    async def UpdateEquipmentIdEquipmentRequestV1(self, stream: 'grpclib.server.Stream[ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateEquipmentIdEquipmentRequestV1Request, ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateEquipmentIdEquipmentRequestV1Response]') -> None:
+        pass
+
+    @abc.abstractmethod
+    async def UpdateStatusEquipmentRequestV1(self, stream: 'grpclib.server.Stream[ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateStatusEquipmentRequestV1Request, ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateStatusEquipmentRequestV1Response]') -> None:
+        pass
+
     def __mapping__(self) -> typing.Dict[str, grpclib.const.Handler]:
         return {
             '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/DescribeEquipmentRequestV1': grpclib.const.Handler(
@@ -58,6 +66,18 @@ class BssEquipmentRequestApiServiceBase(abc.ABC):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.RemoveEquipmentRequestV1Request,
                 ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.RemoveEquipmentRequestV1Response,
+            ),
+            '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateEquipmentIdEquipmentRequestV1': grpclib.const.Handler(
+                self.UpdateEquipmentIdEquipmentRequestV1,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateEquipmentIdEquipmentRequestV1Request,
+                ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateEquipmentIdEquipmentRequestV1Response,
+            ),
+            '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateStatusEquipmentRequestV1': grpclib.const.Handler(
+                self.UpdateStatusEquipmentRequestV1,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateStatusEquipmentRequestV1Request,
+                ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateStatusEquipmentRequestV1Response,
             ),
         }
 
@@ -88,4 +108,16 @@ class BssEquipmentRequestApiServiceStub:
             '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/RemoveEquipmentRequestV1',
             ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.RemoveEquipmentRequestV1Request,
             ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.RemoveEquipmentRequestV1Response,
+        )
+        self.UpdateEquipmentIdEquipmentRequestV1 = grpclib.client.UnaryUnaryMethod(
+            channel,
+            '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateEquipmentIdEquipmentRequestV1',
+            ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateEquipmentIdEquipmentRequestV1Request,
+            ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateEquipmentIdEquipmentRequestV1Response,
+        )
+        self.UpdateStatusEquipmentRequestV1 = grpclib.client.UnaryUnaryMethod(
+            channel,
+            '/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateStatusEquipmentRequestV1',
+            ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateStatusEquipmentRequestV1Request,
+            ozonmp.bss_equipment_request_api.v1.bss_equipment_request_api_pb2.UpdateStatusEquipmentRequestV1Response,
         )

@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"sync"
 	"time"
@@ -24,6 +25,7 @@ type consumer struct {
 	ctx       context.Context
 	events    chan<- model.EquipmentRequestEvent
 	wg        *sync.WaitGroup
+	db        *sqlx.DB
 }
 
 // Config is a config for events consumer
@@ -34,6 +36,7 @@ type Config struct {
 	BatchSize uint64
 	Timeout   time.Duration
 	Ctx       context.Context
+	DB        *sqlx.DB
 }
 
 // NewDbConsumer used to create a new db consumer
@@ -43,7 +46,8 @@ func NewDbConsumer(
 	batchSize uint64,
 	consumeTimeout time.Duration,
 	repo repo.EventRepo,
-	events chan<- model.EquipmentRequestEvent) Consumer {
+	events chan<- model.EquipmentRequestEvent,
+	db *sqlx.DB) Consumer {
 
 	wg := &sync.WaitGroup{}
 
@@ -55,6 +59,7 @@ func NewDbConsumer(
 		ctx:       ctx,
 		events:    events,
 		wg:        wg,
+		db:        db,
 	}
 }
 
@@ -69,10 +74,10 @@ func (c *consumer) Start() {
 			for {
 				select {
 				case <-ticker.C:
-					events, err := c.repo.Lock(c.batchSize)
+					events, txErr := c.repo.Lock(c.ctx, c.db, c.batchSize)
 
-					if err != nil {
-						log.Printf("Unable to get and lock data from database: %v", err)
+					if txErr != nil {
+						log.Printf("Unable to get and lock data from database: %v", txErr)
 						continue
 					}
 
@@ -92,7 +97,7 @@ func (c *consumer) Start() {
 						for _, event := range currentEvents {
 							eventIds = append(eventIds, event.ID)
 						}
-						err := c.repo.Unlock(eventIds)
+						err := c.repo.Unlock(c.ctx, eventIds)
 						if err != nil {
 							log.Printf("Unable to unlock data from database: %v", err)
 							return

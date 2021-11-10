@@ -60,7 +60,6 @@ func main() {
 	}
 	defer db.Close()
 
-	*migration = false // todo: need to delete this line for homework-4
 	if *migration {
 		if err = goose.Up(db.DB, cfg.Database.Migrations); err != nil {
 			log.Error().Err(err).Msg("Migration failed")
@@ -77,8 +76,10 @@ func main() {
 	}
 	defer tracing.Close()
 
-	r := repo.NewRepo(db, batchSize)
-	equipmentRequestService := equipment_request.New(r)
+	requestRepository := repo.NewEquipmentRequestRepo(db, batchSize)
+	eventRepository := repo.NewEventRepo(db)
+
+	equipmentRequestService := equipment_request.New(db, requestRepository, eventRepository)
 
 	if err := server.NewGrpcServer(equipmentRequestService).Start(&cfg); err != nil {
 		log.Error().Err(err).Msg("Failed creating gRPC server")

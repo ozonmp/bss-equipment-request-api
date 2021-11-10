@@ -26,6 +26,10 @@ type BssEquipmentRequestApiServiceClient interface {
 	ListEquipmentRequestV1(ctx context.Context, in *ListEquipmentRequestV1Request, opts ...grpc.CallOption) (*ListEquipmentRequestV1Response, error)
 	// RemoveEquipmentRequestV1 - Remove one equipment request
 	RemoveEquipmentRequestV1(ctx context.Context, in *RemoveEquipmentRequestV1Request, opts ...grpc.CallOption) (*RemoveEquipmentRequestV1Response, error)
+	// UpdateEquipmentIdEquipmentRequestV1 - Update equipment id of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+	UpdateEquipmentIdEquipmentRequestV1(ctx context.Context, in *UpdateEquipmentIdEquipmentRequestV1Request, opts ...grpc.CallOption) (*UpdateEquipmentIdEquipmentRequestV1Response, error)
+	// UpdateStatusEquipmentRequestV1 - Update status of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+	UpdateStatusEquipmentRequestV1(ctx context.Context, in *UpdateStatusEquipmentRequestV1Request, opts ...grpc.CallOption) (*UpdateStatusEquipmentRequestV1Response, error)
 }
 
 type bssEquipmentRequestApiServiceClient struct {
@@ -72,6 +76,24 @@ func (c *bssEquipmentRequestApiServiceClient) RemoveEquipmentRequestV1(ctx conte
 	return out, nil
 }
 
+func (c *bssEquipmentRequestApiServiceClient) UpdateEquipmentIdEquipmentRequestV1(ctx context.Context, in *UpdateEquipmentIdEquipmentRequestV1Request, opts ...grpc.CallOption) (*UpdateEquipmentIdEquipmentRequestV1Response, error) {
+	out := new(UpdateEquipmentIdEquipmentRequestV1Response)
+	err := c.cc.Invoke(ctx, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateEquipmentIdEquipmentRequestV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bssEquipmentRequestApiServiceClient) UpdateStatusEquipmentRequestV1(ctx context.Context, in *UpdateStatusEquipmentRequestV1Request, opts ...grpc.CallOption) (*UpdateStatusEquipmentRequestV1Response, error) {
+	out := new(UpdateStatusEquipmentRequestV1Response)
+	err := c.cc.Invoke(ctx, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateStatusEquipmentRequestV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BssEquipmentRequestApiServiceServer is the server API for BssEquipmentRequestApiService service.
 // All implementations must embed UnimplementedBssEquipmentRequestApiServiceServer
 // for forward compatibility
@@ -84,6 +106,10 @@ type BssEquipmentRequestApiServiceServer interface {
 	ListEquipmentRequestV1(context.Context, *ListEquipmentRequestV1Request) (*ListEquipmentRequestV1Response, error)
 	// RemoveEquipmentRequestV1 - Remove one equipment request
 	RemoveEquipmentRequestV1(context.Context, *RemoveEquipmentRequestV1Request) (*RemoveEquipmentRequestV1Response, error)
+	// UpdateEquipmentIdEquipmentRequestV1 - Update equipment id of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+	UpdateEquipmentIdEquipmentRequestV1(context.Context, *UpdateEquipmentIdEquipmentRequestV1Request) (*UpdateEquipmentIdEquipmentRequestV1Response, error)
+	// UpdateStatusEquipmentRequestV1 - Update status of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+	UpdateStatusEquipmentRequestV1(context.Context, *UpdateStatusEquipmentRequestV1Request) (*UpdateStatusEquipmentRequestV1Response, error)
 	mustEmbedUnimplementedBssEquipmentRequestApiServiceServer()
 }
 
@@ -102,6 +128,12 @@ func (UnimplementedBssEquipmentRequestApiServiceServer) ListEquipmentRequestV1(c
 }
 func (UnimplementedBssEquipmentRequestApiServiceServer) RemoveEquipmentRequestV1(context.Context, *RemoveEquipmentRequestV1Request) (*RemoveEquipmentRequestV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveEquipmentRequestV1 not implemented")
+}
+func (UnimplementedBssEquipmentRequestApiServiceServer) UpdateEquipmentIdEquipmentRequestV1(context.Context, *UpdateEquipmentIdEquipmentRequestV1Request) (*UpdateEquipmentIdEquipmentRequestV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEquipmentIdEquipmentRequestV1 not implemented")
+}
+func (UnimplementedBssEquipmentRequestApiServiceServer) UpdateStatusEquipmentRequestV1(context.Context, *UpdateStatusEquipmentRequestV1Request) (*UpdateStatusEquipmentRequestV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatusEquipmentRequestV1 not implemented")
 }
 func (UnimplementedBssEquipmentRequestApiServiceServer) mustEmbedUnimplementedBssEquipmentRequestApiServiceServer() {
 }
@@ -189,6 +221,42 @@ func _BssEquipmentRequestApiService_RemoveEquipmentRequestV1_Handler(srv interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BssEquipmentRequestApiService_UpdateEquipmentIdEquipmentRequestV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEquipmentIdEquipmentRequestV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BssEquipmentRequestApiServiceServer).UpdateEquipmentIdEquipmentRequestV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateEquipmentIdEquipmentRequestV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BssEquipmentRequestApiServiceServer).UpdateEquipmentIdEquipmentRequestV1(ctx, req.(*UpdateEquipmentIdEquipmentRequestV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BssEquipmentRequestApiService_UpdateStatusEquipmentRequestV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStatusEquipmentRequestV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BssEquipmentRequestApiServiceServer).UpdateStatusEquipmentRequestV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/UpdateStatusEquipmentRequestV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BssEquipmentRequestApiServiceServer).UpdateStatusEquipmentRequestV1(ctx, req.(*UpdateStatusEquipmentRequestV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BssEquipmentRequestApiService_ServiceDesc is the grpc.ServiceDesc for BssEquipmentRequestApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -211,6 +279,14 @@ var BssEquipmentRequestApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveEquipmentRequestV1",
 			Handler:    _BssEquipmentRequestApiService_RemoveEquipmentRequestV1_Handler,
+		},
+		{
+			MethodName: "UpdateEquipmentIdEquipmentRequestV1",
+			Handler:    _BssEquipmentRequestApiService_UpdateEquipmentIdEquipmentRequestV1_Handler,
+		},
+		{
+			MethodName: "UpdateStatusEquipmentRequestV1",
+			Handler:    _BssEquipmentRequestApiService_UpdateStatusEquipmentRequestV1_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

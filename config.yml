@@ -36,7 +36,7 @@ database:
   port: 5432
   user: docker
   password: docker
-  name: bss-equipment-request-api
+  name: bss_equipment_request_api
   sslmode: disable
   migrations: migrations
   driver: pgx

@@ -6,7 +6,8 @@ GRPC_METHOD="ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/L
 payload=$(
   cat <<EOF
 {
-
+  "limit": 1,
+  "offset": 5
 }
 EOF
 )
