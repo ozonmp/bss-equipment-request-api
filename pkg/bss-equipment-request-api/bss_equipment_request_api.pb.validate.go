@@ -321,13 +321,10 @@ func (m *CreateEquipmentRequestV1Request) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateEquipmentRequestV1RequestValidationError{
-				field:  "CreatedAt",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+	if m.GetCreatedAt() == nil {
+		return CreateEquipmentRequestV1RequestValidationError{
+			field:  "CreatedAt",
+			reason: "value is required",
 		}
 	}
 
@@ -817,22 +814,22 @@ var _ interface {
 } = RemoveEquipmentRequestV1ResponseValidationError{}
 
 // Validate checks the field values on
-// UpdateEquipmentIdEquipmentRequestV1Request with the rules defined in the
+// UpdateEquipmentIDEquipmentRequestV1Request with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *UpdateEquipmentIdEquipmentRequestV1Request) Validate() error {
+func (m *UpdateEquipmentIDEquipmentRequestV1Request) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if m.GetEquipmentRequestId() <= 0 {
-		return UpdateEquipmentIdEquipmentRequestV1RequestValidationError{
+		return UpdateEquipmentIDEquipmentRequestV1RequestValidationError{
 			field:  "EquipmentRequestId",
 			reason: "value must be greater than 0",
 		}
 	}
 
 	if m.GetEquipmentId() <= 0 {
-		return UpdateEquipmentIdEquipmentRequestV1RequestValidationError{
+		return UpdateEquipmentIDEquipmentRequestV1RequestValidationError{
 			field:  "EquipmentId",
 			reason: "value must be greater than 0",
 		}
@@ -841,10 +838,10 @@ func (m *UpdateEquipmentIdEquipmentRequestV1Request) Validate() error {
 	return nil
 }
 
-// UpdateEquipmentIdEquipmentRequestV1RequestValidationError is the validation
-// error returned by UpdateEquipmentIdEquipmentRequestV1Request.Validate if
+// UpdateEquipmentIDEquipmentRequestV1RequestValidationError is the validation
+// error returned by UpdateEquipmentIDEquipmentRequestV1Request.Validate if
 // the designated constraints aren't met.
-type UpdateEquipmentIdEquipmentRequestV1RequestValidationError struct {
+type UpdateEquipmentIDEquipmentRequestV1RequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -852,24 +849,24 @@ type UpdateEquipmentIdEquipmentRequestV1RequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) Field() string { return e.field }
+func (e UpdateEquipmentIDEquipmentRequestV1RequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) Reason() string { return e.reason }
+func (e UpdateEquipmentIDEquipmentRequestV1RequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) Cause() error { return e.cause }
+func (e UpdateEquipmentIDEquipmentRequestV1RequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) Key() bool { return e.key }
+func (e UpdateEquipmentIDEquipmentRequestV1RequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) ErrorName() string {
-	return "UpdateEquipmentIdEquipmentRequestV1RequestValidationError"
+func (e UpdateEquipmentIDEquipmentRequestV1RequestValidationError) ErrorName() string {
+	return "UpdateEquipmentIDEquipmentRequestV1RequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) Error() string {
+func (e UpdateEquipmentIDEquipmentRequestV1RequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -881,14 +878,14 @@ func (e UpdateEquipmentIdEquipmentRequestV1RequestValidationError) Error() strin
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateEquipmentIdEquipmentRequestV1Request.%s: %s%s",
+		"invalid %sUpdateEquipmentIDEquipmentRequestV1Request.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateEquipmentIdEquipmentRequestV1RequestValidationError{}
+var _ error = UpdateEquipmentIDEquipmentRequestV1RequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -896,12 +893,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateEquipmentIdEquipmentRequestV1RequestValidationError{}
+} = UpdateEquipmentIDEquipmentRequestV1RequestValidationError{}
 
 // Validate checks the field values on
-// UpdateEquipmentIdEquipmentRequestV1Response with the rules defined in the
+// UpdateEquipmentIDEquipmentRequestV1Response with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *UpdateEquipmentIdEquipmentRequestV1Response) Validate() error {
+func (m *UpdateEquipmentIDEquipmentRequestV1Response) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -911,10 +908,10 @@ func (m *UpdateEquipmentIdEquipmentRequestV1Response) Validate() error {
 	return nil
 }
 
-// UpdateEquipmentIdEquipmentRequestV1ResponseValidationError is the validation
-// error returned by UpdateEquipmentIdEquipmentRequestV1Response.Validate if
+// UpdateEquipmentIDEquipmentRequestV1ResponseValidationError is the validation
+// error returned by UpdateEquipmentIDEquipmentRequestV1Response.Validate if
 // the designated constraints aren't met.
-type UpdateEquipmentIdEquipmentRequestV1ResponseValidationError struct {
+type UpdateEquipmentIDEquipmentRequestV1ResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -922,24 +919,24 @@ type UpdateEquipmentIdEquipmentRequestV1ResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) Field() string { return e.field }
+func (e UpdateEquipmentIDEquipmentRequestV1ResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) Reason() string { return e.reason }
+func (e UpdateEquipmentIDEquipmentRequestV1ResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) Cause() error { return e.cause }
+func (e UpdateEquipmentIDEquipmentRequestV1ResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) Key() bool { return e.key }
+func (e UpdateEquipmentIDEquipmentRequestV1ResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) ErrorName() string {
-	return "UpdateEquipmentIdEquipmentRequestV1ResponseValidationError"
+func (e UpdateEquipmentIDEquipmentRequestV1ResponseValidationError) ErrorName() string {
+	return "UpdateEquipmentIDEquipmentRequestV1ResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) Error() string {
+func (e UpdateEquipmentIDEquipmentRequestV1ResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -951,14 +948,14 @@ func (e UpdateEquipmentIdEquipmentRequestV1ResponseValidationError) Error() stri
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateEquipmentIdEquipmentRequestV1Response.%s: %s%s",
+		"invalid %sUpdateEquipmentIDEquipmentRequestV1Response.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateEquipmentIdEquipmentRequestV1ResponseValidationError{}
+var _ error = UpdateEquipmentIDEquipmentRequestV1ResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -966,7 +963,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateEquipmentIdEquipmentRequestV1ResponseValidationError{}
+} = UpdateEquipmentIDEquipmentRequestV1ResponseValidationError{}
 
 // Validate checks the field values on UpdateStatusEquipmentRequestV1Request
 // with the rules defined in the proto definition for this message. If any

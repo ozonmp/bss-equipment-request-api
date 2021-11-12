@@ -19,9 +19,15 @@ $$
 LANGUAGE plpgsql;
 -- +goose StatementEnd
 
-CREATE trigger equipment_request_event_insert_trigger
+
+CREATE TRIGGER equipment_request_event_insert_trigger
     BEFORE INSERT ON equipment_request_event
     FOR EACH ROW EXECUTE PROCEDURE equipment_request_event_insert_trigger();
+
+-- CREATE TABLE equipment_request_event_y2021_m12 PARTITION OF measurement
+--     FOR VALUES FROM ('2021-12-01') TO ('2022-01-01');
+--
+-- CREATE INDEX equipment_request_event_y2021_m12_created_at ON equipment_request_event_y2021_m12 (created_at);
 
 -- +goose Down
 DROP TRIGGER equipment_request_event_insert_trigger ON equipment_request_event;

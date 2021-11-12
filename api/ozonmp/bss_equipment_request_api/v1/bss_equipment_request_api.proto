@@ -41,8 +41,8 @@ service BssEquipmentRequestApiService {
     };
   }
 
-  // UpdateEquipmentIdEquipmentRequestV1 - Update equipment id of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
-  rpc UpdateEquipmentIdEquipmentRequestV1(UpdateEquipmentIdEquipmentRequestV1Request) returns (UpdateEquipmentIdEquipmentRequestV1Response) {
+  // UpdateEquipmentIDEquipmentRequestV1 - Update equipment id of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+  rpc UpdateEquipmentIDEquipmentRequestV1(UpdateEquipmentIDEquipmentRequestV1Request) returns (UpdateEquipmentIDEquipmentRequestV1Response) {
     option (google.api.http) = {
       post: "/api/v1/update/equipment_id",
       body: "*"
@@ -88,7 +88,7 @@ enum EquipmentRequestStatus {
 message CreateEquipmentRequestV1Request {
   uint64 employee_id = 1 [(validate.rules).uint64.gt = 0];
   uint64 equipment_id = 2 [(validate.rules).uint64.gt = 0];
-  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp created_at = 3 [(validate.rules).timestamp.required = true];
   google.protobuf.Timestamp updated_at = 4;
   google.protobuf.Timestamp deleted_at = 5;
   google.protobuf.Timestamp done_at = 6;
@@ -116,12 +116,12 @@ message RemoveEquipmentRequestV1Response {
   bool removed = 1;
 }
 
-message UpdateEquipmentIdEquipmentRequestV1Request {
+message UpdateEquipmentIDEquipmentRequestV1Request {
   uint64 equipment_request_id = 1 [(validate.rules).uint64.gt = 0];
   uint64 equipment_id = 2 [(validate.rules).uint64.gt = 0];
 }
 
-message UpdateEquipmentIdEquipmentRequestV1Response {
+message UpdateEquipmentIDEquipmentRequestV1Response {
   bool updated = 1;
 }
 

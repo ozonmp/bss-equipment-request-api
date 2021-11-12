@@ -24,7 +24,7 @@ CREATE TABLE equipment_request (
     employee_id bigint NOT NULL, -- assumption, that other service will be responsible for employees
     equipment_id bigint NOT NULL,  -- assumption, that other service will be responsible for equipments (equipment_type moved to this service)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ,
     done_at TIMESTAMPTZ,
     equipment_request_status equipment_request_status NOT NULL DEFAULT 'EQUIPMENT_REQUEST_STATUS_DO',
     deleted_at TIMESTAMPTZ
@@ -40,7 +40,7 @@ CREATE TABLE equipment_request_event (
     type equipment_request_event_type NOT NULL,
     status equipment_request_event_status NOT NULL DEFAULT 'EQUIPMENT_REQUEST_EVENT_STATUS_UNLOCKED',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ,
     payload jsonb,
     CONSTRAINT fk_equipment_request
         FOREIGN KEY(equipment_request_id)

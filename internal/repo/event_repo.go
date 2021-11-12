@@ -9,6 +9,15 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+const (
+	equipmentRequestEventTable           = "equipment_request_event"
+	equipmentRequestEventStatusColumn    = "status"
+	equipmentRequestEventCreatedAtColumn = "created_at"
+	equipmentRequestEventTypeColumn      = "type"
+	equipmentRequestEventRequestIDColumn = "equipment_request_id"
+	equipmentRequestPayloadColumn        = "payload"
+)
+
 // EventRepo is DAO for Equipment Request Events
 type EventRepo interface {
 	Add(ctx context.Context, event *model.EquipmentRequestEvent, tx *sqlx.Tx) error
@@ -26,25 +35,31 @@ func NewEventRepo(db *sqlx.DB) EventRepo {
 }
 
 func (r *eventRepo) Add(ctx context.Context, event *model.EquipmentRequestEvent, tx *sqlx.Tx) error {
-	convertedPayload := event.Payload.ConvertToPb()
-	payload, err := protojson.Marshal(convertedPayload)
-
-	if err != nil {
-		return err
-	}
 
 	sb := database.StatementBuilder.
-		Insert("equipment_request_event").
-		Columns("type", "status", "created_at", "updated_at", "equipment_request_id", "payload").
+		Insert(equipmentRequestEventTable).
+		Columns(
+			equipmentRequestEventTypeColumn,
+			equipmentRequestEventStatusColumn,
+			equipmentRequestEventCreatedAtColumn,
+			equipmentRequestEventRequestIDColumn).
 		Values(
 			event.Type,
 			event.Status,
 			event.CreatedAt,
-			event.UpdatedAt,
 			event.EquipmentRequestID,
-			payload,
 		)
 
+	if event.Payload != nil {
+		convertedPayload := event.Payload.ConvertToPb()
+		payload, err := protojson.Marshal(convertedPayload)
+
+		if err != nil {
+			return err
+		}
+
+		sb.Columns(equipmentRequestPayloadColumn).Values(payload)
+	}
 	query, args, err := sb.ToSql()
 
 	if err != nil {

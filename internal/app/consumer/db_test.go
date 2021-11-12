@@ -61,18 +61,21 @@ func TestStartAndGetOneEvent(t *testing.T) {
 	wg.Add(eventCount)
 	defer wg.Wait()
 
+	var eventList = []model.EquipmentRequestEvent{
+		{
+			ID:                 12,
+			Type:               model.Created,
+			Status:             model.Unlocked,
+			CreatedAt:          time.Now(),
+			EquipmentRequestID: 17,
+			Payload:            &model.EquipmentRequestEventPayload{},
+		},
+	}
+
 	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(
 		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
-			return []model.EquipmentRequestEvent{{
-				ID:                 12,
-				Type:               model.Created,
-				Status:             model.Unlocked,
-				CreatedAt:          time.Now(),
-				UpdatedAt:          time.Now(),
-				EquipmentRequestID: 17,
-				Payload:            &model.EquipmentRequestEventPayload{},
-			}}, nil
+			return eventList, nil
 		}).Times(eventCount)
 
 	db.Start()
@@ -129,29 +132,29 @@ func TestStartAndGetSeveralEvent(t *testing.T) {
 	wg.Add(eventCount)
 	defer wg.Wait()
 
+	eventList := []model.EquipmentRequestEvent{
+		{
+			ID:                 12,
+			Type:               model.Created,
+			Status:             model.Unlocked,
+			CreatedAt:          time.Now(),
+			EquipmentRequestID: 17,
+			Payload:            &model.EquipmentRequestEventPayload{},
+		},
+		{
+			ID:                 14,
+			Type:               model.UpdatedStatus,
+			Status:             model.Unlocked,
+			CreatedAt:          time.Now(),
+			EquipmentRequestID: 12,
+			Payload:            &model.EquipmentRequestEventPayload{},
+		},
+	}
+
 	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(
 		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
-			return []model.EquipmentRequestEvent{
-				{
-					ID:                 12,
-					Type:               model.Created,
-					Status:             model.Unlocked,
-					CreatedAt:          time.Now(),
-					UpdatedAt:          time.Now(),
-					EquipmentRequestID: 17,
-					Payload:            &model.EquipmentRequestEventPayload{},
-				},
-				{
-					ID:                 14,
-					Type:               model.UpdatedStatus,
-					Status:             model.Unlocked,
-					CreatedAt:          time.Now(),
-					UpdatedAt:          time.Now(),
-					EquipmentRequestID: 12,
-					Payload:            &model.EquipmentRequestEventPayload{},
-				},
-			}, nil
+			return eventList, nil
 		}).Times(1)
 
 	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(

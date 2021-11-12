@@ -11,7 +11,7 @@ type EquipmentRequest struct {
 	EmployeeID             uint64                 `db:"employee_id"`
 	EquipmentID            uint64                 `db:"equipment_id"`
 	CreatedAt              time.Time              `db:"created_at"`
-	UpdatedAt              time.Time              `db:"updated_at"`
+	UpdatedAt              sql.NullTime           `db:"updated_at"`
 	DeletedAt              sql.NullTime           `db:"deleted_at"`
 	DoneAt                 sql.NullTime           `db:"done_at"`
 	EquipmentRequestStatus EquipmentRequestStatus `db:"equipment_request_status"`

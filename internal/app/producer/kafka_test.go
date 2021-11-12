@@ -62,7 +62,6 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		Type:               model.Created,
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: 17,
 		Payload:            &model.EquipmentRequestEventPayload{},
 	}
@@ -115,7 +114,6 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 		Type:               model.Created,
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: 17,
 		Payload:            &model.EquipmentRequestEventPayload{},
 	}
@@ -169,7 +167,6 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 		Type:               model.Created,
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: 17,
 		Payload:            &model.EquipmentRequestEventPayload{},
 	}
@@ -226,7 +223,6 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 		Type:               model.Created,
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: 17,
 		Payload:            &model.EquipmentRequestEventPayload{},
 	}
@@ -280,7 +276,6 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 		Type:               model.Created,
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: 17,
 		Payload:            &model.EquipmentRequestEventPayload{},
 	}

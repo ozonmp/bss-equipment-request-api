@@ -12,6 +12,18 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 )
 
+const (
+	equipmentRequestTable             = "equipment_request"
+	equipmentRequestIDColumn          = "id"
+	equipmentRequestEquipmentIDColumn = "equipment_id"
+	equipmentRequestEmployeeIDColumn  = "employee_id"
+	equipmentRequestStatusColumn      = "equipment_request_status"
+	equipmentRequestUpdatedAtColumn   = "updated_at"
+	equipmentRequestCreatedAtColumn   = "created_at"
+	equipmentRequestDoneAtColumn      = "done_at"
+	equipmentRequestDeletedAtAtColumn = "deleted_at"
+)
+
 // ErrNoEquipmentRequest is a "equipment request not founded" error
 var ErrNoEquipmentRequest = errors.New("no equipment request found")
 
@@ -22,7 +34,7 @@ type EquipmentRequestRepo interface {
 	ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error)
 	RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64, tx *sqlx.Tx) (bool, error)
 	Exists(ctx context.Context, equipmentRequestID uint64) (bool, error)
-	UpdateEquipmentIdEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64, tx *sqlx.Tx) (bool, error)
+	UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64, tx *sqlx.Tx) (bool, error)
 	UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequestID uint64, status model.EquipmentRequestStatus, tx *sqlx.Tx) (bool, error)
 }
 
@@ -42,10 +54,10 @@ func NewEquipmentRequestRepo(db *sqlx.DB, batchSize uint) EquipmentRequestRepo {
 func (r *equipmentRequestRepo) DescribeEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (*model.EquipmentRequest, error) {
 	sb := database.StatementBuilder.
 		Select("*").
-		From("equipment_request").
+		From(equipmentRequestTable).
 		Where(sq.And{
-			sq.Eq{"id": equipmentRequestID},
-			sq.Eq{"deleted_at": nil}})
+			sq.Eq{equipmentRequestIDColumn: equipmentRequestID},
+			sq.Eq{equipmentRequestDeletedAtAtColumn: nil}})
 
 	query, args, err := sb.ToSql()
 	if err != nil {
@@ -67,8 +79,15 @@ func (r *equipmentRequestRepo) DescribeEquipmentRequest(ctx context.Context, equ
 
 func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equipmentRequest *model.EquipmentRequest, tx *sqlx.Tx) (uint64, error) {
 	sb := database.StatementBuilder.
-		Insert("equipment_request").
-		Columns("employee_id", "equipment_id", "created_at", "updated_at", "deleted_at", "done_at", "equipment_request_status").
+		Insert(equipmentRequestTable).
+		Columns(
+			equipmentRequestEmployeeIDColumn,
+			equipmentRequestEquipmentIDColumn,
+			equipmentRequestCreatedAtColumn,
+			equipmentRequestUpdatedAtColumn,
+			equipmentRequestDeletedAtAtColumn,
+			equipmentRequestDoneAtColumn,
+			equipmentRequestStatusColumn).
 		Values(
 			equipmentRequest.EmployeeID,
 			equipmentRequest.EquipmentID,
@@ -77,7 +96,7 @@ func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equip
 			equipmentRequest.DeletedAt,
 			equipmentRequest.DoneAt,
 			equipmentRequest.EquipmentRequestStatus,
-		).Suffix("RETURNING id")
+		).Suffix("RETURNING " + equipmentRequestIDColumn)
 
 	query, args, err := sb.ToSql()
 	if err != nil {
@@ -104,9 +123,9 @@ func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equip
 func (r *equipmentRequestRepo) ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error) {
 	sb := database.StatementBuilder.
 		Select("*").
-		From("equipment_request").
-		Where(sq.Eq{"deleted_at": nil}).
-		OrderBy("id").
+		From(equipmentRequestTable).
+		Where(sq.Eq{equipmentRequestDeletedAtAtColumn: nil}).
+		OrderBy(equipmentRequestIDColumn).
 		Limit(limit).
 		Offset(offset)
 
@@ -126,11 +145,11 @@ func (r *equipmentRequestRepo) ListEquipmentRequest(ctx context.Context, limit u
 
 func (r *equipmentRequestRepo) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64, tx *sqlx.Tx) (bool, error) {
 	sb := database.StatementBuilder.
-		Update("equipment_request").
-		Set("deleted_at", time.Now()).
+		Update(equipmentRequestTable).
+		Set(equipmentRequestDeletedAtAtColumn, time.Now()).
 		Where(sq.And{
-			sq.Eq{"id": equipmentRequestID},
-			sq.Eq{"deleted_at": nil}})
+			sq.Eq{equipmentRequestIDColumn: equipmentRequestID},
+			sq.Eq{equipmentRequestDeletedAtAtColumn: nil}})
 
 	query, args, err := sb.ToSql()
 	if err != nil {
@@ -167,10 +186,10 @@ func (r *equipmentRequestRepo) Exists(ctx context.Context, equipmentRequestID ui
 	sb := database.StatementBuilder.
 		Select("1").
 		Prefix("SELECT EXISTS (").
-		From("equipment_request").
+		From(equipmentRequestTable).
 		Where(sq.And{
-			sq.Eq{"id": equipmentRequestID},
-			sq.Eq{"deleted_at": nil}}).
+			sq.Eq{equipmentRequestIDColumn: equipmentRequestID},
+			sq.Eq{equipmentRequestDeletedAtAtColumn: nil}}).
 		Suffix(")")
 
 	query, args, err := sb.ToSql()
@@ -191,14 +210,15 @@ func (r *equipmentRequestRepo) Exists(ctx context.Context, equipmentRequestID ui
 	return exists, nil
 }
 
-func (r *equipmentRequestRepo) UpdateEquipmentIdEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64, tx *sqlx.Tx) (bool, error) {
+// nolint:dupl
+func (r *equipmentRequestRepo) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64, tx *sqlx.Tx) (bool, error) {
 	sb := database.StatementBuilder.
-		Update("equipment_request").
-		Set("updated_at", time.Now()).
-		Set("equipment_id", equipmentID).
+		Update(equipmentRequestTable).
+		Set(equipmentRequestUpdatedAtColumn, time.Now()).
+		Set(equipmentRequestEquipmentIDColumn, equipmentID).
 		Where(sq.And{
-			sq.Eq{"id": equipmentRequestID},
-			sq.Eq{"deleted_at": nil}})
+			sq.Eq{equipmentRequestIDColumn: equipmentRequestID},
+			sq.Eq{equipmentRequestDeletedAtAtColumn: nil}})
 
 	query, args, err := sb.ToSql()
 	if err != nil {
@@ -231,14 +251,15 @@ func (r *equipmentRequestRepo) UpdateEquipmentIdEquipmentRequest(ctx context.Con
 	return true, nil
 }
 
+// nolint:dupl
 func (r *equipmentRequestRepo) UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequestID uint64, status model.EquipmentRequestStatus, tx *sqlx.Tx) (bool, error) {
 	sb := database.StatementBuilder.
-		Update("equipment_request").
-		Set("updated_at", time.Now()).
-		Set("equipment_request_status", status).
+		Update(equipmentRequestTable).
+		Set(equipmentRequestUpdatedAtColumn, time.Now()).
+		Set(equipmentRequestStatusColumn, status).
 		Where(sq.And{
-			sq.Eq{"id": equipmentRequestID},
-			sq.Eq{"deleted_at": nil}})
+			sq.Eq{equipmentRequestIDColumn: equipmentRequestID},
+			sq.Eq{equipmentRequestDeletedAtAtColumn: nil}})
 
 	query, args, err := sb.ToSql()
 	if err != nil {

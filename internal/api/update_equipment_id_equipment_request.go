@@ -9,10 +9,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (o *equipmentRequestAPI) UpdateEquipmentIdEquipmentRequestV1(
+func (o *equipmentRequestAPI) UpdateEquipmentIDEquipmentRequestV1(
 	ctx context.Context,
-	req *pb.UpdateEquipmentIdEquipmentRequestV1Request,
-) (*pb.UpdateEquipmentIdEquipmentRequestV1Response, error) {
+	req *pb.UpdateEquipmentIDEquipmentRequestV1Request,
+) (*pb.UpdateEquipmentIDEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
 		log.Error().Err(err).Msg("UpdateEquipmentIdEquipmentRequestV1 - invalid argument")
@@ -34,7 +34,7 @@ func (o *equipmentRequestAPI) UpdateEquipmentIdEquipmentRequestV1(
 		return nil, status.Error(codes.NotFound, "equipment request not found")
 	}
 
-	result, err := o.equipmentRequestService.UpdateEquipmentIdEquipmentRequest(ctx, req.EquipmentRequestId, req.EquipmentId)
+	result, err := o.equipmentRequestService.UpdateEquipmentIDEquipmentRequest(ctx, req.EquipmentRequestId, req.EquipmentId)
 
 	if err != nil {
 		log.Error().Err(err).Msg("UpdateEquipmentIdEquipmentRequestV1 -- failed")
@@ -52,7 +52,7 @@ func (o *equipmentRequestAPI) UpdateEquipmentIdEquipmentRequestV1(
 
 	log.Debug().Msg("UpdateEquipmentIdEquipmentRequestV1 - success")
 
-	return &pb.UpdateEquipmentIdEquipmentRequestV1Response{
+	return &pb.UpdateEquipmentIDEquipmentRequestV1Response{
 		Updated: result,
 	}, nil
 }

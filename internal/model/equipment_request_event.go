@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"errors"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -14,8 +15,8 @@ type EventType string
 const (
 	// Created is a "created item" type of events
 	Created EventType = "EQUIPMENT_REQUEST_EVENT_TYPE_CREATED"
-	// UpdatedEquipmentId is a "updated equipment id of item" type of events
-	UpdatedEquipmentId = "EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_EQUIPMENT_ID"
+	// UpdatedEquipmentID is a "updated equipment id of item" type of events
+	UpdatedEquipmentID = "EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_EQUIPMENT_ID"
 	// UpdatedStatus is a "updated status of item" type of events
 	UpdatedStatus = "EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_STATUS"
 	// Removed is a "removed item" type of events
@@ -40,13 +41,15 @@ type EquipmentRequestEvent struct {
 	Type               EventType                     `db:"type"`
 	Status             EventStatus                   `db:"status"`
 	CreatedAt          time.Time                     `db:"created_at"`
-	UpdatedAt          time.Time                     `db:"updated_at"`
+	UpdatedAt          sql.NullTime                  `db:"updated_at"`
 	EquipmentRequestID uint64                        `db:"equipment_request_id"`
 	Payload            *EquipmentRequestEventPayload `db:"payload"`
 }
 
+// EquipmentRequestEventPayload is a detailed info about event
 type EquipmentRequestEventPayload pb.EquipmentRequest
 
+// Scan EquipmentRequestEventPayload
 func (e *EquipmentRequestEventPayload) Scan(src interface{}) (err error) {
 	var eqp pb.EquipmentRequest
 
@@ -77,6 +80,7 @@ func (e *EquipmentRequestEventPayload) Scan(src interface{}) (err error) {
 	return nil
 }
 
+// ConvertToPb is a function to convert pb.EquipmentRequest to EquipmentRequestEventPayload
 func (e *EquipmentRequestEventPayload) ConvertToPb() *pb.EquipmentRequest {
 	return &pb.EquipmentRequest{
 		Id:                     e.Id,
@@ -90,28 +94,28 @@ func (e *EquipmentRequestEventPayload) ConvertToPb() *pb.EquipmentRequest {
 	}
 }
 
+// FormCreatedEvent is a function to create event about equipment request creating
 func FormCreatedEvent(request *EquipmentRequest) (*EquipmentRequestEvent, error) {
 	status, ok := pb.EquipmentRequestStatus_value[string(request.EquipmentRequestStatus)]
 	var equipmentRequestStatus pb.EquipmentRequestStatus
 
-	if ok {
-		equipmentRequestStatus = pb.EquipmentRequestStatus(status)
-	} else {
+	if !ok {
 		return nil, errors.New("unable to convert equipment request status")
 	}
+
+	equipmentRequestStatus = pb.EquipmentRequestStatus(status)
 
 	return &EquipmentRequestEvent{
 		Status:             Unlocked,
 		Type:               Created,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: request.ID,
 		Payload: &EquipmentRequestEventPayload{
 			Id:                     request.ID,
 			EmployeeId:             request.EmployeeID,
 			EquipmentId:            request.EquipmentID,
 			CreatedAt:              timestamppb.New(request.CreatedAt),
-			UpdatedAt:              timestamppb.New(request.UpdatedAt),
+			UpdatedAt:              timestamppb.New(request.UpdatedAt.Time),
 			DoneAt:                 timestamppb.New(request.DoneAt.Time),
 			DeletedAt:              timestamppb.New(request.DeletedAt.Time),
 			EquipmentRequestStatus: equipmentRequestStatus,
@@ -119,12 +123,12 @@ func FormCreatedEvent(request *EquipmentRequest) (*EquipmentRequestEvent, error)
 	}, nil
 }
 
-func FormUpdatedEquipmentIdEvent(requestID uint64, equipmentID uint64) *EquipmentRequestEvent {
+// FormUpdatedEquipmentIDEvent is a function to create event about equipment id updating
+func FormUpdatedEquipmentIDEvent(requestID uint64, equipmentID uint64) *EquipmentRequestEvent {
 	return &EquipmentRequestEvent{
 		Status:             Unlocked,
-		Type:               UpdatedEquipmentId,
+		Type:               UpdatedEquipmentID,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: requestID,
 		Payload: &EquipmentRequestEventPayload{
 			Id:          requestID,
@@ -133,21 +137,21 @@ func FormUpdatedEquipmentIdEvent(requestID uint64, equipmentID uint64) *Equipmen
 	}
 }
 
+// FormUpdatedStatusEvent is a function to create event about request status updating
 func FormUpdatedStatusEvent(requestID uint64, status EquipmentRequestStatus) (*EquipmentRequestEvent, error) {
 	statusVal, ok := pb.EquipmentRequestStatus_value[string(status)]
 	var equipmentRequestStatus pb.EquipmentRequestStatus
 
-	if ok {
-		equipmentRequestStatus = pb.EquipmentRequestStatus(statusVal)
-	} else {
+	if !ok {
 		return nil, errors.New("unable to convert equipment request status")
 	}
+
+	equipmentRequestStatus = pb.EquipmentRequestStatus(statusVal)
 
 	return &EquipmentRequestEvent{
 		Status:             Unlocked,
 		Type:               UpdatedStatus,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: requestID,
 		Payload: &EquipmentRequestEventPayload{
 			Id:                     requestID,
@@ -156,12 +160,12 @@ func FormUpdatedStatusEvent(requestID uint64, status EquipmentRequestStatus) (*E
 	}, nil
 }
 
+// FormRemovedEvent is a function to create event about equipment request removing
 func FormRemovedEvent(equipmentRequestID uint64) *EquipmentRequestEvent {
 	return &EquipmentRequestEvent{
 		Status:             Unlocked,
 		Type:               Removed,
 		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
 		EquipmentRequestID: equipmentRequestID,
 	}
 }

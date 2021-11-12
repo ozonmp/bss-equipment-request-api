@@ -22,7 +22,7 @@ type ServiceInterface interface {
 	ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error)
 	RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (bool, error)
 	CheckExistsEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (bool, error)
-	UpdateEquipmentIdEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64) (bool, error)
+	UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64) (bool, error)
 	UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequestID uint64, status model.EquipmentRequestStatus) (bool, error)
 }
 
@@ -47,8 +47,8 @@ var ErrNoListEquipmentRequest = errors.New("unable to get list of equipment requ
 // ErrNoRemovedEquipmentRequest is a "unable to remove equipment request" error
 var ErrNoRemovedEquipmentRequest = errors.New("unable to remove equipment request")
 
-// ErrNoUpdatedEquipmentIdEquipmentRequest is a "unable to update equipment id of equipment request" error
-var ErrNoUpdatedEquipmentIdEquipmentRequest = errors.New("unable to update equipment id of equipment request")
+// ErrNoUpdatedEquipmentIDEquipmentRequest is a "unable to update equipment id of equipment request" error
+var ErrNoUpdatedEquipmentIDEquipmentRequest = errors.New("unable to update equipment id of equipment request")
 
 // ErrNoUpdatedStatusEquipmentRequest is a "unable to update status of equipment request" error
 var ErrNoUpdatedStatusEquipmentRequest = errors.New("unable to update status of equipment request")
@@ -152,18 +152,18 @@ func (s service) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID 
 	return deleted, nil
 }
 
-func (s service) UpdateEquipmentIdEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64) (bool, error) {
+func (s service) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64) (bool, error) {
 	updated, txErr := database.WithTxReturnBool(ctx, s.db, func(ctx context.Context, tx *sqlx.Tx) (bool, error) {
-		result, err := s.requestRepository.UpdateEquipmentIdEquipmentRequest(ctx, equipmentRequestID, equipmentID, tx)
+		result, err := s.requestRepository.UpdateEquipmentIDEquipmentRequest(ctx, equipmentRequestID, equipmentID, tx)
 		if err != nil {
-			return false, errors.Wrap(err, "repository.UpdateEquipmentIdEquipmentRequest")
+			return false, errors.Wrap(err, "repository.UpdateEquipmentIDEquipmentRequest")
 		}
 
 		if result == false {
-			return false, ErrNoUpdatedEquipmentIdEquipmentRequest
+			return false, ErrNoUpdatedEquipmentIDEquipmentRequest
 		}
 
-		event := model.FormUpdatedEquipmentIdEvent(equipmentRequestID, equipmentID)
+		event := model.FormUpdatedEquipmentIDEvent(equipmentRequestID, equipmentID)
 
 		err = s.eventRepository.Add(ctx, event, tx)
 

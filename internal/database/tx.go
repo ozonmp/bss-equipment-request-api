@@ -8,10 +8,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+//WithTxFuncReturnUint64 is a function that should be run in transaction and returns uint64
 type WithTxFuncReturnUint64 func(ctx context.Context, tx *sqlx.Tx) (uint64, error)
+
+//WithTxFuncReturnBool is a function that should be run in transaction and returns bool
 type WithTxFuncReturnBool func(ctx context.Context, tx *sqlx.Tx) (bool, error)
+
+//WithTxReturnEventsFunc is a function that should be run in transaction and returns array of model.EquipmentRequestEvent
 type WithTxReturnEventsFunc func(ctx context.Context, tx *sqlx.Tx) ([]model.EquipmentRequestEvent, error)
 
+//WithTxReturnUint64 transaction for WithTxFuncReturnUint64
 func WithTxReturnUint64(ctx context.Context, db *sqlx.DB, fn WithTxFuncReturnUint64) (uint64, error) {
 	t, err := db.BeginTxx(ctx, nil)
 	if err != nil {
@@ -33,6 +39,7 @@ func WithTxReturnUint64(ctx context.Context, db *sqlx.DB, fn WithTxFuncReturnUin
 	return result, nil
 }
 
+//WithTxReturnBool transaction for WithTxFuncReturnBool
 func WithTxReturnBool(ctx context.Context, db *sqlx.DB, fn WithTxFuncReturnBool) (bool, error) {
 	t, err := db.BeginTxx(ctx, nil)
 	if err != nil {
@@ -54,6 +61,7 @@ func WithTxReturnBool(ctx context.Context, db *sqlx.DB, fn WithTxFuncReturnBool)
 	return result, nil
 }
 
+//WithTxReturnEvents transaction for WithTxReturnEventsFunc
 func WithTxReturnEvents(ctx context.Context, db *sqlx.DB, fn WithTxReturnEventsFunc) ([]model.EquipmentRequestEvent, error) {
 	t, err := db.BeginTxx(ctx, nil)
 	if err != nil {

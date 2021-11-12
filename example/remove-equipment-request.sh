@@ -6,7 +6,7 @@ GRPC_METHOD="ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/R
 payload=$(
   cat <<EOF
 {
-  "equipment_request_id": 12
+  "equipment_request_id": 70011
 }
 EOF
 )

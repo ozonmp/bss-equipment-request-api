@@ -9,7 +9,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 var (
@@ -34,20 +33,19 @@ func NewEquipmentRequestAPI(equipmentRequestService equipment_request.ServiceInt
 
 func (o *equipmentRequestAPI) convertEquipmentRequestToPb(equipmentRequest *model.EquipmentRequest) (*pb.EquipmentRequest, error) {
 	status, ok := pb.EquipmentRequestStatus_value[string(equipmentRequest.EquipmentRequestStatus)]
-	var equipmentRequestStatus pb.EquipmentRequestStatus
 
-	if ok {
-		equipmentRequestStatus = pb.EquipmentRequestStatus(status)
-	} else {
+	if !ok {
 		return nil, ErrUnableToConvertEquipmentRequestStatus
 	}
+
+	equipmentRequestStatus := pb.EquipmentRequestStatus(status)
 
 	return &pb.EquipmentRequest{
 		Id:                     equipmentRequest.ID,
 		EmployeeId:             equipmentRequest.EmployeeID,
 		EquipmentId:            equipmentRequest.EquipmentID,
 		CreatedAt:              timestamppb.New(equipmentRequest.CreatedAt),
-		UpdatedAt:              timestamppb.New(equipmentRequest.UpdatedAt),
+		UpdatedAt:              timestamppb.New(equipmentRequest.UpdatedAt.Time),
 		DoneAt:                 timestamppb.New(equipmentRequest.DoneAt.Time),
 		DeletedAt:              timestamppb.New(equipmentRequest.DeletedAt.Time),
 		EquipmentRequestStatus: equipmentRequestStatus,
@@ -56,51 +54,35 @@ func (o *equipmentRequestAPI) convertEquipmentRequestToPb(equipmentRequest *mode
 
 func (o *equipmentRequestAPI) convertPbToEquipmentRequest(equipmentRequest *pb.EquipmentRequest) (*model.EquipmentRequest, error) {
 	status, ok := pb.EquipmentRequestStatus_name[int32(equipmentRequest.EquipmentRequestStatus)]
-	var equipmentRequestStatus model.EquipmentRequestStatus
 
-	if ok {
-		equipmentRequestStatus = model.EquipmentRequestStatus(status)
-	} else {
+	if !ok {
 		return nil, ErrUnableToConvertEquipmentRequestStatus
 	}
 
-	var createdAtTime time.Time
-	if equipmentRequest.CreatedAt == nil {
-		createdAtTime = time.Now()
-	} else {
-		createdAtTime = equipmentRequest.CreatedAt.AsTime()
-	}
+	equipmentRequestStatus := model.EquipmentRequestStatus(status)
 
-	var updatedAtTime time.Time
-	if equipmentRequest.UpdatedAt == nil {
-		updatedAtTime = time.Now()
-	} else {
-		updatedAtTime = equipmentRequest.UpdatedAt.AsTime()
-	}
-
-	var doneAtTime sql.NullTime
-	if equipmentRequest.DoneAt == nil {
-		doneAtTime = sql.NullTime{Time: time.Time{}, Valid: false}
-	} else {
-		doneAtTime = sql.NullTime{Time: equipmentRequest.DoneAt.AsTime(), Valid: true}
-	}
-
-	var deletedAtTime sql.NullTime
-	if equipmentRequest.DeletedAt == nil {
-		deletedAtTime = sql.NullTime{Time: time.Time{}, Valid: false}
-	} else {
-		deletedAtTime = sql.NullTime{Time: equipmentRequest.DeletedAt.AsTime(), Valid: true}
-	}
+	updatedAtTime := o.convertPbTimeToNullableTime(equipmentRequest.UpdatedAt)
+	doneAtTime := o.convertPbTimeToNullableTime(equipmentRequest.DoneAt)
+	deletedAtTime := o.convertPbTimeToNullableTime(equipmentRequest.DeletedAt)
 
 	return &model.EquipmentRequest{
 		EmployeeID:             equipmentRequest.EmployeeId,
 		EquipmentID:            equipmentRequest.EquipmentId,
-		CreatedAt:              createdAtTime,
+		CreatedAt:              equipmentRequest.CreatedAt.AsTime(),
 		UpdatedAt:              updatedAtTime,
 		DoneAt:                 doneAtTime,
 		DeletedAt:              deletedAtTime,
 		EquipmentRequestStatus: equipmentRequestStatus,
 	}, nil
+}
+
+func (o *equipmentRequestAPI) convertPbTimeToNullableTime(pbTime *timestamppb.Timestamp) sql.NullTime {
+	var deletedAtTime sql.NullTime
+	if pbTime != nil {
+		deletedAtTime = sql.NullTime{Time: pbTime.AsTime(), Valid: true}
+	}
+
+	return deletedAtTime
 }
 
 func (o *equipmentRequestAPI) convertRepeatedEquipmentRequestsToPb(equipmentRequests []model.EquipmentRequest) ([]*pb.EquipmentRequest, error) {

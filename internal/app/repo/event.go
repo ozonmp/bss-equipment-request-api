@@ -12,6 +12,14 @@ import (
 	"time"
 )
 
+const (
+	equipmentRequestEventTable           = "equipment_request_event"
+	equipmentRequestEventIDColumn        = "id"
+	equipmentRequestEventStatusColumn    = "status"
+	equipmentRequestEventUpdatedAtColumn = "updated_at"
+	equipmentRequestEventDeletedAtColumn = "deleted_at"
+)
+
 // EventRepo is DAO for Equipment Request Events
 type EventRepo interface {
 	Lock(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error)
@@ -33,19 +41,19 @@ func NewEventRepo(db *sqlx.DB) EventRepo {
 func (r *eventRepo) Lock(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 	events, err := database.WithTxReturnEvents(ctx, db, func(ctx context.Context, tx *sqlx.Tx) ([]model.EquipmentRequestEvent, error) {
 		subSel := database.StatementBuilder.
-			Select("id").
-			From("equipment_request_event").
-			Where(sq.Eq{"status": model.Unlocked}).
+			Select(equipmentRequestEventIDColumn).
+			From(equipmentRequestEventTable).
+			Where(sq.Eq{equipmentRequestEventStatusColumn: model.Unlocked}).
 			Limit(batchSize).
-			OrderBy("id").
+			OrderBy(equipmentRequestEventIDColumn).
 			Suffix("FOR UPDATE SKIP LOCKED")
 
 		sb := database.StatementBuilder.
-			Update("equipment_request_event").
-			Where(subSel.Prefix("id IN (").Suffix(")")).
-			Set("status", model.Locked).
-			Set("updated_at", time.Now()).
-			Suffix("RETURNING equipment_request_events.*")
+			Update(equipmentRequestEventTable).
+			Where(subSel.Prefix(equipmentRequestEventIDColumn+" IN (").Suffix(")")).
+			Set(equipmentRequestEventStatusColumn, model.Locked).
+			Set(equipmentRequestEventUpdatedAtColumn, time.Now()).
+			Suffix("RETURNING *")
 
 		query, args, err := sb.ToSql()
 		if err != nil {
@@ -60,16 +68,17 @@ func (r *eventRepo) Lock(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]
 		}
 
 		rows, err := queryer.QueryContext(ctx, query, args...)
-		defer func(rows *sql.Rows) {
-			err := rows.Close()
-			if err != nil {
-				log.Error().Err(err).Msg("Lock - rows.Close()")
-			}
-		}(rows)
 
 		if err != nil {
 			return nil, errors.Wrap(err, "db.QueryContext()")
 		}
+
+		defer func(rows *sql.Rows) {
+			err = rows.Close()
+			if err != nil {
+				log.Error().Err(err).Msg("Lock - rows.Close()")
+			}
+		}(rows)
 
 		equipmentRequestEvents := make([]model.EquipmentRequestEvent, 0)
 		err = sqlx.StructScan(rows, &equipmentRequestEvents)
@@ -86,12 +95,12 @@ func (r *eventRepo) Lock(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]
 
 func (r *eventRepo) Remove(ctx context.Context, eventIDs []uint64) error {
 	sb := database.StatementBuilder.
-		Update("equipment_request_event").
+		Update(equipmentRequestEventTable).
 		Where(sq.And{
-			sq.Eq{"id": eventIDs},
-			sq.Eq{"deleted_at": nil}}).
-		Set("status", model.Processed).
-		Set("updated_at", time.Now())
+			sq.Eq{equipmentRequestEventIDColumn: eventIDs},
+			sq.Eq{equipmentRequestEventDeletedAtColumn: nil}}).
+		Set(equipmentRequestEventStatusColumn, model.Processed).
+		Set(equipmentRequestEventUpdatedAtColumn, time.Now())
 
 	query, args, err := sb.ToSql()
 	if err != nil {
@@ -109,13 +118,13 @@ func (r *eventRepo) Remove(ctx context.Context, eventIDs []uint64) error {
 
 func (r *eventRepo) Unlock(ctx context.Context, eventIDs []uint64) error {
 	sb := database.StatementBuilder.
-		Update("equipment_request_event").
+		Update(equipmentRequestEventTable).
 		Where(sq.And{
-			sq.Eq{"id": eventIDs},
-			sq.Eq{"deleted_at": nil},
-			sq.NotEq{"status": model.Processed}}).
-		Set("status", model.Unlocked).
-		Set("updated_at", time.Now())
+			sq.Eq{equipmentRequestEventIDColumn: eventIDs},
+			sq.Eq{equipmentRequestEventDeletedAtColumn: nil},
+			sq.NotEq{equipmentRequestEventStatusColumn: model.Processed}}).
+		Set(equipmentRequestEventStatusColumn, model.Unlocked).
+		Set(equipmentRequestEventUpdatedAtColumn, time.Now())
 
 	query, args, err := sb.ToSql()
 	if err != nil {

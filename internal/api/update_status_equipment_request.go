@@ -39,11 +39,11 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 	statusVal, ok := pb.EquipmentRequestStatus_name[int32(req.EquipmentRequestStatus)]
 	var equipmentRequestStatus model.EquipmentRequestStatus
 
-	if ok {
-		equipmentRequestStatus = model.EquipmentRequestStatus(statusVal)
-	} else {
+	if !ok {
 		return nil, ErrUnableToConvertEquipmentRequestStatus
 	}
+
+	equipmentRequestStatus = model.EquipmentRequestStatus(statusVal)
 
 	result, err := o.equipmentRequestService.UpdateStatusEquipmentRequest(ctx, req.EquipmentRequestId, equipmentRequestStatus)
 

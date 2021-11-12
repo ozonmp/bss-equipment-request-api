@@ -5,43 +5,49 @@ SELECT
     (random() * 10 + 5)::int4,
     (random() * 10 + 5)::int4,
     now() - '2 years'::interval * random(),
-    now() - '2 years'::interval * random(),
     (CASE
-         WHEN random() < 0.3 THEN 'EQUIPMENT_REQUEST_STATUS_DO'
-         WHEN random() < 0.5 THEN 'EQUIPMENT_REQUEST_STATUS_IN_PROGRESS'
-         WHEN random() < 0.7 THEN 'EQUIPMENT_REQUEST_STATUS_DONE'
-        ELSE 'EQUIPMENT_REQUEST_STATUS_CANCELLED'
+         WHEN random() < 0.3 THEN now() - '2 years'::interval * random()
+    ELSE NULL
+    END),
+    (CASE
+         WHEN random() < 0.3 THEN 'EQUIPMENT_REQUEST_STATUS_DO'::equipment_request_status
+         WHEN random() < 0.5 THEN 'EQUIPMENT_REQUEST_STATUS_IN_PROGRESS'::equipment_request_status
+         WHEN random() < 0.7 THEN 'EQUIPMENT_REQUEST_STATUS_DONE'::equipment_request_status
+        ELSE 'EQUIPMENT_REQUEST_STATUS_CANCELLED'::equipment_request_status
     END),
     (CASE
         WHEN random() < 0.3 THEN now() - '2 years'::interval * random()
-        ELSE null
+        ELSE NULL
     END)
 FROM
     generate_series(1, 10000);
 
 UPDATE equipment_request
 SET
-    done_at = now() - '2 years'::interval * random(),
+    done_at = now() - '2 years'::interval * random()
 WHERE
-    equipment_request_status = 'EQUIPMENT_REQUEST_STATUS_DONE';
+    equipment_request_status = 'EQUIPMENT_REQUEST_STATUS_DONE'::equipment_request_status;
 
 
 INSERT INTO equipment_request_event (equipment_request_id, type, status, created_at, updated_at, payload)
 SELECT
     (random() * 10 + 5)::int4,
     (CASE
-         WHEN random() < 0.3 THEN 'EQUIPMENT_REQUEST_EVENT_TYPE_CREATED'
-         WHEN random() < 0.5 THEN 'EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_EQUIPMENT_ID'
-         WHEN random() < 0.7 THEN 'EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_STATUS'
-         ELSE 'EQUIPMENT_REQUEST_EVENT_TYPE_DELETED'
+         WHEN random() < 0.3 THEN 'EQUIPMENT_REQUEST_EVENT_TYPE_CREATED'::equipment_request_event_type
+         WHEN random() < 0.5 THEN 'EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_EQUIPMENT_ID'::equipment_request_event_type
+         WHEN random() < 0.7 THEN 'EQUIPMENT_REQUEST_EVENT_TYPE_UPDATED_STATUS'::equipment_request_event_type
+         ELSE 'EQUIPMENT_REQUEST_EVENT_TYPE_DELETED'::equipment_request_event_type
         END),
     (CASE
-         WHEN random() < 0.3 THEN 'EQUIPMENT_REQUEST_EVENT_STATUS_UNLOCKED'
-         WHEN random() < 0.5 THEN 'EQUIPMENT_REQUEST_EVENT_STATUS_LOCKED'
-         ELSE 'EQUIPMENT_REQUEST_EVENT_STATUS_PROCESSED'
+         WHEN random() < 0.3 THEN 'EQUIPMENT_REQUEST_EVENT_STATUS_UNLOCKED'::equipment_request_event_status
+         WHEN random() < 0.5 THEN 'EQUIPMENT_REQUEST_EVENT_STATUS_LOCKED'::equipment_request_event_status
+         ELSE 'EQUIPMENT_REQUEST_EVENT_STATUS_PROCESSED'::equipment_request_event_status
         END),
     now() - '2 years'::interval * random(),
-    now() - '2 years'::interval * random(),
+    (CASE
+         WHEN random() < 0.3 THEN now() - '2 years'::interval * random()
+    ELSE NULL
+    END),
     null
 FROM
     generate_series(1, 10000);

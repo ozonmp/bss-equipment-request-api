@@ -111,10 +111,10 @@ func (mr *MockEquipmentRequestRepoMockRecorder) RemoveEquipmentRequest(arg0, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveEquipmentRequest", reflect.TypeOf((*MockEquipmentRequestRepo)(nil).RemoveEquipmentRequest), arg0, arg1, arg2)
 }
 
-// UpdateEquipmentIdEquipmentRequest mocks base method.
-func (m *MockEquipmentRequestRepo) UpdateEquipmentIdEquipmentRequest(arg0 context.Context, arg1, arg2 uint64, arg3 *sqlx.Tx) (bool, error) {
+// UpdateEquipmentIDEquipmentRequest mocks base method.
+func (m *MockEquipmentRequestRepo) UpdateEquipmentIDEquipmentRequest(arg0 context.Context, arg1, arg2 uint64, arg3 *sqlx.Tx) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateEquipmentIdEquipmentRequest", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "UpdateEquipmentIDEquipmentRequest", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -123,7 +123,7 @@ func (m *MockEquipmentRequestRepo) UpdateEquipmentIdEquipmentRequest(arg0 contex
 // UpdateEquipmentIdEquipmentRequest indicates an expected call of UpdateEquipmentIdEquipmentRequest.
 func (mr *MockEquipmentRequestRepoMockRecorder) UpdateEquipmentIdEquipmentRequest(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEquipmentIdEquipmentRequest", reflect.TypeOf((*MockEquipmentRequestRepo)(nil).UpdateEquipmentIdEquipmentRequest), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEquipmentIDEquipmentRequest", reflect.TypeOf((*MockEquipmentRequestRepo)(nil).UpdateEquipmentIDEquipmentRequest), arg0, arg1, arg2, arg3)
 }
 
 // UpdateStatusEquipmentRequest mocks base method.
