@@ -24,9 +24,6 @@ const (
 	equipmentRequestDeletedAtAtColumn = "deleted_at"
 )
 
-// ErrNoEquipmentRequest is a "equipment request not founded" error
-var ErrNoEquipmentRequest = errors.New("no equipment request found")
-
 // EquipmentRequestRepo is DAO for Equipment Request
 type EquipmentRequestRepo interface {
 	DescribeEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (*model.EquipmentRequest, error)
@@ -67,10 +64,11 @@ func (r *equipmentRequestRepo) DescribeEquipmentRequest(ctx context.Context, equ
 	var equipmentRequest model.EquipmentRequest
 	err = r.db.QueryRowxContext(ctx, query, args...).StructScan(&equipmentRequest)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, ErrNoEquipmentRequest
-	}
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
 		return nil, errors.Wrap(err, "db.QueryRowxContext()")
 	}
 
@@ -200,10 +198,10 @@ func (r *equipmentRequestRepo) Exists(ctx context.Context, equipmentRequestID ui
 	var exists bool
 	err = r.db.QueryRowxContext(ctx, query, args...).Scan(&exists)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, ErrNoEquipmentRequest
-	}
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
 		return false, errors.Wrap(err, "db.QueryRowxContext()")
 	}
 
