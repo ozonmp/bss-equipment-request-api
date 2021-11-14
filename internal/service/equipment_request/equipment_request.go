@@ -116,7 +116,7 @@ func (s service) CheckExistsEquipmentRequest(ctx context.Context, equipmentReque
 		return false, errors.Wrap(err, "repository.RemoveEquipmentRequest")
 	}
 
-	if exists == false {
+	if !exists {
 		return false, ErrNoExistsEquipmentRequest
 	}
 
@@ -130,7 +130,7 @@ func (s service) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID 
 			return false, errors.Wrap(err, "repository.RemoveEquipmentRequest")
 		}
 
-		if result == false {
+		if !result {
 			return false, ErrNoRemovedEquipmentRequest
 		}
 
@@ -159,7 +159,7 @@ func (s service) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmen
 			return false, errors.Wrap(err, "repository.UpdateEquipmentIDEquipmentRequest")
 		}
 
-		if result == false {
+		if !result {
 			return false, ErrNoUpdatedEquipmentIDEquipmentRequest
 		}
 
@@ -188,7 +188,7 @@ func (s service) UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequ
 			return false, errors.Wrap(err, "repository.UpdateStatusEquipmentRequest")
 		}
 
-		if result == false {
+		if !result {
 			return false, ErrNoUpdatedStatusEquipmentRequest
 		}
 

@@ -28,7 +28,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if exists == false {
+	if !exists {
 		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Int32(
 			"equipmentRequestStatus", int32(req.EquipmentRequestStatus)).Msg("equipment request not found")
 		totalEquipmentRequestNotFound.Inc()
@@ -53,7 +53,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if result == false {
+	if !result {
 		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Int32(
 			"equipmentRequestStatus", int32(req.EquipmentRequestStatus)).Msg("unable to update update status of equipment request")
 		totalEquipmentRequestNotFound.Inc()

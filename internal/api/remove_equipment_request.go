@@ -27,7 +27,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if exists == false {
+	if !exists {
 		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Msg("equipment request not found")
 		totalEquipmentRequestNotFound.Inc()
 
@@ -42,7 +42,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if result == false {
+	if !result {
 		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Msg("unable to remove equipment request")
 		totalEquipmentRequestNotFound.Inc()
 
