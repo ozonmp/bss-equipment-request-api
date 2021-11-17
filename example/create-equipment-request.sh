@@ -7,10 +7,10 @@ payload=$(
   cat <<EOF
 {
   "employee_id": 12,
-  "equipment_id": 12,
+  "equipment_id": 8,
   "created_at": "2020-05-22T20:32:05Z",
   "done_at": "2020-05-22T23:32:05Z",
-  "equipment_request_status_id": 0
+  "equipment_request_status": 2
 }
 EOF
 )

@@ -169,14 +169,14 @@ func (p *producer) addToRemoveBatch(toRemoveBatch *[]uint64, eventID uint64) {
 }
 
 func (p *producer) unlockBatch(toUnlockBatch []uint64) {
-	err := p.repo.Unlock(toUnlockBatch)
+	err := p.repo.Unlock(p.ctx, toUnlockBatch)
 	if err != nil {
 		log.Fatalf("unable to Unlock %v, %v", toUnlockBatch, err)
 	}
 }
 
 func (p *producer) removeBatch(toRemoveBatch []uint64) {
-	err := p.repo.Remove(toRemoveBatch)
+	err := p.repo.Remove(p.ctx, toRemoveBatch)
 	if err != nil {
 		log.Fatalf("unable to Remove %v, %v", toRemoveBatch, err)
 	}

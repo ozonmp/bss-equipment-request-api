@@ -40,6 +40,22 @@ service BssEquipmentRequestApiService {
       body: "*"
     };
   }
+
+  // UpdateEquipmentIDEquipmentRequestV1 - Update equipment id of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+  rpc UpdateEquipmentIDEquipmentRequestV1(UpdateEquipmentIDEquipmentRequestV1Request) returns (UpdateEquipmentIDEquipmentRequestV1Response) {
+    option (google.api.http) = {
+      post: "/api/v1/update/equipment_id",
+      body: "*"
+    };
+  }
+
+  // UpdateStatusEquipmentRequestV1 - Update status of equipment request (as a example of task4.5 "Реализовать поддержку вариаций типов событий на обновление сущности")
+  rpc UpdateStatusEquipmentRequestV1(UpdateStatusEquipmentRequestV1Request) returns (UpdateStatusEquipmentRequestV1Response) {
+    option (google.api.http) = {
+      post: "/api/v1/update/status",
+      body: "*"
+    };
+  }
 }
 
 message EquipmentRequest {
@@ -47,8 +63,10 @@ message EquipmentRequest {
   uint64 employee_id = 2;
   uint64 equipment_id = 3;
   google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp done_at = 5;
-  uint64 equipment_request_status_id = 6;
+  google.protobuf.Timestamp updated_at = 5;
+  google.protobuf.Timestamp deleted_at = 6;
+  google.protobuf.Timestamp done_at = 7;
+  EquipmentRequestStatus equipment_request_status = 8;
 }
 
 message DescribeEquipmentRequestV1Request {
@@ -60,19 +78,21 @@ message DescribeEquipmentRequestV1Response {
 }
 
 enum EquipmentRequestStatus {
-  EQUIPMENT_REQUEST_STATUS_ID_UNSPECIFIED = 0;
-  EQUIPMENT_REQUEST_STATUS_ID_DO = 1;
-  EQUIPMENT_REQUEST_STATUS_ID_IN_PROGRESS = 2;
-  EQUIPMENT_REQUEST_STATUS_ID_DONE = 3;
-  EQUIPMENT_REQUEST_STATUS_ID_CANCELLED = 4;
+  EQUIPMENT_REQUEST_STATUS_UNSPECIFIED = 0;
+  EQUIPMENT_REQUEST_STATUS_DO = 1;
+  EQUIPMENT_REQUEST_STATUS_IN_PROGRESS = 2;
+  EQUIPMENT_REQUEST_STATUS_DONE = 3;
+  EQUIPMENT_REQUEST_STATUS_CANCELLED = 4;
 }
 
 message CreateEquipmentRequestV1Request {
   uint64 employee_id = 1 [(validate.rules).uint64.gt = 0];
   uint64 equipment_id = 2 [(validate.rules).uint64.gt = 0];
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp done_at = 4;
-  EquipmentRequestStatus equipment_request_status_id = 5 [(validate.rules).enum.defined_only = true];
+  google.protobuf.Timestamp created_at = 3 [(validate.rules).timestamp.required = true];
+  google.protobuf.Timestamp updated_at = 4;
+  google.protobuf.Timestamp deleted_at = 5;
+  google.protobuf.Timestamp done_at = 6;
+  EquipmentRequestStatus equipment_request_status = 7 [(validate.rules).enum.defined_only = true];
 }
 
 message CreateEquipmentRequestV1Response {
@@ -80,7 +100,8 @@ message CreateEquipmentRequestV1Response {
 }
 
 message ListEquipmentRequestV1Request {
-
+  uint64 limit = 1 [(validate.rules).uint64.gt = 0];
+  uint64 offset = 2 [(validate.rules).uint64 = {in: [5, 20, 50, 100, 200]}];
 }
 
 message ListEquipmentRequestV1Response {
@@ -94,3 +115,24 @@ message RemoveEquipmentRequestV1Request {
 message RemoveEquipmentRequestV1Response {
   bool removed = 1;
 }
+
+message UpdateEquipmentIDEquipmentRequestV1Request {
+  uint64 equipment_request_id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 equipment_id = 2 [(validate.rules).uint64.gt = 0];
+}
+
+message UpdateEquipmentIDEquipmentRequestV1Response {
+  bool updated = 1;
+}
+
+message UpdateStatusEquipmentRequestV1Request {
+  uint64 equipment_request_id = 1 [(validate.rules).uint64.gt = 0];
+  EquipmentRequestStatus equipment_request_status = 2 [(validate.rules).enum.defined_only = true];
+}
+
+message UpdateStatusEquipmentRequestV1Response {
+  bool updated = 1;
+}
+
+
+

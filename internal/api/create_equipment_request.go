@@ -20,12 +20,25 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	id, err := o.equipmentRequestService.CreateEquipmentRequest(ctx,
-		req.EquipmentId,
-		req.EmployeeId,
-		req.CreatedAt,
-		req.DoneAt,
-		req.EquipmentRequestStatusId)
+	newItem := pb.EquipmentRequest{
+		EquipmentId:            req.EquipmentId,
+		EmployeeId:             req.EmployeeId,
+		CreatedAt:              req.CreatedAt,
+		UpdatedAt:              req.UpdatedAt,
+		DeletedAt:              req.DeletedAt,
+		DoneAt:                 req.DoneAt,
+		EquipmentRequestStatus: req.EquipmentRequestStatus,
+	}
+
+	equipmentRequest, err := o.convertPbToEquipmentRequest(&newItem)
+
+	if err != nil {
+		log.Error().Err(err).Msg("CreateEquipmentRequestV1.convertPbToEquipmentRequest -- failed")
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	id, err := o.equipmentRequestService.CreateEquipmentRequest(ctx, equipmentRequest)
 
 	if err != nil {
 		log.Error().Err(err).Msg("CreateEquipmentRequestV1 -- failed")
@@ -35,11 +48,13 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 
 	if id == 0 {
 		log.Debug().Uint64(
-			"employeeId", req.EquipmentId).Uint64(
-			"equipmentId", req.EmployeeId).Time(
+			"equipmentId", req.EquipmentId).Uint64(
+			"employeeId", req.EmployeeId).Time(
 			"createdAt", req.CreatedAt.AsTime()).Time(
+			"updatedAt", req.UpdatedAt.AsTime()).Time(
+			"deletedAt", req.DeletedAt.AsTime()).Time(
 			"doneAt", req.DoneAt.AsTime()).Int32(
-			"equipmentRequestStatusId", int32(req.EquipmentRequestStatusId)).Msg(
+			"equipmentRequestStatus", int32(req.EquipmentRequestStatus)).Msg(
 			"equipment request does not created")
 		totalEquipmentRequestNotFound.Inc()
 

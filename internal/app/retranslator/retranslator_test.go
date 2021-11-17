@@ -2,6 +2,8 @@ package retranslator
 
 import (
 	"context"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jmoiron/sqlx"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"sync"
 	"testing"
@@ -18,9 +20,13 @@ func setUp(t *testing.T) (Config, *mocks.MockEventRepo, *mocks.MockEventSender, 
 	repo := mocks.NewMockEventRepo(ctrl)
 	sender := mocks.NewMockEventSender(ctrl)
 
+	mockDB, _, _ := sqlmock.New()
+	sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
+
 	ctx, ctxCancel := context.WithCancel(parentCtx)
 
 	config := Config{
+		DB:              sqlxDB,
 		ChannelSize:     512,
 		ConsumerCount:   2,
 		ConsumeSize:     10,
@@ -50,10 +56,12 @@ func TestStartAndGetOneEvent(t *testing.T) {
 	defer tearDown(retranslator, ctxFunc)
 
 	event := model.EquipmentRequestEvent{
-		ID:     12,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
+		ID:                 12,
+		Type:               model.Created,
+		Status:             model.Unlocked,
+		CreatedAt:          time.Now(),
+		EquipmentRequestID: 17,
+		Payload:            &model.EquipmentRequestEventPayload{},
 	}
 
 	eventLockCount := int(config.ConsumerCount * config.BatchSize)
@@ -61,8 +69,8 @@ func TestStartAndGetOneEvent(t *testing.T) {
 	wg.Add(eventLockCount)
 	defer wg.Wait()
 
-	repo.EXPECT().Lock(config.ConsumeSize).DoAndReturn(
-		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+	repo.EXPECT().Lock(config.Ctx, config.DB, config.ConsumeSize).DoAndReturn(
+		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
 			return []model.EquipmentRequestEvent{event}, nil
 		}).Times(eventLockCount)
@@ -84,8 +92,8 @@ func TestStartAndGetOneEvent(t *testing.T) {
 			return nil
 		}).Times(eventSendCount)
 
-	repo.EXPECT().Remove([]uint64{event.ID}).DoAndReturn(
-		func([]uint64) error {
+	repo.EXPECT().Remove(config.Ctx, []uint64{event.ID}).DoAndReturn(
+		func(context.Context, []uint64) error {
 			wgRepo.Done()
 			return nil
 		}).Times(removeCount)

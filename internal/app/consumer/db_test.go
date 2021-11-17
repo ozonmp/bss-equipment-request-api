@@ -3,7 +3,9 @@ package consumer
 import (
 	"context"
 	"errors"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
+	"github.com/jmoiron/sqlx"
 	"github.com/ozonmp/bss-equipment-request-api/internal/mocks"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"sync"
@@ -17,6 +19,9 @@ func setUp(t *testing.T, consumers uint64, channelSize int, timeout time.Duratio
 	repo := mocks.NewMockEventRepo(ctrl)
 	ctx, ctxCancel := context.WithCancel(parentCtx)
 
+	mockDB, _, _ := sqlmock.New()
+	sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
+
 	events := make(chan model.EquipmentRequestEvent, channelSize)
 
 	config := Config{
@@ -26,6 +31,7 @@ func setUp(t *testing.T, consumers uint64, channelSize int, timeout time.Duratio
 		BatchSize: batchSize,
 		Timeout:   timeout,
 		Ctx:       ctx,
+		DB:        sqlxDB,
 	}
 
 	return config, events, repo, ctxCancel
@@ -38,32 +44,38 @@ func tearDown(db Consumer, ctxFunc context.CancelFunc) {
 
 func TestStartAndGetOneEvent(t *testing.T) {
 	t.Parallel()
-	config, events, repo, ctxFunc := setUp(t, 5, 1, time.Millisecond, 1)
+	config, events, repo, ctxFunc := setUp(t, 4, 1, time.Millisecond, 1)
+
 	db := NewDbConsumer(
 		config.Ctx,
 		config.N,
 		config.BatchSize,
 		config.Timeout,
 		config.Repo,
-		config.Events)
+		config.Events,
+		config.DB)
 	defer tearDown(db, ctxFunc)
-
-	event := model.EquipmentRequestEvent{
-		ID:     12,
-		Type:   model.Created,
-		Status: model.Deferred,
-		Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
-	}
 
 	eventCount := int(config.N)
 	var wg sync.WaitGroup
 	wg.Add(eventCount)
 	defer wg.Wait()
 
-	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
-		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+	var eventList = []model.EquipmentRequestEvent{
+		{
+			ID:                 12,
+			Type:               model.Created,
+			Status:             model.Unlocked,
+			CreatedAt:          time.Now(),
+			EquipmentRequestID: 17,
+			Payload:            &model.EquipmentRequestEventPayload{},
+		},
+	}
+
+	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(
+		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
-			return []model.EquipmentRequestEvent{event}, nil
+			return eventList, nil
 		}).Times(eventCount)
 
 	db.Start()
@@ -75,13 +87,15 @@ func TestStartAndGetOneEvent(t *testing.T) {
 func TestStartAndGetErrors(t *testing.T) {
 	t.Parallel()
 	config, _, repo, ctxFunc := setUp(t, 5, 10, time.Millisecond, 3)
+
 	db := NewDbConsumer(
 		config.Ctx,
 		config.N,
 		config.BatchSize,
 		config.Timeout,
 		config.Repo,
-		config.Events)
+		config.Events,
+		config.DB)
 	defer tearDown(db, ctxFunc)
 
 	eventCount := int(config.N)
@@ -89,8 +103,8 @@ func TestStartAndGetErrors(t *testing.T) {
 	wg.Add(eventCount)
 	defer wg.Wait()
 
-	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
-		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(
+		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
 			return nil, errors.New("empty result error")
 		}).Times(eventCount)
@@ -101,29 +115,16 @@ func TestStartAndGetErrors(t *testing.T) {
 func TestStartAndGetSeveralEvent(t *testing.T) {
 	t.Parallel()
 	config, _, repo, ctxFunc := setUp(t, 3, 10, time.Millisecond, 2)
+
 	db := NewDbConsumer(
 		config.Ctx,
 		config.N,
 		config.BatchSize,
 		config.Timeout,
 		config.Repo,
-		config.Events)
+		config.Events,
+		config.DB)
 	defer tearDown(db, ctxFunc)
-
-	events := []model.EquipmentRequestEvent{
-		{
-			ID:     12,
-			Type:   model.Created,
-			Status: model.Deferred,
-			Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
-		},
-		{
-			ID:     14,
-			Type:   model.Updated,
-			Status: model.Processed,
-			Entity: &model.EquipmentRequest{ID: 1, EmployeeID: 1, EquipmentID: 1, CreatedAt: nil, DoneAt: nil, EquipmentRequestStatusID: model.Done},
-		},
-	}
 
 	eventCount := int(config.N)
 
@@ -131,14 +132,33 @@ func TestStartAndGetSeveralEvent(t *testing.T) {
 	wg.Add(eventCount)
 	defer wg.Wait()
 
-	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
-		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+	eventList := []model.EquipmentRequestEvent{
+		{
+			ID:                 12,
+			Type:               model.Created,
+			Status:             model.Unlocked,
+			CreatedAt:          time.Now(),
+			EquipmentRequestID: 17,
+			Payload:            &model.EquipmentRequestEventPayload{},
+		},
+		{
+			ID:                 14,
+			Type:               model.UpdatedStatus,
+			Status:             model.Unlocked,
+			CreatedAt:          time.Now(),
+			EquipmentRequestID: 12,
+			Payload:            &model.EquipmentRequestEventPayload{},
+		},
+	}
+
+	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(
+		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
-			return events, nil
+			return eventList, nil
 		}).Times(1)
 
-	repo.EXPECT().Lock(config.BatchSize).DoAndReturn(
-		func(uint642 uint64) ([]model.EquipmentRequestEvent, error) {
+	repo.EXPECT().Lock(config.Ctx, config.DB, config.BatchSize).DoAndReturn(
+		func(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]model.EquipmentRequestEvent, error) {
 			wg.Done()
 			return nil, errors.New("empty result error")
 		}).Times(eventCount - 1)
