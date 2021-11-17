@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/opentracing/opentracing-go"
 	"github.com/ozonmp/bss-equipment-request-api/internal/database"
 	"github.com/pkg/errors"
 	"time"
@@ -49,6 +50,9 @@ func NewEquipmentRequestRepo(db *sqlx.DB, batchSize uint) EquipmentRequestRepo {
 }
 
 func (r *equipmentRequestRepo) DescribeEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (*model.EquipmentRequest, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.DescribeEquipmentRequest")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Select("*").
 		From(equipmentRequestTable).
@@ -76,6 +80,9 @@ func (r *equipmentRequestRepo) DescribeEquipmentRequest(ctx context.Context, equ
 }
 
 func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equipmentRequest *model.EquipmentRequest, tx *sqlx.Tx) (uint64, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.CreateEquipmentRequest")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Insert(equipmentRequestTable).
 		Columns(
@@ -112,13 +119,20 @@ func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equip
 	err = queryer.QueryRowxContext(ctx, query, args...).Scan(&id)
 
 	if err != nil {
-		return 0, errors.Wrap(err, "db.QueryRowContext()")
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil
+		}
+
+		return 0, errors.Wrap(err, "db.QueryRowxContext()")
 	}
 
 	return id, nil
 }
 
 func (r *equipmentRequestRepo) ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.ListEquipmentRequest")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Select("*").
 		From(equipmentRequestTable).
@@ -142,6 +156,9 @@ func (r *equipmentRequestRepo) ListEquipmentRequest(ctx context.Context, limit u
 }
 
 func (r *equipmentRequestRepo) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64, tx *sqlx.Tx) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.RemoveEquipmentRequest")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Update(equipmentRequestTable).
 		Set(equipmentRequestDeletedAtAtColumn, time.Now()).
@@ -181,6 +198,9 @@ func (r *equipmentRequestRepo) RemoveEquipmentRequest(ctx context.Context, equip
 }
 
 func (r *equipmentRequestRepo) Exists(ctx context.Context, equipmentRequestID uint64) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.Exists")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Select("1").
 		Prefix("SELECT EXISTS (").
@@ -210,6 +230,9 @@ func (r *equipmentRequestRepo) Exists(ctx context.Context, equipmentRequestID ui
 
 // nolint:dupl
 func (r *equipmentRequestRepo) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64, tx *sqlx.Tx) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.UpdateEquipmentIDEquipmentRequest")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Update(equipmentRequestTable).
 		Set(equipmentRequestUpdatedAtColumn, time.Now()).
@@ -251,6 +274,9 @@ func (r *equipmentRequestRepo) UpdateEquipmentIDEquipmentRequest(ctx context.Con
 
 // nolint:dupl
 func (r *equipmentRequestRepo) UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequestID uint64, status model.EquipmentRequestStatus, tx *sqlx.Tx) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.UpdateStatusEquipmentRequest")
+	defer span.Finish()
+
 	sb := database.StatementBuilder.
 		Update(equipmentRequestTable).
 		Set(equipmentRequestUpdatedAtColumn, time.Now()).

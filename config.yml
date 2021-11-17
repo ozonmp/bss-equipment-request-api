@@ -2,6 +2,10 @@ project:
   name: Ozon Code Platform Template API
   debug: true
   environment: development
+  serviceName: bss_equipment_request_service
+
+telemetry:
+  graylogPath: 127.0.0.1:12201
 
 grpc:
   host: 0.0.0.0

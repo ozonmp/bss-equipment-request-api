@@ -12,6 +12,10 @@ import (
 // EventType is a type of events
 type EventType string
 
+func (et EventType) String() string {
+	return string(et)
+}
+
 const (
 	// Created is a "created item" type of events
 	Created EventType = "EQUIPMENT_REQUEST_EVENT_TYPE_CREATED"

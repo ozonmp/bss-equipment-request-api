@@ -1,0 +1,465 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ozonmp/bss_equipment_request_api/v1/bss_equipment_request_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BssEquipmentRequestApiService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/equipment_requests/create": {
+      "post": {
+        "summary": "CreateEquipmentRequestV1 - Create a new equipment request",
+        "operationId": "BssEquipmentRequestApiService_CreateEquipmentRequestV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateEquipmentRequestV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateEquipmentRequestV1Request"
+            }
+          },
+          {
+            "name": "grpc-metadata-log-level",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BssEquipmentRequestApiService"
+        ]
+      }
+    },
+    "/api/v1/equipment_requests/list": {
+      "post": {
+        "summary": "ListEquipmentRequestV1 - Get list of all equipment requests",
+        "operationId": "BssEquipmentRequestApiService_ListEquipmentRequestV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEquipmentRequestV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEquipmentRequestV1Request"
+            }
+          },
+          {
+            "name": "grpc-metadata-log-level",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BssEquipmentRequestApiService"
+        ]
+      }
+    },
+    "/api/v1/equipment_requests/remove": {
+      "post": {
+        "summary": "RemoveEquipmentRequestV1 - Remove one equipment request",
+        "operationId": "BssEquipmentRequestApiService_RemoveEquipmentRequestV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RemoveEquipmentRequestV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RemoveEquipmentRequestV1Request"
+            }
+          },
+          {
+            "name": "grpc-metadata-log-level",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BssEquipmentRequestApiService"
+        ]
+      }
+    },
+    "/api/v1/equipment_requests/{equipmentRequestId}": {
+      "post": {
+        "summary": "DescribeEquipmentRequestV1 - Describe a equipment request",
+        "operationId": "BssEquipmentRequestApiService_DescribeEquipmentRequestV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DescribeEquipmentRequestV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "equipmentRequestId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "name": "grpc-metadata-log-level",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BssEquipmentRequestApiService"
+        ]
+      }
+    },
+    "/api/v1/update/equipment_id": {
+      "post": {
+        "summary": "UpdateEquipmentIDEquipmentRequestV1 - Update equipment id of equipment request (as a example of task4.5 \"Реализовать поддержку вариаций типов событий на обновление сущности\")",
+        "operationId": "BssEquipmentRequestApiService_UpdateEquipmentIDEquipmentRequestV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateEquipmentIDEquipmentRequestV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateEquipmentIDEquipmentRequestV1Request"
+            }
+          },
+          {
+            "name": "grpc-metadata-log-level",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BssEquipmentRequestApiService"
+        ]
+      }
+    },
+    "/api/v1/update/status": {
+      "post": {
+        "summary": "UpdateStatusEquipmentRequestV1 - Update status of equipment request (as a example of task4.5 \"Реализовать поддержку вариаций типов событий на обновление сущности\")",
+        "operationId": "BssEquipmentRequestApiService_UpdateStatusEquipmentRequestV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateStatusEquipmentRequestV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateStatusEquipmentRequestV1Request"
+            }
+          },
+          {
+            "name": "grpc-metadata-log-level",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BssEquipmentRequestApiService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateEquipmentRequestV1Request": {
+      "type": "object",
+      "properties": {
+        "employeeId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "equipmentId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "doneAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "equipmentRequestStatus": {
+          "$ref": "#/definitions/v1EquipmentRequestStatus"
+        }
+      }
+    },
+    "v1CreateEquipmentRequestV1Response": {
+      "type": "object",
+      "properties": {
+        "equipmentRequestId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1DescribeEquipmentRequestV1Response": {
+      "type": "object",
+      "properties": {
+        "equipmentRequest": {
+          "$ref": "#/definitions/v1EquipmentRequest"
+        }
+      }
+    },
+    "v1EquipmentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "employeeId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "equipmentId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "doneAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "equipmentRequestStatus": {
+          "$ref": "#/definitions/v1EquipmentRequestStatus"
+        }
+      }
+    },
+    "v1EquipmentRequestStatus": {
+      "type": "string",
+      "enum": [
+        "EQUIPMENT_REQUEST_STATUS_UNSPECIFIED",
+        "EQUIPMENT_REQUEST_STATUS_DO",
+        "EQUIPMENT_REQUEST_STATUS_IN_PROGRESS",
+        "EQUIPMENT_REQUEST_STATUS_DONE",
+        "EQUIPMENT_REQUEST_STATUS_CANCELLED"
+      ],
+      "default": "EQUIPMENT_REQUEST_STATUS_UNSPECIFIED"
+    },
+    "v1ListEquipmentRequestV1Request": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1ListEquipmentRequestV1Response": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1EquipmentRequest"
+          }
+        }
+      }
+    },
+    "v1RemoveEquipmentRequestV1Request": {
+      "type": "object",
+      "properties": {
+        "equipmentRequestId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1RemoveEquipmentRequestV1Response": {
+      "type": "object",
+      "properties": {
+        "removed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1UpdateEquipmentIDEquipmentRequestV1Request": {
+      "type": "object",
+      "properties": {
+        "equipmentRequestId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "equipmentId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1UpdateEquipmentIDEquipmentRequestV1Response": {
+      "type": "object",
+      "properties": {
+        "updated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1UpdateStatusEquipmentRequestV1Request": {
+      "type": "object",
+      "properties": {
+        "equipmentRequestId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "equipmentRequestStatus": {
+          "$ref": "#/definitions/v1EquipmentRequestStatus"
+        }
+      }
+    },
+    "v1UpdateStatusEquipmentRequestV1Response": {
+      "type": "object",
+      "properties": {
+        "updated": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

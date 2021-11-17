@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/jmoiron/sqlx"
 	"github.com/ozonmp/bss-equipment-request-api/internal/api"
-	"github.com/ozonmp/bss-equipment-request-api/internal/mocks/server"
+	"github.com/ozonmp/bss-equipment-request-api/internal/mocks"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"

@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
 	"github.com/ozonmp/bss-equipment-request-api/internal/database"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"github.com/pkg/errors"
@@ -35,6 +36,8 @@ func NewEventRepo(db *sqlx.DB) EventRepo {
 }
 
 func (r *eventRepo) Add(ctx context.Context, event *model.EquipmentRequestEvent, tx *sqlx.Tx) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "eventRepo.Add")
+	defer span.Finish()
 
 	sb := database.StatementBuilder.
 		Insert(equipmentRequestEventTable).

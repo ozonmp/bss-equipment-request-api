@@ -2,9 +2,8 @@ package api
 
 import (
 	"context"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
-	"github.com/rs/zerolog/log"
-
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -15,42 +14,36 @@ func (o *equipmentRequestAPI) UpdateEquipmentIDEquipmentRequestV1(
 ) (*pb.UpdateEquipmentIDEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		log.Error().Err(err).Msg("UpdateEquipmentIdEquipmentRequestV1 - invalid argument")
+		logger.ErrorKV(ctx, updateEquipmentIDEquipmentRequestV1LogTag+": invalid argument",
+			"err", err,
+		)
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	exists, err := o.equipmentRequestService.CheckExistsEquipmentRequest(ctx, req.EquipmentRequestId)
-	if err != nil {
-		log.Error().Err(err).Msg("UpdateEquipmentIdEquipmentRequestV1 -- failed")
-
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	if !exists {
-		log.Debug().Uint64("equipmentRequestId", req.EquipmentId).Msg("equipment request not found")
-		totalEquipmentRequestNotFound.Inc()
-
-		return nil, status.Error(codes.NotFound, "equipment request not found")
 	}
 
 	result, err := o.equipmentRequestService.UpdateEquipmentIDEquipmentRequest(ctx, req.EquipmentRequestId, req.EquipmentId)
 
 	if err != nil {
-		log.Error().Err(err).Msg("UpdateEquipmentIdEquipmentRequestV1 -- failed")
+		logger.ErrorKV(ctx, updateEquipmentIDEquipmentRequestV1LogTag+": equipmentRequestService.UpdateEquipmentIDEquipmentRequest failed",
+			"err", err,
+			"equipmentRequestId", req.EquipmentId,
+			"equipmentId", req.EquipmentId,
+		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	if !result {
-		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Uint64(
-			"equipmentId", req.EquipmentId).Msg("unable to update equipment id of equipment request")
-		totalEquipmentRequestNotFound.Inc()
+		logger.ErrorKV(ctx, updateEquipmentIDEquipmentRequestV1LogTag+": equipmentRequestService.UpdateEquipmentIDEquipmentRequest failed",
+			"err", "unable to update equipment id of equipment request, no rows affected",
+			"equipmentRequestId", req.EquipmentId,
+			"equipmentId", req.EquipmentId,
+		)
 
-		return nil, status.Error(codes.Internal, "equipment id of equipment request not updated")
+		return nil, status.Error(codes.Internal, "unable to update equipment id of equipment request")
 	}
 
-	log.Debug().Msg("UpdateEquipmentIdEquipmentRequestV1 - success")
+	logger.InfoKV(ctx, updateEquipmentIDEquipmentRequestV1LogTag, "success")
 
 	return &pb.UpdateEquipmentIDEquipmentRequestV1Response{
 		Updated: result,

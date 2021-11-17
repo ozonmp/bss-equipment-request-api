@@ -2,10 +2,8 @@ package api
 
 import (
 	"context"
-	"github.com/ozonmp/bss-equipment-request-api/internal/model"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
-	"github.com/rs/zerolog/log"
-
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -16,52 +14,47 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 ) (*pb.UpdateStatusEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		log.Error().Err(err).Msg("UpdateStatusEquipmentRequestV1 - invalid argument")
+		logger.ErrorKV(ctx, updateStatusEquipmentRequestV1LogTag+": invalid argument",
+			"err", err,
+		)
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	exists, err := o.equipmentRequestService.CheckExistsEquipmentRequest(ctx, req.EquipmentRequestId)
+	equipmentRequestStatus, err := o.convertPbEquipmentRequestStatus(req.EquipmentRequestStatus)
+
 	if err != nil {
-		log.Error().Err(err).Msg("UpdateStatusEquipmentRequestV1 -- failed")
+		logger.ErrorKV(ctx, updateStatusEquipmentRequestV1LogTag+": unable to convert Pb EquipmentRequestStatus to EquipmentRequestStatus",
+			"err", err,
+			"equipmentRequestStatus", req.EquipmentRequestStatus,
+		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if !exists {
-		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Int32(
-			"equipmentRequestStatus", int32(req.EquipmentRequestStatus)).Msg("equipment request not found")
-		totalEquipmentRequestNotFound.Inc()
-
-		return nil, status.Error(codes.NotFound, "equipment request not found")
-	}
-
-	statusVal, ok := pb.EquipmentRequestStatus_name[int32(req.EquipmentRequestStatus)]
-	var equipmentRequestStatus model.EquipmentRequestStatus
-
-	if !ok {
-		return nil, ErrUnableToConvertEquipmentRequestStatus
-	}
-
-	equipmentRequestStatus = model.EquipmentRequestStatus(statusVal)
-
-	result, err := o.equipmentRequestService.UpdateStatusEquipmentRequest(ctx, req.EquipmentRequestId, equipmentRequestStatus)
+	result, err := o.equipmentRequestService.UpdateStatusEquipmentRequest(ctx, req.EquipmentRequestId, *equipmentRequestStatus)
 
 	if err != nil {
-		log.Error().Err(err).Msg("UpdateStatusEquipmentRequestV1 -- failed")
+		logger.ErrorKV(ctx, updateStatusEquipmentRequestV1LogTag+": equipmentRequestService.UpdateStatusEquipmentRequest failed",
+			"err", err,
+			"equipmentRequestId", req.EquipmentRequestId,
+			"equipmentRequestStatus", req.EquipmentRequestStatus,
+		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	if !result {
-		log.Debug().Uint64("equipmentRequestId", req.EquipmentRequestId).Int32(
-			"equipmentRequestStatus", int32(req.EquipmentRequestStatus)).Msg("unable to update update status of equipment request")
-		totalEquipmentRequestNotFound.Inc()
+		logger.DebugKV(ctx, updateStatusEquipmentRequestV1LogTag+": failed",
+			"err", "unable to update update status of equipment request, no rows affected",
+			"equipmentRequestId", req.EquipmentRequestId,
+			"equipmentRequestStatus", req.EquipmentRequestStatus,
+		)
 
-		return nil, status.Error(codes.Internal, "status of equipment request equipment request not updated")
+		return nil, status.Error(codes.Internal, "unable to update update status of equipment request")
 	}
 
-	log.Debug().Msg("UpdateStatusEquipmentRequestV1 - success")
+	logger.InfoKV(ctx, updateStatusEquipmentRequestV1LogTag, "success")
 
 	return &pb.UpdateStatusEquipmentRequestV1Response{
 		Updated: result,

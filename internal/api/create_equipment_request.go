@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
-	"github.com/rs/zerolog/log"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,7 +15,9 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 ) (*pb.CreateEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		log.Error().Err(err).Msg("CreateEquipmentRequestV1Request - invalid argument")
+		logger.ErrorKV(ctx, createEquipmentRequestV1LogTag+": invalid argument",
+			"err", err,
+		)
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -33,7 +35,9 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 	equipmentRequest, err := o.convertPbToEquipmentRequest(&newItem)
 
 	if err != nil {
-		log.Error().Err(err).Msg("CreateEquipmentRequestV1.convertPbToEquipmentRequest -- failed")
+		logger.FatalKV(ctx, createEquipmentRequestV1LogTag+": unable to convert Pb message to EquipmentRequest",
+			"err", err,
+		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -41,27 +45,38 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 	id, err := o.equipmentRequestService.CreateEquipmentRequest(ctx, equipmentRequest)
 
 	if err != nil {
-		log.Error().Err(err).Msg("CreateEquipmentRequestV1 -- failed")
+		logger.ErrorKV(ctx, createEquipmentRequestV1LogTag+": equipmentRequestService.CreateEquipmentRequest failed",
+			"err", err,
+			"equipmentId", req.EquipmentId,
+			"employeeId", req.EmployeeId,
+			"createdAt", req.CreatedAt,
+			"updatedAt", req.UpdatedAt,
+			"deletedAt", req.DeletedAt,
+			"doneAt", req.DoneAt,
+			"equipmentRequestStatus", req.EquipmentRequestStatus,
+		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	if id == 0 {
-		log.Debug().Uint64(
-			"equipmentId", req.EquipmentId).Uint64(
-			"employeeId", req.EmployeeId).Time(
-			"createdAt", req.CreatedAt.AsTime()).Time(
-			"updatedAt", req.UpdatedAt.AsTime()).Time(
-			"deletedAt", req.DeletedAt.AsTime()).Time(
-			"doneAt", req.DoneAt.AsTime()).Int32(
-			"equipmentRequestStatus", int32(req.EquipmentRequestStatus)).Msg(
-			"equipment request does not created")
-		totalEquipmentRequestNotFound.Inc()
+		logger.DebugKV(ctx, createEquipmentRequestV1LogTag+": equipmentRequestService.CreateEquipmentRequest failed",
+			"err", "unable to get created equipment request",
+			"equipmentId", req.EquipmentId,
+			"employeeId", req.EmployeeId,
+			"createdAt", req.CreatedAt,
+			"updatedAt", req.UpdatedAt,
+			"deletedAt", req.DeletedAt,
+			"doneAt", req.DoneAt,
+			"equipmentRequestStatus", req.EquipmentRequestStatus,
+		)
 
-		return nil, status.Error(codes.Internal, "equipment request does not created")
+		return nil, status.Error(codes.Internal, "unable to get created equipment request")
 	}
 
-	log.Debug().Msg("CreateEquipmentRequestV1 - success")
+	logger.InfoKV(ctx, createEquipmentRequestV1LogTag, "success",
+		"equipmentRequestId", id,
+	)
 
 	return &pb.CreateEquipmentRequestV1Response{
 		EquipmentRequestId: id,

@@ -6,17 +6,19 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"github.com/ozonmp/bss-equipment-request-api/internal/service/equipment_request"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var (
-	totalEquipmentRequestNotFound = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "bss_equipment_request_api_not_found_total",
-		Help: "Total number of equipment requests that were not found",
-	})
+const (
+	createEquipmentRequestV1LogTag            = "CreateEquipmentRequestV1"
+	describeEquipmentRequestV1LogTag          = "DescribeEquipmentRequestV1"
+	listEquipmentRequestV1LogTag              = "ListEquipmentRequestV1"
+	removeEquipmentRequestV1LogTag            = "RemoveEquipmentRequestV1"
+	updateEquipmentIDEquipmentRequestV1LogTag = "UpdateEquipmentIDEquipmentRequestV1"
+	updateStatusEquipmentRequestV1LogTag      = "UpdateStatusEquipmentRequestV1"
+)
 
+var (
 	// ErrUnableToConvertEquipmentRequestStatus is a unable to convert model error
 	ErrUnableToConvertEquipmentRequestStatus = errors.New("unable to convert equipment request status")
 )
@@ -32,13 +34,11 @@ func NewEquipmentRequestAPI(equipmentRequestService equipment_request.ServiceInt
 }
 
 func (o *equipmentRequestAPI) convertEquipmentRequestToPb(equipmentRequest *model.EquipmentRequest) (*pb.EquipmentRequest, error) {
-	status, ok := pb.EquipmentRequestStatus_value[string(equipmentRequest.EquipmentRequestStatus)]
+	equipmentRequestStatus, err := o.convertEquipmentRequestStatusToPb(equipmentRequest.EquipmentRequestStatus)
 
-	if !ok {
-		return nil, ErrUnableToConvertEquipmentRequestStatus
+	if err != nil {
+		return nil, err
 	}
-
-	equipmentRequestStatus := pb.EquipmentRequestStatus(status)
 
 	return &pb.EquipmentRequest{
 		Id:                     equipmentRequest.ID,
@@ -48,18 +48,16 @@ func (o *equipmentRequestAPI) convertEquipmentRequestToPb(equipmentRequest *mode
 		UpdatedAt:              timestamppb.New(equipmentRequest.UpdatedAt.Time),
 		DoneAt:                 timestamppb.New(equipmentRequest.DoneAt.Time),
 		DeletedAt:              timestamppb.New(equipmentRequest.DeletedAt.Time),
-		EquipmentRequestStatus: equipmentRequestStatus,
+		EquipmentRequestStatus: *equipmentRequestStatus,
 	}, nil
 }
 
 func (o *equipmentRequestAPI) convertPbToEquipmentRequest(equipmentRequest *pb.EquipmentRequest) (*model.EquipmentRequest, error) {
-	status, ok := pb.EquipmentRequestStatus_name[int32(equipmentRequest.EquipmentRequestStatus)]
+	equipmentRequestStatus, err := o.convertPbEquipmentRequestStatus(equipmentRequest.EquipmentRequestStatus)
 
-	if !ok {
-		return nil, ErrUnableToConvertEquipmentRequestStatus
+	if err != nil {
+		return nil, err
 	}
-
-	equipmentRequestStatus := model.EquipmentRequestStatus(status)
 
 	updatedAtTime := o.convertPbTimeToNullableTime(equipmentRequest.UpdatedAt)
 	doneAtTime := o.convertPbTimeToNullableTime(equipmentRequest.DoneAt)
@@ -72,7 +70,7 @@ func (o *equipmentRequestAPI) convertPbToEquipmentRequest(equipmentRequest *pb.E
 		UpdatedAt:              updatedAtTime,
 		DoneAt:                 doneAtTime,
 		DeletedAt:              deletedAtTime,
-		EquipmentRequestStatus: equipmentRequestStatus,
+		EquipmentRequestStatus: *equipmentRequestStatus,
 	}, nil
 }
 
@@ -97,4 +95,28 @@ func (o *equipmentRequestAPI) convertRepeatedEquipmentRequestsToPb(equipmentRequ
 	}
 
 	return equipmentRequestsPb, nil
+}
+
+func (o *equipmentRequestAPI) convertEquipmentRequestStatusToPb(equipmentRequestStatus model.EquipmentRequestStatus) (*pb.EquipmentRequestStatus, error) {
+	status, ok := pb.EquipmentRequestStatus_value[string(equipmentRequestStatus)]
+
+	if !ok {
+		return nil, ErrUnableToConvertEquipmentRequestStatus
+	}
+
+	equipmentRequestPbStatus := pb.EquipmentRequestStatus(status)
+
+	return &equipmentRequestPbStatus, nil
+}
+
+func (o *equipmentRequestAPI) convertPbEquipmentRequestStatus(equipmentRequestStatus pb.EquipmentRequestStatus) (*model.EquipmentRequestStatus, error) {
+	status, ok := pb.EquipmentRequestStatus_name[int32(equipmentRequestStatus)]
+
+	if !ok {
+		return nil, ErrUnableToConvertEquipmentRequestStatus
+	}
+
+	equipmentRequestModelStatus := model.EquipmentRequestStatus(status)
+
+	return &equipmentRequestModelStatus, nil
 }
