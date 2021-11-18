@@ -7,12 +7,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/database"
+	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/metrics"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 	"time"
 )
+
+const eventRepoLogTag = "EventRepo"
 
 const (
 	equipmentRequestEventTable           = "equipment_request_event"
@@ -80,7 +82,7 @@ func (r *eventRepo) Lock(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]
 		defer func(rows *sql.Rows) {
 			err = rows.Close()
 			if err != nil {
-				log.Error().Err(err).Msg("Lock - rows.Close()")
+				logger.ErrorKV(ctx, eventRepoLogTag, ": rows.Close()", "err", err)
 			}
 		}(rows)
 

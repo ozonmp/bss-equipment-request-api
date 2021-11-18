@@ -17,13 +17,9 @@ retranslator:
   workerCount:   2
   batchSize: 20
 
-rest:
-  host: 0.0.0.0
-  port: 8080
-
 metrics:
   host: 0.0.0.0
-  port: 9100
+  port: 9103
   path: /metrics
 
 jaeger:
@@ -33,7 +29,7 @@ jaeger:
 
 status:
   host: 0.0.0.0
-  port: 8000
+  port: 8300
   livenessPath: /live
   readinessPath: /ready
   versionPath: /version
