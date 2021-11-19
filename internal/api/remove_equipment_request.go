@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"google.golang.org/grpc/codes"
@@ -14,7 +15,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 ) (*pb.RemoveEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		logger.ErrorKV(ctx, removeEquipmentRequestV1LogTag+": invalid argument",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: invalid argument", removeEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
@@ -24,7 +25,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 	result, err := o.equipmentRequestService.RemoveEquipmentRequest(ctx, req.EquipmentRequestId)
 
 	if err != nil {
-		logger.ErrorKV(ctx, removeEquipmentRequestV1LogTag+": equipmentRequestService.RemoveEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.RemoveEquipmentRequest failed", removeEquipmentRequestV1LogTag),
 			"err", err,
 			"equipmentRequestId", req.EquipmentRequestId,
 		)
@@ -33,7 +34,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 	}
 
 	if !result {
-		logger.DebugKV(ctx, removeEquipmentRequestV1LogTag+": equipmentRequestService.RemoveEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.RemoveEquipmentRequest failed", removeEquipmentRequestV1LogTag),
 			"err", "unable to remove equipment request, no rows affected",
 			"equipmentRequestId", req.EquipmentRequestId,
 		)
@@ -41,7 +42,7 @@ func (o *equipmentRequestAPI) RemoveEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, "unable to remove equipment request")
 	}
 
-	logger.InfoKV(ctx, removeEquipmentRequestV1LogTag, "success")
+	logger.Info(ctx, fmt.Sprintf("%s: success", removeEquipmentRequestV1LogTag))
 
 	return &pb.RemoveEquipmentRequestV1Response{
 		Removed: result,

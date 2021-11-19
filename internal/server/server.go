@@ -57,11 +57,12 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 	gatewayServer := createGatewayServer(ctx, grpcAddr, gatewayAddr)
 
 	go func() {
-		logger.InfoKV(ctx, grpcServerStartLogTag+": gateway server is running on",
+
+		logger.InfoKV(ctx, fmt.Sprintf("%s: gateway server is running on", grpcServerStartLogTag),
 			"address", grpcAddr)
 
 		if err := gatewayServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.ErrorKV(ctx, grpcServerStartLogTag+": gatewayServer.ListenAndServe failed",
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: gatewayServer.ListenAndServe failed", grpcServerStartLogTag),
 				"err", err)
 			cancel()
 		}
@@ -70,10 +71,11 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 	metricsServer := createMetricsServer(cfg)
 
 	go func() {
-		logger.InfoKV(ctx, grpcServerStartLogTag+": metrics server is running on",
-			"address", metricsAddr)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: metrics server is listening on", grpcServerStartLogTag),
+			"address", metricsAddr,
+		)
 		if err := metricsServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.ErrorKV(ctx, grpcServerStartLogTag+": metricsServer.ListenAndServe() failed",
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: metricsServer.ListenAndServe failed", grpcServerStartLogTag),
 				"err", err)
 			cancel()
 		}
@@ -86,11 +88,13 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 
 	go func() {
 		statusAdrr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
-		logger.InfoKV(ctx, grpcServerStartLogTag+": status server is running on",
-			"address", statusAdrr)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: status server is listening on", grpcServerStartLogTag),
+			"address", statusAdrr,
+		)
 		if err := statusServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.ErrorKV(ctx, grpcServerStartLogTag+": statusServer.ListenAndServe() failed",
-				"err", err)
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: statusServer.ListenAndServe failed", grpcServerStartLogTag),
+				"err", err,
+			)
 		}
 	}()
 
@@ -123,18 +127,20 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {
-		logger.InfoKV(ctx, grpcServerStartLogTag+": GRPC server is listening on",
-			"address", grpcAddr)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: GRPC server is listening on", grpcServerStartLogTag),
+			"address", grpcAddr,
+		)
 		if err := grpcServer.Serve(l); err != nil {
-			logger.ErrorKV(ctx, grpcServerStartLogTag+": grpcServer.Serve failed",
-				"err", err)
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: grpcServer.Serve failed", grpcServerStartLogTag),
+				"err", err,
+			)
 		}
 	}()
 
 	go func() {
 		time.Sleep(2 * time.Second)
 		isReady.Store(true)
-		logger.InfoKV(ctx, grpcServerStartLogTag+": the service is ready to accept requests")
+		logger.Info(ctx, fmt.Sprintf("%s: the service is ready to accept requests", grpcServerStartLogTag))
 	}()
 
 	if cfg.Project.Debug {
@@ -146,33 +152,33 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 
 	select {
 	case v := <-quit:
-		logger.InfoKV(ctx, grpcServerStartLogTag+": signal.Notify", "quit", v)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: signal.Notify", grpcServerStartLogTag), "quit", v)
 	case done := <-ctx.Done():
-		logger.InfoKV(ctx, grpcServerStartLogTag+": ctx.Done", "done", done)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: ctx.Done", grpcServerStartLogTag), "done", done)
 	}
 
 	isReady.Store(false)
 
 	if err := gatewayServer.Shutdown(ctx); err != nil {
-		logger.ErrorKV(ctx, grpcServerStartLogTag+": gatewayServer.Shutdown failed", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: gatewayServer.Shutdown failed", grpcServerStartLogTag), "err", err)
 	} else {
-		logger.InfoKV(ctx, grpcServerStartLogTag+": gatewayServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: gatewayServer shut down correctly", grpcServerStartLogTag))
 	}
 
 	if err := statusServer.Shutdown(ctx); err != nil {
-		logger.ErrorKV(ctx, grpcServerStartLogTag+": statusServer.Shutdown failed", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: statusServer.Shutdown failed", grpcServerStartLogTag), "err", err)
 	} else {
-		logger.InfoKV(ctx, grpcServerStartLogTag+": statusServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: statusServer shut down correctly", grpcServerStartLogTag))
 	}
 
 	if err := metricsServer.Shutdown(ctx); err != nil {
-		logger.ErrorKV(ctx, grpcServerStartLogTag+": metricsServer.Shutdown failed", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: metricsServer.Shutdown failed", grpcServerStartLogTag), "err", err)
 	} else {
-		logger.InfoKV(ctx, grpcServerStartLogTag+": metricsServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: metricsServer shut down correctly", grpcServerStartLogTag))
 	}
 
 	grpcServer.GracefulStop()
-	logger.InfoKV(ctx, grpcServerStartLogTag+": grpcServer shut down correctly")
+	logger.Info(ctx, fmt.Sprintf("%s: grpcServer shut down correctly", grpcServerStartLogTag))
 
 	return nil
 }

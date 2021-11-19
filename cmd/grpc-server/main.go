@@ -23,11 +23,15 @@ var (
 	batchSize uint = 2
 )
 
+const grpsServerMainLogTag = "GrpsServerMain"
+
 func main() {
 	ctx := context.Background()
 
 	if err := config.ReadConfigYML("config.yml"); err != nil {
-		logger.FatalKV(ctx, "Failed init configuration", "err", err)
+		logger.FatalKV(ctx, fmt.Sprintf("%s: failed init configuration", grpsServerMainLogTag),
+			"err", err,
+		)
 	}
 	cfg := config.GetConfigInstance()
 
@@ -36,7 +40,7 @@ func main() {
 
 	metrics.InitMetrics(cfg)
 
-	logger.InfoKV(ctx, fmt.Sprintf("Starting service: %s", cfg.Project.Name),
+	logger.InfoKV(ctx, fmt.Sprintf("%s: starting service: %s", grpsServerMainLogTag, cfg.Project.Name),
 		"version", cfg.Project.Version,
 		"commitHash", cfg.Project.CommitHash,
 		"debug", cfg.Project.Debug,
@@ -57,8 +61,6 @@ func main() {
 
 	db, err := database.NewPostgres(initCtx, dsn, cfg.Database.Driver)
 	if err != nil {
-		logger.ErrorKV(ctx, "failed init postgres", "err", err)
-
 		return
 	}
 	defer db.Close()
@@ -66,8 +68,6 @@ func main() {
 	tracing, err := tracer.NewTracer(ctx, &cfg)
 
 	if err != nil {
-		logger.ErrorKV(ctx, "failed init tracing", "err", err)
-
 		return
 	}
 	defer tracing.Close()
@@ -78,7 +78,7 @@ func main() {
 	equipmentRequestService := equipment_request.New(db, requestRepository, eventRepository)
 
 	if err := server.NewGrpcServer(equipmentRequestService).Start(ctx, &cfg); err != nil {
-		logger.ErrorKV(ctx, "failed creating gRPC server", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: failed creating gRPC server", grpsServerMainLogTag), "err", err)
 
 		return
 	}

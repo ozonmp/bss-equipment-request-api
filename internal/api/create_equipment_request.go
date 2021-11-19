@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 
@@ -15,7 +16,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 ) (*pb.CreateEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		logger.ErrorKV(ctx, createEquipmentRequestV1LogTag+": invalid argument",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: invalid argument", createEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
@@ -35,7 +36,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 	equipmentRequest, err := o.convertPbToEquipmentRequest(&newItem)
 
 	if err != nil {
-		logger.FatalKV(ctx, createEquipmentRequestV1LogTag+": unable to convert Pb message to EquipmentRequest",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert Pb message to EquipmentRequest", createEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
@@ -45,7 +46,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 	id, err := o.equipmentRequestService.CreateEquipmentRequest(ctx, equipmentRequest)
 
 	if err != nil {
-		logger.ErrorKV(ctx, createEquipmentRequestV1LogTag+": equipmentRequestService.CreateEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.CreateEquipmentRequest failed", createEquipmentRequestV1LogTag),
 			"err", err,
 			"equipmentId", req.EquipmentId,
 			"employeeId", req.EmployeeId,
@@ -60,7 +61,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 	}
 
 	if id == 0 {
-		logger.DebugKV(ctx, createEquipmentRequestV1LogTag+": equipmentRequestService.CreateEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: : equipmentRequestService.CreateEquipmentRequest failed", createEquipmentRequestV1LogTag),
 			"err", "unable to get created equipment request",
 			"equipmentId", req.EquipmentId,
 			"employeeId", req.EmployeeId,
@@ -74,7 +75,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, "unable to get created equipment request")
 	}
 
-	logger.InfoKV(ctx, createEquipmentRequestV1LogTag, "success",
+	logger.InfoKV(ctx, fmt.Sprintf("%s: success", createEquipmentRequestV1LogTag),
 		"equipmentRequestId", id,
 	)
 

@@ -2,6 +2,7 @@ package tracer
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"io"
 
@@ -12,6 +13,8 @@ import (
 
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 )
+
+const newTracerLogTag = "NewTracer"
 
 // NewTracer - returns new tracer.
 func NewTracer(ctx context.Context, cfg *config.Config) (io.Closer, error) {
@@ -28,13 +31,15 @@ func NewTracer(ctx context.Context, cfg *config.Config) (io.Closer, error) {
 	}
 	tracer, closer, err := cfgTracer.NewTracer(jaegercfg.Logger(jaeger.StdLogger))
 	if err != nil {
-		logger.ErrorKV(ctx, "cfg.NewTracer()", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: cfgTracer.NewTracer failed", newTracerLogTag),
+			"err", err,
+		)
 
 		return nil, err
 	}
 	opentracing.SetGlobalTracer(tracer)
 
-	logger.InfoKV(ctx, "cfg.NewTracer()", ": Traces started")
+	logger.Info(ctx, fmt.Sprintf("%s: traces started", newTracerLogTag))
 
 	return closer, nil
 }

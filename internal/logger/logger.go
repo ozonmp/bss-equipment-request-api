@@ -55,10 +55,10 @@ func NewLogger(ctx context.Context, cfg config.Config) (syncFn func()) {
 
 func fromContext(ctx context.Context) *zap.SugaredLogger {
 	var result *zap.SugaredLogger
+	result = globalLogger
+
 	if attachedLogger, ok := ctx.Value(attachedLoggerKey).(*zap.SugaredLogger); ok {
 		result = attachedLogger
-	} else {
-		result = globalLogger
 	}
 
 	jaegerSpan := opentracing.SpanFromContext(ctx)
@@ -84,6 +84,11 @@ func WarnKV(ctx context.Context, message string, kvs ...interface{}) {
 // InfoKV - log messages with level "info"
 func InfoKV(ctx context.Context, message string, kvs ...interface{}) {
 	fromContext(ctx).Infow(message, kvs...)
+}
+
+// Info - log messages with level "info" without kv data
+func Info(ctx context.Context, message string) {
+	fromContext(ctx).Info(message)
 }
 
 // DebugKV - log messages with level "debug"

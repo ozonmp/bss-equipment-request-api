@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
@@ -82,7 +83,9 @@ func (r *eventRepo) Lock(ctx context.Context, db *sqlx.DB, batchSize uint64) ([]
 		defer func(rows *sql.Rows) {
 			err = rows.Close()
 			if err != nil {
-				logger.ErrorKV(ctx, eventRepoLogTag, ": rows.Close()", "err", err)
+				logger.ErrorKV(ctx, fmt.Sprintf("%s: rows.Close failed", eventRepoLogTag),
+					"err", err,
+				)
 			}
 		}(rows)
 

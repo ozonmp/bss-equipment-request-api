@@ -23,7 +23,9 @@ func NewEventSender(ctx context.Context) EventSender {
 }
 
 func (e eventSender) Send(subdomain *model.EquipmentRequestEvent) error {
-	logger.InfoKV(e.ctx, "EventSender: send")
+	logger.InfoKV(e.ctx, "EventSender: send",
+		"subdomain", subdomain,
+	)
 
 	return nil
 }

@@ -19,11 +19,15 @@ import (
 	"time"
 )
 
+const retranslatorMainLogTag = "RetranslatorMain"
+
 func main() {
 	ctx := context.Background()
 
 	if err := config.ReadConfigYML("config.yml"); err != nil {
-		logger.FatalKV(ctx, "Failed init configuration", "err", err)
+		logger.FatalKV(ctx, fmt.Sprintf("%s: failed init configuration", retranslatorMainLogTag),
+			"err", err,
+		)
 	}
 	cfg := config.GetConfigInstance()
 
@@ -53,8 +57,6 @@ func main() {
 
 	db, err := database.NewPostgres(initCtx, dsn, cfg.Database.Driver)
 	if err != nil {
-		logger.ErrorKV(ctx, "failed init postgres", "err", err)
-
 		return
 	}
 	defer db.Close()
@@ -62,8 +64,6 @@ func main() {
 	tracing, err := tracer.NewTracer(ctx, &cfg)
 
 	if err != nil {
-		logger.ErrorKV(ctx, "failed init tracing", "err", err)
-
 		return
 	}
 	defer tracing.Close()
@@ -73,7 +73,9 @@ func main() {
 	retranslator := retranslator.NewRetranslator(ctx, db, cfg.Retranslator, eventRepository, eventSender)
 
 	if err := server.NewRetranslatorServer(retranslator).Start(ctx, &cfg); err != nil {
-		logger.ErrorKV(ctx, "failed creating gRPC server", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: failed creating gRPC server", retranslatorMainLogTag),
+			"err", err,
+		)
 
 		return
 	}

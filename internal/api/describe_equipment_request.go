@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/metrics"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
@@ -15,7 +16,7 @@ func (o *equipmentRequestAPI) DescribeEquipmentRequestV1(
 ) (*pb.DescribeEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		logger.ErrorKV(ctx, describeEquipmentRequestV1LogTag+": invalid argument",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: invalid argument", describeEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
@@ -24,7 +25,7 @@ func (o *equipmentRequestAPI) DescribeEquipmentRequestV1(
 
 	equipmentRequest, err := o.equipmentRequestService.DescribeEquipmentRequest(ctx, req.EquipmentRequestId)
 	if err != nil {
-		logger.ErrorKV(ctx, describeEquipmentRequestV1LogTag+": equipmentRequestService.DescribeEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.DescribeEquipmentRequest failed", describeEquipmentRequestV1LogTag),
 			"err", err,
 			"equipmentRequestId", req.EquipmentRequestId,
 		)
@@ -33,7 +34,7 @@ func (o *equipmentRequestAPI) DescribeEquipmentRequestV1(
 	}
 
 	if equipmentRequest == nil {
-		logger.DebugKV(ctx, describeEquipmentRequestV1LogTag+": equipmentRequestService.DescribeEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.DescribeEquipmentRequest failed", describeEquipmentRequestV1LogTag),
 			"err", "equipment request not found",
 			"equipmentRequestId", req.EquipmentRequestId,
 		)
@@ -46,14 +47,14 @@ func (o *equipmentRequestAPI) DescribeEquipmentRequestV1(
 	equipmentRequestPb, err := o.convertEquipmentRequestToPb(equipmentRequest)
 
 	if err != nil {
-		logger.ErrorKV(ctx, describeEquipmentRequestV1LogTag+": unable to convert EquipmentRequest to Pb message",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert EquipmentRequest to Pb message", describeEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	logger.InfoKV(ctx, describeEquipmentRequestV1LogTag, "success")
+	logger.Info(ctx, fmt.Sprintf("%s: success", describeEquipmentRequestV1LogTag))
 
 	return &pb.DescribeEquipmentRequestV1Response{
 		EquipmentRequest: equipmentRequestPb,

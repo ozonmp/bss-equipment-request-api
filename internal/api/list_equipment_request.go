@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"google.golang.org/grpc/codes"
@@ -14,7 +15,7 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 ) (*pb.ListEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		logger.ErrorKV(ctx, listEquipmentRequestV1LogTag+": invalid argument",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: invalid argument", listEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
@@ -23,7 +24,7 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 	equipmentRequests, err := o.equipmentRequestService.ListEquipmentRequest(ctx, req.Limit, req.Offset)
 
 	if err != nil {
-		logger.ErrorKV(ctx, listEquipmentRequestV1LogTag+": equipmentRequestService.ListEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.ListEquipmentRequest failed", listEquipmentRequestV1LogTag),
 			"err", err,
 			"limit", req.Limit,
 			"offset", req.Offset,
@@ -33,7 +34,7 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 	}
 
 	if equipmentRequests == nil {
-		logger.DebugKV(ctx, listEquipmentRequestV1LogTag+": equipmentRequestService.ListEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.ListEquipmentRequest failed", listEquipmentRequestV1LogTag),
 			"err", "unable to get list of equipment requests",
 			"limit", req.Limit,
 			"offset", req.Offset,
@@ -45,14 +46,14 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 	equipmentRequestPb, err := o.convertRepeatedEquipmentRequestsToPb(equipmentRequests)
 
 	if err != nil {
-		logger.ErrorKV(ctx, listEquipmentRequestV1LogTag+": unable to convert list of EquipmentRequests to Pb message",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert list of EquipmentRequests to Pb message", listEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	logger.InfoKV(ctx, listEquipmentRequestV1LogTag, "success")
+	logger.Info(ctx, fmt.Sprintf("%s: success", listEquipmentRequestV1LogTag))
 
 	return &pb.ListEquipmentRequestV1Response{
 		Items: equipmentRequestPb,

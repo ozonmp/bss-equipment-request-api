@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
 	"sync"
@@ -79,7 +80,7 @@ func (c *consumer) Start() {
 					events, txErr := c.repo.Lock(c.ctx, c.db, c.batchSize)
 
 					if txErr != nil {
-						logger.ErrorKV(c.ctx, consumerLogTag+": repo.Lock failed",
+						logger.ErrorKV(c.ctx, fmt.Sprintf("%s: repo.Lock failed", consumerLogTag),
 							"err", txErr,
 						)
 
@@ -102,7 +103,7 @@ func (c *consumer) Start() {
 						}
 						err := c.repo.Unlock(c.ctx, eventIds)
 						if err != nil {
-							logger.ErrorKV(c.ctx, consumerLogTag+": repo.Unlock",
+							logger.ErrorKV(c.ctx, fmt.Sprintf("%s: repo.Unlock failed", consumerLogTag),
 								"err", err,
 							)
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"google.golang.org/grpc/codes"
@@ -14,7 +15,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 ) (*pb.UpdateStatusEquipmentRequestV1Response, error) {
 
 	if err := req.Validate(); err != nil {
-		logger.ErrorKV(ctx, updateStatusEquipmentRequestV1LogTag+": invalid argument",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: invalid argument", updateStatusEquipmentRequestV1LogTag),
 			"err", err,
 		)
 
@@ -24,7 +25,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 	equipmentRequestStatus, err := o.convertPbEquipmentRequestStatus(req.EquipmentRequestStatus)
 
 	if err != nil {
-		logger.ErrorKV(ctx, updateStatusEquipmentRequestV1LogTag+": unable to convert Pb EquipmentRequestStatus to EquipmentRequestStatus",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert Pb EquipmentRequestStatus to EquipmentRequestStatus", updateStatusEquipmentRequestV1LogTag),
 			"err", err,
 			"equipmentRequestStatus", req.EquipmentRequestStatus,
 		)
@@ -35,7 +36,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 	result, err := o.equipmentRequestService.UpdateStatusEquipmentRequest(ctx, req.EquipmentRequestId, *equipmentRequestStatus)
 
 	if err != nil {
-		logger.ErrorKV(ctx, updateStatusEquipmentRequestV1LogTag+": equipmentRequestService.UpdateStatusEquipmentRequest failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.UpdateStatusEquipmentRequest failed", updateStatusEquipmentRequestV1LogTag),
 			"err", err,
 			"equipmentRequestId", req.EquipmentRequestId,
 			"equipmentRequestStatus", req.EquipmentRequestStatus,
@@ -45,7 +46,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 	}
 
 	if !result {
-		logger.DebugKV(ctx, updateStatusEquipmentRequestV1LogTag+": failed",
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.UpdateStatusEquipmentRequest failed", updateStatusEquipmentRequestV1LogTag),
 			"err", "unable to update update status of equipment request, no rows affected",
 			"equipmentRequestId", req.EquipmentRequestId,
 			"equipmentRequestStatus", req.EquipmentRequestStatus,
@@ -54,7 +55,7 @@ func (o *equipmentRequestAPI) UpdateStatusEquipmentRequestV1(
 		return nil, status.Error(codes.Internal, "unable to update update status of equipment request")
 	}
 
-	logger.InfoKV(ctx, updateStatusEquipmentRequestV1LogTag, "success")
+	logger.Info(ctx, fmt.Sprintf("%s: success", updateStatusEquipmentRequestV1LogTag))
 
 	return &pb.UpdateStatusEquipmentRequestV1Response{
 		Updated: result,

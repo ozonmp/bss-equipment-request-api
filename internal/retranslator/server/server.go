@@ -40,10 +40,10 @@ func (r *RetranslatorServer) Start(ctx context.Context, cfg *config.Config) erro
 	metricsServer := createMetricsServer(cfg)
 
 	go func() {
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": metrics server is running on",
+		logger.InfoKV(ctx, fmt.Sprintf("%s: metrics server is running on", retranslatorServerStartLogTag),
 			"address", metricsAddr)
 		if err := metricsServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.ErrorKV(ctx, retranslatorServerStartLogTag+": metricsServer.ListenAndServe() failed",
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: metricsServer.ListenAndServe failed", retranslatorServerStartLogTag),
 				"err", err)
 			cancel()
 		}
@@ -56,10 +56,10 @@ func (r *RetranslatorServer) Start(ctx context.Context, cfg *config.Config) erro
 
 	go func() {
 		statusAdrr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": status server is running on",
+		logger.InfoKV(ctx, fmt.Sprintf("%s: status server is running on", retranslatorServerStartLogTag),
 			"address", statusAdrr)
 		if err := statusServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.ErrorKV(ctx, retranslatorServerStartLogTag+": statusServer.ListenAndServe() failed",
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: statusServer.ListenAndServe failed", retranslatorServerStartLogTag),
 				"err", err)
 		}
 	}()
@@ -69,7 +69,7 @@ func (r *RetranslatorServer) Start(ctx context.Context, cfg *config.Config) erro
 	go func() {
 		time.Sleep(2 * time.Second)
 		isReady.Store(true)
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": the service is ready to accept requests")
+		logger.Info(ctx, fmt.Sprintf("%s: the service is ready to accept requests", retranslatorServerStartLogTag))
 	}()
 
 	quit := make(chan os.Signal, 1)
@@ -77,27 +77,35 @@ func (r *RetranslatorServer) Start(ctx context.Context, cfg *config.Config) erro
 
 	select {
 	case v := <-quit:
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": signal.Notify", "quit", v)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: signal.Notify", retranslatorServerStartLogTag),
+			"quit", v,
+		)
 	case done := <-ctx.Done():
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": ctx.Done", "done", done)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: ctx.Done", retranslatorServerStartLogTag),
+			"done", done,
+		)
 	}
 
 	isReady.Store(false)
 
 	if err := statusServer.Shutdown(ctx); err != nil {
-		logger.ErrorKV(ctx, retranslatorServerStartLogTag+": statusServer.Shutdown failed", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: statusServer.Shutdown failed", retranslatorServerStartLogTag),
+			"err", err,
+		)
 	} else {
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": statusServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: statusServer shut down correctly", retranslatorServerStartLogTag))
 	}
 
 	if err := metricsServer.Shutdown(ctx); err != nil {
-		logger.ErrorKV(ctx, retranslatorServerStartLogTag+": metricsServer.Shutdown failed", "err", err)
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: metricsServer.Shutdown failed", retranslatorServerStartLogTag),
+			"err", err,
+		)
 	} else {
-		logger.InfoKV(ctx, retranslatorServerStartLogTag+": metricsServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: metricsServer shut down correctly", retranslatorServerStartLogTag))
 	}
 
 	r.retranslator.Close()
-	logger.InfoKV(ctx, retranslatorServerStartLogTag+": retranslator closed")
+	logger.Info(ctx, fmt.Sprintf("%s: retranslator closed", retranslatorServerStartLogTag))
 
 	return nil
 }

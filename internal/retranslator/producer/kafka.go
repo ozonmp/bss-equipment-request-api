@@ -2,6 +2,7 @@ package producer
 
 import (
 	"context"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/repo"
 	"sync"
@@ -91,7 +92,7 @@ func (p *producer) Start() {
 				select {
 				case event, ok := <-p.events:
 					if !ok {
-						logger.FatalKV(p.ctx, producerLogTag+": read from p.events",
+						logger.FatalKV(p.ctx, fmt.Sprintf("%s: read from p.events failed", producerLogTag),
 							"err", "unable to read from the channel",
 						)
 						return
@@ -108,7 +109,7 @@ func (p *producer) Start() {
 					for len(p.events) > 0 {
 						event, ok := <-p.events
 						if !ok {
-							logger.FatalKV(p.ctx, producerLogTag+": read from p.events",
+							logger.FatalKV(p.ctx, fmt.Sprintf("%s: read from p.events failed", producerLogTag),
 								"err", "unable to read from the channel",
 							)
 							return
@@ -179,7 +180,7 @@ func (p *producer) addToRemoveBatch(toRemoveBatch *[]uint64, eventID uint64) {
 func (p *producer) unlockBatch(toUnlockBatch []uint64) {
 	err := p.repo.Unlock(p.ctx, toUnlockBatch)
 	if err != nil {
-		logger.FatalKV(p.ctx, producerLogTag+": repo.Unlock failed",
+		logger.FatalKV(p.ctx, fmt.Sprintf("%s: repo.Unlock failed", producerLogTag),
 			"err", err,
 			"toUnlockBatch", toUnlockBatch,
 		)
@@ -189,7 +190,7 @@ func (p *producer) unlockBatch(toUnlockBatch []uint64) {
 func (p *producer) removeBatch(toRemoveBatch []uint64) {
 	err := p.repo.Remove(p.ctx, toRemoveBatch)
 	if err != nil {
-		logger.FatalKV(p.ctx, producerLogTag+": repo.Remove failed",
+		logger.FatalKV(p.ctx, fmt.Sprintf("%s: repo.Remove failed", producerLogTag),
 			"err", err,
 			"toRemoveBatch", toRemoveBatch,
 		)

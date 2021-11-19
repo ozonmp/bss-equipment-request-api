@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"net/http"
 
@@ -40,14 +41,16 @@ func createGatewayServer(ctx context.Context, grpcAddr, gatewayAddr string) *htt
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		logger.FatalKV(ctx, createGatewayServerLogTag+": grpc.DialContext failed",
-			"err", err)
+		logger.FatalKV(ctx, fmt.Sprintf("%s: grpc.DialContext failed", createGatewayServerLogTag),
+			"err", err,
+		)
 	}
 
 	mux := runtime.NewServeMux()
 	if err := pb.RegisterBssEquipmentRequestApiServiceHandler(ctx, mux, conn); err != nil {
-		logger.FatalKV(ctx, createGatewayServerLogTag+": pb.RegisterBssEquipmentRequestApiServiceHandler failed",
-			"err", err)
+		logger.FatalKV(ctx, fmt.Sprintf("%s: pb.RegisterBssEquipmentRequestApiServiceHandler failed", createGatewayServerLogTag),
+			"err", err,
+		)
 	}
 
 	gatewayServer := &http.Server{
