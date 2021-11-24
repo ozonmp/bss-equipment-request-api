@@ -1,4 +1,4 @@
-# Ozon Marketplace Template API
+# Ozon Marketplace Business Equipment Request API
 
 ---
 
@@ -41,28 +41,41 @@ The Swagger UI is an open source project to visually render documentation for an
 - http://localhost:8082
 
 ```sh
-[I] ➜ grpc_cli call localhost:8082 DescribeTemplateV1 "id: 1"
-connecting to localhost:8082
-Rpc failed with status code 5, error message: template not found
+[I] ➜ GRPC_HOST="localhost:8082"
+GRPC_METHOD="ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/CreateEquipmentRequestV1"
+
+payload=$(
+  cat <<EOF
+{
+  "employee_id": 12,
+  "equipment_id": 8,
+  "created_at": "2020-05-22T20:32:05Z",
+  "done_at": "2020-05-22T23:32:05Z",
+  "equipment_request_status": 2
+}
+EOF
+)
+
+grpcurl -plaintext -emit-defaults \
+  -d "${payload}" ${GRPC_HOST} ${GRPC_METHOD}
 ```
 
 ### Gateway:
 
 It reads protobuf service definitions and generates a reverse-proxy server which translates a RESTful HTTP API into gRPC
 
-- http://localhost:8080
+- http://localhost:8083
 
 ```sh
 [I] ➜ curl -s -X 'POST' \
-  'http://localhost:8080/v1/templates' \
+  'http://0.0.0.0:8083/api/v1/equipment_requests/12' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "id": "1"
 }' | jq .
 {
   "code": 5,
-  "message": "template not found",
+  "message": "equipment requests not found",
   "details": []
 }
 ```
@@ -93,6 +106,8 @@ Prometheus is an open-source systems monitoring and alerting toolkit
 Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
 
 - http://localhost:9094
+- http://localhost:9095
+- http://localhost:9096
 
 ### Kafka UI
 
@@ -119,7 +134,7 @@ Graylog is a leading centralized log management solution for capturing, storing,
 For the convenience of working with the database, you can use the [pgcli](https://github.com/dbcli/pgcli) utility. Migrations are rolled out when the service starts. migrations are located in the **./migrations** directory and are created using the [goose](https://github.com/pressly/goose) tool.
 
 ```sh
-$ pgcli "postgresql://docker:docker@localhost:5432/omp_template_api"
+$ pgcli "postgresql://docker:docker@localhost:5432/bss_equipment_request_api"
 ```
 
 ### Python client

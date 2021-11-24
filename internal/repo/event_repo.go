@@ -39,30 +39,35 @@ func (r *eventRepo) Add(ctx context.Context, event *model.EquipmentRequestEvent,
 	span, ctx := opentracing.StartSpanFromContext(ctx, "eventRepo.Add")
 	defer span.Finish()
 
+	var payload []byte
+	var err error
+
+	if event.Payload != nil {
+		convertedPayload := model.ConvertEquipmentRequestPayloadToPb(event.Payload)
+
+		payload, err = protojson.Marshal(convertedPayload)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	sb := database.StatementBuilder.
 		Insert(equipmentRequestEventTable).
 		Columns(
 			equipmentRequestEventTypeColumn,
 			equipmentRequestEventStatusColumn,
 			equipmentRequestEventCreatedAtColumn,
-			equipmentRequestEventRequestIDColumn).
+			equipmentRequestEventRequestIDColumn,
+			equipmentRequestPayloadColumn).
 		Values(
 			event.Type,
 			event.Status,
 			event.CreatedAt,
 			event.EquipmentRequestID,
+			payload,
 		)
 
-	if event.Payload != nil {
-		convertedPayload := event.Payload.ConvertToPb()
-		payload, err := protojson.Marshal(convertedPayload)
-
-		if err != nil {
-			return err
-		}
-
-		sb.Columns(equipmentRequestPayloadColumn).Values(payload)
-	}
 	query, args, err := sb.ToSql()
 
 	if err != nil {

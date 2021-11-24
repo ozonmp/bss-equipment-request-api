@@ -68,7 +68,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
 		EquipmentRequestID: 17,
-		Payload:            &model.EquipmentRequestEventPayload{},
+		Payload:            &model.EquipmentRequest{},
 	}
 
 	eventLockCount := int(setting.config.ConsumerCount * setting.config.BatchSize)

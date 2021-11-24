@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 
 	"google.golang.org/grpc/codes"
@@ -33,7 +34,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 		EquipmentRequestStatus: req.EquipmentRequestStatus,
 	}
 
-	equipmentRequest, err := o.convertPbToEquipmentRequest(&newItem)
+	equipmentRequest, err := model.ConvertPbToEquipmentRequest(&newItem)
 
 	if err != nil {
 		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert Pb message to EquipmentRequest", createEquipmentRequestV1LogTag),
