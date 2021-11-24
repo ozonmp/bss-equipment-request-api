@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/pkg/grps_logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/service/equipment_request"
 	"net"
 	"net/http"
@@ -13,7 +16,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -29,6 +31,8 @@ import (
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 )
 
+const grpcServerStartLogTag = "GrpcServer.Start()"
+
 // GrpcServer is gRPC server
 type GrpcServer struct {
 	equipmentRequestService equipment_request.ServiceInterface
@@ -42,20 +46,24 @@ func NewGrpcServer(equipmentRequestService equipment_request.ServiceInterface) *
 }
 
 // Start method runs server
-func (s *GrpcServer) Start(cfg *config.Config) error {
-	ctx, cancel := context.WithCancel(context.Background())
+func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	gatewayAddr := fmt.Sprintf("%s:%v", cfg.Rest.Host, cfg.Rest.Port)
 	grpcAddr := fmt.Sprintf("%s:%v", cfg.Grpc.Host, cfg.Grpc.Port)
 	metricsAddr := fmt.Sprintf("%s:%v", cfg.Metrics.Host, cfg.Metrics.Port)
 
-	gatewayServer := createGatewayServer(grpcAddr, gatewayAddr)
+	gatewayServer := createGatewayServer(ctx, grpcAddr, gatewayAddr)
 
 	go func() {
-		log.Info().Msgf("Gateway server is running on %s", gatewayAddr)
+
+		logger.InfoKV(ctx, fmt.Sprintf("%s: gateway server is running on", grpcServerStartLogTag),
+			"address", grpcAddr)
+
 		if err := gatewayServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error().Err(err).Msg("Failed running gateway server")
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: gatewayServer.ListenAndServe failed", grpcServerStartLogTag),
+				"err", err)
 			cancel()
 		}
 	}()
@@ -63,9 +71,12 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 	metricsServer := createMetricsServer(cfg)
 
 	go func() {
-		log.Info().Msgf("Metrics server is running on %s", metricsAddr)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: metrics server is listening on", grpcServerStartLogTag),
+			"address", metricsAddr,
+		)
 		if err := metricsServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error().Err(err).Msg("Failed running metrics server")
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: metricsServer.ListenAndServe failed", grpcServerStartLogTag),
+				"err", err)
 			cancel()
 		}
 	}()
@@ -73,13 +84,17 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 	isReady := &atomic.Value{}
 	isReady.Store(false)
 
-	statusServer := createStatusServer(cfg, isReady)
+	statusServer := createStatusServer(ctx, cfg, isReady)
 
 	go func() {
 		statusAdrr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
-		log.Info().Msgf("Status server is running on %s", statusAdrr)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: status server is listening on", grpcServerStartLogTag),
+			"address", statusAdrr,
+		)
 		if err := statusServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error().Err(err).Msg("Failed running status server")
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: statusServer.ListenAndServe failed", grpcServerStartLogTag),
+				"err", err,
+			)
 		}
 	}()
 
@@ -102,6 +117,8 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 			grpc_prometheus.UnaryServerInterceptor,
 			grpc_opentracing.UnaryServerInterceptor(),
 			grpcrecovery.UnaryServerInterceptor(),
+			grpc_zap.PayloadUnaryServerInterceptor(logger.Clone(ctx), grps_logger.ServerPayloadLoggingDecider()),
+			grps_logger.UnaryServerInterceptor(),
 		)),
 	)
 
@@ -110,16 +127,20 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {
-		log.Info().Msgf("GRPC Server is listening on: %s", grpcAddr)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: GRPC server is listening on", grpcServerStartLogTag),
+			"address", grpcAddr,
+		)
 		if err := grpcServer.Serve(l); err != nil {
-			log.Fatal().Err(err).Msg("Failed running gRPC server")
+			logger.ErrorKV(ctx, fmt.Sprintf("%s: grpcServer.Serve failed", grpcServerStartLogTag),
+				"err", err,
+			)
 		}
 	}()
 
 	go func() {
 		time.Sleep(2 * time.Second)
 		isReady.Store(true)
-		log.Info().Msg("The service is ready to accept requests")
+		logger.Info(ctx, fmt.Sprintf("%s: the service is ready to accept requests", grpcServerStartLogTag))
 	}()
 
 	if cfg.Project.Debug {
@@ -131,33 +152,33 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 
 	select {
 	case v := <-quit:
-		log.Info().Msgf("signal.Notify: %v", v)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: signal.Notify", grpcServerStartLogTag), "quit", v)
 	case done := <-ctx.Done():
-		log.Info().Msgf("ctx.Done: %v", done)
+		logger.InfoKV(ctx, fmt.Sprintf("%s: ctx.Done", grpcServerStartLogTag), "done", done)
 	}
 
 	isReady.Store(false)
 
 	if err := gatewayServer.Shutdown(ctx); err != nil {
-		log.Error().Err(err).Msg("gatewayServer.Shutdown")
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: gatewayServer.Shutdown failed", grpcServerStartLogTag), "err", err)
 	} else {
-		log.Info().Msg("gatewayServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: gatewayServer shut down correctly", grpcServerStartLogTag))
 	}
 
 	if err := statusServer.Shutdown(ctx); err != nil {
-		log.Error().Err(err).Msg("statusServer.Shutdown")
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: statusServer.Shutdown failed", grpcServerStartLogTag), "err", err)
 	} else {
-		log.Info().Msg("statusServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: statusServer shut down correctly", grpcServerStartLogTag))
 	}
 
 	if err := metricsServer.Shutdown(ctx); err != nil {
-		log.Error().Err(err).Msg("metricsServer.Shutdown")
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: metricsServer.Shutdown failed", grpcServerStartLogTag), "err", err)
 	} else {
-		log.Info().Msg("metricsServer shut down correctly")
+		logger.Info(ctx, fmt.Sprintf("%s: metricsServer shut down correctly", grpcServerStartLogTag))
 	}
 
 	grpcServer.GracefulStop()
-	log.Info().Msgf("grpcServer shut down correctly")
+	logger.Info(ctx, fmt.Sprintf("%s: grpcServer shut down correctly", grpcServerStartLogTag))
 
 	return nil
 }

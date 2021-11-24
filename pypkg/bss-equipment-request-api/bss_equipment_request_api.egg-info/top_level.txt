@@ -1,5 +1,3 @@
-build
-dist
 google
 ozonmp
 validate

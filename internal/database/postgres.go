@@ -1,25 +1,33 @@
 package database
 
 import (
+	"context"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
-	"github.com/rs/zerolog/log"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 )
+
+const newPostgresLogTag = "NewPostgres"
 
 // StatementBuilder is a placeholder for queries
 var StatementBuilder = sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 // NewPostgres returns DB
-func NewPostgres(dsn, driver string) (*sqlx.DB, error) {
+func NewPostgres(ctx context.Context, dsn, driver string) (*sqlx.DB, error) {
 	db, err := sqlx.Open(driver, dsn)
 	if err != nil {
-		log.Error().Err(err).Msgf("failed to create database connection")
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: sqlx.Open failed to create database connection", newPostgresLogTag),
+			"error", err,
+		)
 
 		return nil, err
 	}
 
-	if err = db.Ping(); err != nil {
-		log.Error().Err(err).Msgf("failed ping the database")
+	if err = db.PingContext(ctx); err != nil {
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: db.PingContext failed ping the database", newPostgresLogTag),
+			"error", err,
+		)
 
 		return nil, err
 	}

@@ -1,23 +1,24 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"net/http"
 	"sync/atomic"
 
 	"github.com/ozonmp/bss-equipment-request-api/internal/config"
-	"github.com/rs/zerolog/log"
 )
 
-func createStatusServer(cfg *config.Config, isReady *atomic.Value) *http.Server {
+func createStatusServer(ctx context.Context, cfg *config.Config, isReady *atomic.Value) *http.Server {
 	statusAddr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
 
 	mux := http.DefaultServeMux
 
 	mux.HandleFunc(cfg.Status.LivenessPath, livenessHandler)
 	mux.HandleFunc(cfg.Status.ReadinessPath, readinessHandler(isReady))
-	mux.HandleFunc(cfg.Status.VersionPath, versionHandler(cfg))
+	mux.HandleFunc(cfg.Status.VersionPath, versionHandler(ctx, cfg))
 
 	statusServer := &http.Server{
 		Addr:    statusAddr,
@@ -42,7 +43,7 @@ func readinessHandler(isReady *atomic.Value) http.HandlerFunc {
 	}
 }
 
-func versionHandler(cfg *config.Config) func(w http.ResponseWriter, _ *http.Request) {
+func versionHandler(ctx context.Context, cfg *config.Config) func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		data := map[string]interface{}{
 			"name":        cfg.Project.Name,
@@ -55,7 +56,7 @@ func versionHandler(cfg *config.Config) func(w http.ResponseWriter, _ *http.Requ
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(data); err != nil {
-			log.Error().Err(err).Msg("Service information encoding error")
+			logger.ErrorKV(ctx, "status.versionHandler: encode failed", "err", err)
 		}
 	}
 }

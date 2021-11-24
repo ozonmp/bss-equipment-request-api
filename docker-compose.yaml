@@ -4,7 +4,7 @@ services:
   bss-equipment-request-api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/service/Dockerfile
     restart: unless-stopped
     logging:
       driver: 'gelf'
@@ -32,8 +32,52 @@ services:
       retries: 3
       start_period: 20s
     volumes:
+      - ./config.yml:/root/config.yml
+
+  migration:
+    build:
+      context: .
+      dockerfile: docker/migration/Dockerfile
+    networks:
+      - ompnw
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    volumes:
       - ./migrations:/root/migrations
       - ./config.yml:/root/config.yml
+
+  bss-equipment-request-retranslator:
+    build:
+      context: .
+      dockerfile: docker/retranslator/Dockerfile
+    restart: unless-stopped
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: bss-equipment-request-retranslator
+    networks:
+      - ompnw
+    depends_on:
+      - postgres
+      - kafka
+    links:
+      - postgres
+      - kafka
+    ports:
+      - 9103:9103 # Metrics prometheus
+      - 8300:8300 # Status prometheus
+      - 43000:43000 # Debug port
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8300/live']
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    volumes:
+      - ./config_retranslator.yml:/root/config.yml
 
   postgres:
     image: postgres:latest
@@ -206,7 +250,7 @@ services:
 
   # Graylog: https://hub.docker.com/r/graylog/graylog/
   graylog:
-    image: graylog/graylog:4.0
+    image: graylog/graylog:4.2
     environment:
       # CHANGE ME (must be at least 16 characters)!
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
@@ -234,6 +278,7 @@ services:
       # GELF UDP
       - 12201:12201/udp
     restart: always
+
   nginx:
     image: nginx:latest
     links:

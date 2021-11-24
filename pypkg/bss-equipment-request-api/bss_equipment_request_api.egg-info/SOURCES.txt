@@ -1,10 +1,8 @@
 setup.py
 bss_equipment_request_api.egg-info/PKG-INFO
 bss_equipment_request_api.egg-info/SOURCES.txt
-bss_equipment_request_api.egg-info/__init__.py
 bss_equipment_request_api.egg-info/dependency_links.txt
 bss_equipment_request_api.egg-info/top_level.txt
-dist/__init__.py
 google/__init__.py
 google/api/__init__.py
 google/api/annotations_grpc.py

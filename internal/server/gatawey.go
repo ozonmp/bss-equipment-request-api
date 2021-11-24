@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"net/http"
 
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -11,11 +13,12 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 )
+
+const createGatewayServerLogTag = "createGatewayServer()"
 
 var (
 	httpTotalRequests = promauto.NewCounter(prometheus.CounterOpts{
@@ -24,11 +27,11 @@ var (
 	})
 )
 
-func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
+func createGatewayServer(ctx context.Context, grpcAddr, gatewayAddr string) *http.Server {
 	// Create a client connection to the gRPC Server we just started.
 	// This is where the gRPC-Gateway proxies the requests.
 	conn, err := grpc.DialContext(
-		context.Background(),
+		ctx,
 		grpcAddr,
 		grpc.WithUnaryInterceptor(
 			grpc_opentracing.UnaryClientInterceptor(
@@ -38,12 +41,16 @@ func createGatewayServer(grpcAddr, gatewayAddr string) *http.Server {
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to dial server")
+		logger.FatalKV(ctx, fmt.Sprintf("%s: grpc.DialContext failed", createGatewayServerLogTag),
+			"err", err,
+		)
 	}
 
 	mux := runtime.NewServeMux()
-	if err := pb.RegisterBssEquipmentRequestApiServiceHandler(context.Background(), mux, conn); err != nil {
-		log.Fatal().Err(err).Msg("Failed registration handler")
+	if err := pb.RegisterBssEquipmentRequestApiServiceHandler(ctx, mux, conn); err != nil {
+		logger.FatalKV(ctx, fmt.Sprintf("%s: pb.RegisterBssEquipmentRequestApiServiceHandler failed", createGatewayServerLogTag),
+			"err", err,
+		)
 	}
 
 	gatewayServer := &http.Server{

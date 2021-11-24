@@ -1,0 +1,1 @@
+for run in {1..50}; do hey -n 5 -c 2 -m POST -H 'accept: application/json' -H 'Content-Type: application/json' -d '{}' http://0.0.0.0:8083/api/v1/equipment_requests/$(( ( RANDOM % 10000 )  + 1 )) ; done

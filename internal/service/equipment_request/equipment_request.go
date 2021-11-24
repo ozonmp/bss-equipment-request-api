@@ -3,7 +3,9 @@ package equipment_request
 import (
 	"context"
 	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
 	"github.com/ozonmp/bss-equipment-request-api/internal/database"
+	"github.com/ozonmp/bss-equipment-request-api/internal/metrics"
 	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"github.com/ozonmp/bss-equipment-request-api/internal/repo"
 	"github.com/pkg/errors"
@@ -54,6 +56,9 @@ var ErrNoUpdatedEquipmentIDEquipmentRequest = errors.New("unable to update equip
 var ErrNoUpdatedStatusEquipmentRequest = errors.New("unable to update status of equipment request")
 
 func (s service) DescribeEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (*model.EquipmentRequest, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.DescribeEquipmentRequest")
+	defer span.Finish()
+
 	equipmentRequest, err := s.requestRepository.DescribeEquipmentRequest(ctx, equipmentRequestID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repository.DescribeEquipmentRequest")
@@ -63,6 +68,9 @@ func (s service) DescribeEquipmentRequest(ctx context.Context, equipmentRequestI
 }
 
 func (s service) CreateEquipmentRequest(ctx context.Context, equipmentRequest *model.EquipmentRequest) (uint64, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.CreateEquipmentRequest")
+	defer span.Finish()
+
 	createdRequestID, txErr := database.WithTxReturnUint64(ctx, s.db, func(ctx context.Context, tx *sqlx.Tx) (uint64, error) {
 		id, err := s.requestRepository.CreateEquipmentRequest(ctx, equipmentRequest, tx)
 		if err != nil {
@@ -86,6 +94,8 @@ func (s service) CreateEquipmentRequest(ctx context.Context, equipmentRequest *m
 			return 0, errors.Wrap(err, "eventRepository.Add")
 		}
 
+		metrics.IncTotalCudOperations(event.Type)
+
 		return id, nil
 	})
 
@@ -97,6 +107,9 @@ func (s service) CreateEquipmentRequest(ctx context.Context, equipmentRequest *m
 }
 
 func (s service) ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.ListEquipmentRequest")
+	defer span.Finish()
+
 	equipmentRequests, err := s.requestRepository.ListEquipmentRequest(ctx, limit, offset)
 	if err != nil {
 		return nil, errors.Wrap(err, "repository.ListEquipmentRequest")
@@ -110,6 +123,9 @@ func (s service) ListEquipmentRequest(ctx context.Context, limit uint64, offset 
 }
 
 func (s service) CheckExistsEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.CheckExistsEquipmentRequest")
+	defer span.Finish()
+
 	exists, err := s.requestRepository.Exists(ctx, equipmentRequestID)
 
 	if err != nil {
@@ -124,6 +140,9 @@ func (s service) CheckExistsEquipmentRequest(ctx context.Context, equipmentReque
 }
 
 func (s service) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.RemoveEquipmentRequest")
+	defer span.Finish()
+
 	deleted, txErr := database.WithTxReturnBool(ctx, s.db, func(ctx context.Context, tx *sqlx.Tx) (bool, error) {
 		result, err := s.requestRepository.RemoveEquipmentRequest(ctx, equipmentRequestID, tx)
 		if err != nil {
@@ -142,6 +161,8 @@ func (s service) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID 
 			return false, errors.Wrap(err, "eventRepository.Add")
 		}
 
+		metrics.IncTotalCudOperations(event.Type)
+
 		return result, nil
 	})
 
@@ -153,6 +174,9 @@ func (s service) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID 
 }
 
 func (s service) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.UpdateEquipmentIDEquipmentRequest")
+	defer span.Finish()
+
 	updated, txErr := database.WithTxReturnBool(ctx, s.db, func(ctx context.Context, tx *sqlx.Tx) (bool, error) {
 		result, err := s.requestRepository.UpdateEquipmentIDEquipmentRequest(ctx, equipmentRequestID, equipmentID, tx)
 		if err != nil {
@@ -171,6 +195,8 @@ func (s service) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmen
 			return false, errors.Wrap(err, "eventRepository.Add")
 		}
 
+		metrics.IncTotalCudOperations(event.Type)
+
 		return result, nil
 	})
 
@@ -182,6 +208,9 @@ func (s service) UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmen
 }
 
 func (s service) UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequestID uint64, status model.EquipmentRequestStatus) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "service.UpdateStatusEquipmentRequest")
+	defer span.Finish()
+
 	updated, txErr := database.WithTxReturnBool(ctx, s.db, func(ctx context.Context, tx *sqlx.Tx) (bool, error) {
 		result, err := s.requestRepository.UpdateStatusEquipmentRequest(ctx, equipmentRequestID, status, tx)
 		if err != nil {
@@ -203,6 +232,8 @@ func (s service) UpdateStatusEquipmentRequest(ctx context.Context, equipmentRequ
 		if err != nil {
 			return false, errors.Wrap(err, "eventRepository.Add")
 		}
+
+		metrics.IncTotalCudOperations(event.Type)
 
 		return result, nil
 	})
