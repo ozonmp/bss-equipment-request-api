@@ -54,17 +54,13 @@ func ConvertPbToEquipmentRequest(equipmentRequest *pb.EquipmentRequest) (*Equipm
 		return nil, err
 	}
 
-	updatedAtTime := ConvertPbTimeToNullableTime(equipmentRequest.UpdatedAt)
-	doneAtTime := ConvertPbTimeToNullableTime(equipmentRequest.DoneAt)
-	deletedAtTime := ConvertPbTimeToNullableTime(equipmentRequest.DeletedAt)
-
 	return &EquipmentRequest{
 		EmployeeID:             equipmentRequest.EmployeeId,
 		EquipmentID:            equipmentRequest.EquipmentId,
 		CreatedAt:              equipmentRequest.CreatedAt.AsTime(),
-		UpdatedAt:              updatedAtTime,
-		DoneAt:                 doneAtTime,
-		DeletedAt:              deletedAtTime,
+		UpdatedAt:              ConvertPbTimeToNullableTime(equipmentRequest.UpdatedAt),
+		DoneAt:                 ConvertPbTimeToNullableTime(equipmentRequest.DoneAt),
+		DeletedAt:              ConvertPbTimeToNullableTime(equipmentRequest.DeletedAt),
 		EquipmentRequestStatus: *equipmentRequestStatus,
 	}, nil
 }

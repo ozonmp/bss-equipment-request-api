@@ -7,18 +7,14 @@ import (
 
 // ConvertPbToEquipmentRequestPayload - convert protobuf EquipmentRequestPayload message to EquipmentRequest
 func ConvertPbToEquipmentRequestPayload(equipmentRequestPayload *pb.EquipmentRequestPayload) *EquipmentRequest {
-	updatedAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.UpdatedAt)
-	doneAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.DoneAt)
-	deletedAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.DeletedAt)
-
 	return &EquipmentRequest{
 		ID:                     equipmentRequestPayload.Id,
 		EmployeeID:             equipmentRequestPayload.EmployeeId,
 		EquipmentID:            equipmentRequestPayload.EquipmentId,
 		CreatedAt:              equipmentRequestPayload.CreatedAt.AsTime(),
-		UpdatedAt:              updatedAtTime,
-		DoneAt:                 doneAtTime,
-		DeletedAt:              deletedAtTime,
+		UpdatedAt:              ConvertPbTimeToNullableTime(equipmentRequestPayload.UpdatedAt),
+		DoneAt:                 ConvertPbTimeToNullableTime(equipmentRequestPayload.DoneAt),
+		DeletedAt:              ConvertPbTimeToNullableTime(equipmentRequestPayload.DeletedAt),
 		EquipmentRequestStatus: EquipmentRequestStatus(equipmentRequestPayload.EquipmentRequestStatus),
 	}
 }
@@ -53,15 +49,13 @@ func ConvertEquipmentRequestPayloadToPb(equipmentRequest *EquipmentRequest) *pb.
 
 //ConvertPbToEquipmentRequestEvent - convert protobuf EquipmentRequestEvent message to EquipmentRequestEvent
 func ConvertPbToEquipmentRequestEvent(equipmentRequestEvent *pb.EquipmentRequestEvent) *EquipmentRequestEvent {
-	updatedAtTime := ConvertPbTimeToNullableTime(equipmentRequestEvent.UpdatedAt)
-
 	event := &EquipmentRequestEvent{
 		ID:                 equipmentRequestEvent.Id,
 		Type:               EventType(equipmentRequestEvent.Type),
 		Status:             EventStatus(equipmentRequestEvent.Status),
 		EquipmentRequestID: equipmentRequestEvent.EquipmentRequestId,
 		CreatedAt:          equipmentRequestEvent.CreatedAt.AsTime(),
-		UpdatedAt:          updatedAtTime,
+		UpdatedAt:          ConvertPbTimeToNullableTime(equipmentRequestEvent.UpdatedAt),
 	}
 
 	if equipmentRequestEvent.Payload != nil {
