@@ -69,7 +69,7 @@ func main() {
 	defer tracing.Close()
 
 	eventRepository := repo.NewEventRepo(db)
-	eventSender, err := sender.NewEventSender(ctx, cfg.Kafka.Brokers)
+	eventSender, err := sender.NewEventSender(ctx, cfg.Kafka.Brokers, cfg.Kafka.RetryMax, cfg.Kafka.RetryBackoff)
 	if err != nil {
 		logger.FatalKV(ctx, fmt.Sprintf("%s: sender.NewEventSender failed", retranslatorMainLogTag),
 			"err", err,

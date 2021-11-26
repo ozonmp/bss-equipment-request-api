@@ -7,6 +7,7 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
 	"google.golang.org/protobuf/proto"
 	"strconv"
+	"time"
 )
 
 // TopicType is a type of topic
@@ -41,11 +42,16 @@ type eventSender struct {
 }
 
 // NewEventSender returns EventSender interface
-func NewEventSender(ctx context.Context, brokers []string) (EventSender, error) {
+func NewEventSender(ctx context.Context, brokers []string, retryMax, retryBackoff int) (EventSender, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewHashPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
+
+	config.Producer.Return.Errors = true
+	config.Producer.Retry.Max = retryMax
+	config.Producer.Retry.Backoff = time.Duration(retryBackoff) * time.Second
+
 	producer, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		return nil, err

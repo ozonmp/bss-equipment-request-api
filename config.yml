@@ -44,3 +44,4 @@ database:
   sslmode: disable
   migrations: migrations
   driver: pgx
+  connectAttempts: 15

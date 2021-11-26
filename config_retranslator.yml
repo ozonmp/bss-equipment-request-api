@@ -43,9 +43,12 @@ database:
   sslmode: disable
   migrations: migrations
   driver: pgx
+  connectAttempts: 15
 
 kafka:
   capacity: 512
+  retryMax: 10
+  retryBackoff: 6 # Seconds
   groupId: "bss-equipment-request-retranslator"
   brokers:
     - "kafka-1:9092"
