@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/Shopify/sarama"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
+	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"google.golang.org/protobuf/proto"
 	"strconv"
 	"time"

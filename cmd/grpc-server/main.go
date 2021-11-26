@@ -19,10 +19,6 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/tracer"
 )
 
-var (
-	batchSize uint = 2
-)
-
 const grpsServerMainLogTag = "GrpsServerMain"
 
 func main() {
@@ -35,7 +31,7 @@ func main() {
 	}
 	cfg := config.GetConfigInstance()
 
-	syncLogger := logger.NewLogger(ctx, cfg)
+	syncLogger := logger.NewLogger(ctx, cfg.Project.Debug, cfg.Telemetry.GraylogPath, cfg.Project.ServiceName)
 	defer syncLogger()
 
 	metrics.InitMetrics(cfg)
@@ -59,20 +55,20 @@ func main() {
 		cfg.Database.SslMode,
 	)
 
-	db, err := database.NewPostgres(initCtx, dsn, cfg.Database.Driver)
+	db, err := database.NewPostgres(initCtx, dsn, cfg.Database.Driver, cfg.Database.ConnectAttempts)
 	if err != nil {
 		return
 	}
 	defer db.Close()
 
-	tracing, err := tracer.NewTracer(ctx, &cfg)
+	tracing, err := tracer.NewTracer(ctx, cfg.Jaeger.Service, cfg.Jaeger.Host, cfg.Jaeger.Port)
 
 	if err != nil {
 		return
 	}
 	defer tracing.Close()
 
-	requestRepository := repo.NewEquipmentRequestRepo(db, batchSize)
+	requestRepository := repo.NewEquipmentRequestRepo(db)
 	eventRepository := repo.NewEventRepo(db)
 
 	equipmentRequestService := equipment_request.New(db, requestRepository, eventRepository)

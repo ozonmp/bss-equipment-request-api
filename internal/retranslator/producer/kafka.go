@@ -3,12 +3,12 @@ package producer
 import (
 	"context"
 	"fmt"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/repo"
 	"sync"
 	"time"
 
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
+	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/sender"
 
 	"github.com/gammazero/workerpool"

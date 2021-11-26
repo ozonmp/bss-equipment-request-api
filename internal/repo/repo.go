@@ -37,15 +37,13 @@ type EquipmentRequestRepo interface {
 }
 
 type equipmentRequestRepo struct {
-	db        *sqlx.DB
-	batchSize uint
+	db *sqlx.DB
 }
 
 // NewEquipmentRequestRepo returns Repo interface
-func NewEquipmentRequestRepo(db *sqlx.DB, batchSize uint) EquipmentRequestRepo {
+func NewEquipmentRequestRepo(db *sqlx.DB) EquipmentRequestRepo {
 	return &equipmentRequestRepo{
-		db:        db,
-		batchSize: batchSize,
+		db: db,
 	}
 }
 

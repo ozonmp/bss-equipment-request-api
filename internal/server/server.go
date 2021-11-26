@@ -68,7 +68,7 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 		}
 	}()
 
-	metricsServer := createMetricsServer(cfg)
+	metricsServer := createMetricsServer(cfg.Metrics.Host, cfg.Metrics.Path, cfg.Metrics.Port)
 
 	go func() {
 		logger.InfoKV(ctx, fmt.Sprintf("%s: metrics server is listening on", grpcServerStartLogTag),
@@ -84,7 +84,22 @@ func (s *GrpcServer) Start(ctx context.Context, cfg *config.Config) error {
 	isReady := &atomic.Value{}
 	isReady.Store(false)
 
-	statusServer := createStatusServer(ctx, cfg, isReady)
+	statusCfg := &statusCfg{
+		Port:          cfg.Status.Port,
+		Host:          cfg.Status.Host,
+		LivenessPath:  cfg.Status.LivenessPath,
+		ReadinessPath: cfg.Status.ReadinessPath,
+		VersionPath:   cfg.Status.VersionPath,
+	}
+
+	projectCfg := &projectCfg{
+		Name:        cfg.Project.Name,
+		Debug:       cfg.Project.Debug,
+		Environment: cfg.Project.Environment,
+		Version:     cfg.Project.Version,
+		CommitHash:  cfg.Project.CommitHash,
+	}
+	statusServer := createStatusServer(ctx, statusCfg, projectCfg, isReady)
 
 	go func() {
 		statusAdrr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)

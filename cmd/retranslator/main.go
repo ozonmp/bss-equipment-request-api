@@ -7,15 +7,15 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
 
+	"github.com/ozonmp/bss-equipment-request-api/internal/database"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/config"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/database"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/metrics"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/repo"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/retranslator"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/sender"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/server"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/tracer"
+	"github.com/ozonmp/bss-equipment-request-api/internal/server"
+	"github.com/ozonmp/bss-equipment-request-api/internal/tracer"
 	"time"
 )
 
@@ -31,7 +31,7 @@ func main() {
 	}
 	cfg := config.GetConfigInstance()
 
-	syncLogger := logger.NewLogger(ctx, cfg)
+	syncLogger := logger.NewLogger(ctx, cfg.Project.Debug, cfg.Telemetry.GraylogPath, cfg.Project.ServiceName)
 	defer syncLogger()
 
 	metrics.InitMetrics(cfg)
@@ -55,13 +55,13 @@ func main() {
 		cfg.Database.SslMode,
 	)
 
-	db, err := database.NewPostgres(initCtx, dsn, cfg.Database.Driver)
+	db, err := database.NewPostgres(initCtx, dsn, cfg.Database.Driver, cfg.Database.ConnectAttempts)
 	if err != nil {
 		return
 	}
 	defer db.Close()
 
-	tracing, err := tracer.NewTracer(ctx, &cfg)
+	tracing, err := tracer.NewTracer(ctx, cfg.Jaeger.Service, cfg.Jaeger.Host, cfg.Jaeger.Port)
 
 	if err != nil {
 		return

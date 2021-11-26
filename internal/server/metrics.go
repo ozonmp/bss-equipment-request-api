@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ozonmp/bss-equipment-request-api/internal/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func createMetricsServer(cfg *config.Config) *http.Server {
-	addr := fmt.Sprintf("%s:%d", cfg.Metrics.Host, cfg.Metrics.Port)
+func createMetricsServer(host, path string, port int) *http.Server {
+	addr := fmt.Sprintf("%s:%d", host, port)
 
 	mux := http.DefaultServeMux
-	mux.Handle(cfg.Metrics.Path, promhttp.Handler())
+	mux.Handle(path, promhttp.Handler())
 
 	metricsServer := &http.Server{
 		Addr:    addr,

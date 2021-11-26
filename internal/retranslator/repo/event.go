@@ -7,10 +7,10 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/database"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/database"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/metrics"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
 	"github.com/pkg/errors"
 	"time"
 )

@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"sync"
 	"time"
 
-	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
+	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	"github.com/ozonmp/bss-equipment-request-api/internal/retranslator/repo"
 )
 

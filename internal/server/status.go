@@ -7,18 +7,32 @@ import (
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
 	"net/http"
 	"sync/atomic"
-
-	"github.com/ozonmp/bss-equipment-request-api/internal/config"
 )
 
-func createStatusServer(ctx context.Context, cfg *config.Config, isReady *atomic.Value) *http.Server {
-	statusAddr := fmt.Sprintf("%s:%v", cfg.Status.Host, cfg.Status.Port)
+type statusCfg struct {
+	Host          string
+	Port          int
+	LivenessPath  string
+	ReadinessPath string
+	VersionPath   string
+}
+
+type projectCfg struct {
+	Name        string
+	Debug       bool
+	Environment string
+	Version     string
+	CommitHash  string
+}
+
+func createStatusServer(ctx context.Context, statusCfg *statusCfg, projectCfg *projectCfg, isReady *atomic.Value) *http.Server {
+	statusAddr := fmt.Sprintf("%s:%v", statusCfg.Host, statusCfg.Port)
 
 	mux := http.DefaultServeMux
 
-	mux.HandleFunc(cfg.Status.LivenessPath, livenessHandler)
-	mux.HandleFunc(cfg.Status.ReadinessPath, readinessHandler(isReady))
-	mux.HandleFunc(cfg.Status.VersionPath, versionHandler(ctx, cfg))
+	mux.HandleFunc(statusCfg.LivenessPath, livenessHandler)
+	mux.HandleFunc(statusCfg.ReadinessPath, readinessHandler(isReady))
+	mux.HandleFunc(statusCfg.VersionPath, versionHandler(ctx, projectCfg))
 
 	statusServer := &http.Server{
 		Addr:    statusAddr,
@@ -43,14 +57,14 @@ func readinessHandler(isReady *atomic.Value) http.HandlerFunc {
 	}
 }
 
-func versionHandler(ctx context.Context, cfg *config.Config) func(w http.ResponseWriter, _ *http.Request) {
+func versionHandler(ctx context.Context, projectCfg *projectCfg) func(w http.ResponseWriter, _ *http.Request) {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		data := map[string]interface{}{
-			"name":        cfg.Project.Name,
-			"debug":       cfg.Project.Debug,
-			"environment": cfg.Project.Environment,
-			"version":     cfg.Project.Version,
-			"commitHash":  cfg.Project.CommitHash,
+			"name":        projectCfg.Name,
+			"debug":       projectCfg.Debug,
+			"environment": projectCfg.Environment,
+			"version":     projectCfg.Version,
+			"commitHash":  projectCfg.CommitHash,
 		}
 
 		w.Header().Set("Content-Type", "application/json")

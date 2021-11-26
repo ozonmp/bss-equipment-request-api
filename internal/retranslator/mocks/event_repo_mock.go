@@ -10,7 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	sqlx "github.com/jmoiron/sqlx"
-	model "github.com/ozonmp/bss-equipment-request-api/internal/retranslator/model"
+	model "github.com/ozonmp/bss-equipment-request-api/internal/model"
 )
 
 // MockEventRepo is a mock of EventRepo interface.

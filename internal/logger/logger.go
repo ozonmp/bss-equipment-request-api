@@ -3,7 +3,6 @@ package logger
 import (
 	"context"
 	"github.com/opentracing/opentracing-go"
-	"github.com/ozonmp/bss-equipment-request-api/internal/config"
 	gelf "github.com/snovichkov/zap-gelf"
 	"github.com/uber/jaeger-client-go"
 	"go.uber.org/zap"
@@ -19,9 +18,9 @@ var attachedLoggerKey = &ctxKey{}
 var globalLogger *zap.SugaredLogger
 
 // NewLogger - return a new logger
-func NewLogger(ctx context.Context, cfg config.Config) (syncFn func()) {
+func NewLogger(ctx context.Context, idDebug bool, graylogPath, serviceName string) (syncFn func()) {
 	loggingLevel := zap.InfoLevel
-	if cfg.Project.Debug {
+	if idDebug {
 		loggingLevel = zap.DebugLevel
 	}
 
@@ -32,7 +31,7 @@ func NewLogger(ctx context.Context, cfg config.Config) (syncFn func()) {
 	)
 
 	gelfCore, err := gelf.NewCore(
-		gelf.Addr(cfg.Telemetry.GraylogPath),
+		gelf.Addr(graylogPath),
 		gelf.Level(loggingLevel),
 	)
 
@@ -44,7 +43,7 @@ func NewLogger(ctx context.Context, cfg config.Config) (syncFn func()) {
 
 	sugaredLogger := notSugaredLogger.Sugar()
 	SetLogger(sugaredLogger.With(
-		"service", cfg.Project.ServiceName,
+		"service", serviceName,
 	))
 
 	return func() {
@@ -56,7 +55,6 @@ func NewLogger(ctx context.Context, cfg config.Config) (syncFn func()) {
 func fromContext(ctx context.Context) *zap.SugaredLogger {
 	var result *zap.SugaredLogger
 	result = globalLogger
-
 	if attachedLogger, ok := ctx.Value(attachedLoggerKey).(*zap.SugaredLogger); ok {
 		result = attachedLogger
 	}
