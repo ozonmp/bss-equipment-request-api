@@ -15,10 +15,14 @@ services:
       - ompnw
     depends_on:
       - postgres
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
     links:
       - postgres
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
     ports:
       - 8083:8080 # REST
       - 8082:8082 # gRPC
@@ -62,10 +66,14 @@ services:
       - ompnw
     depends_on:
       - postgres
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
     links:
       - postgres
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
     ports:
       - 9103:9103 # Metrics prometheus
       - 8300:8300 # Status prometheus
@@ -124,26 +132,78 @@ services:
     networks:
       - ompnw
 
-  kafka:
+  kafka-1:
     image: confluentinc/cp-kafka
     restart: unless-stopped
     logging:
       driver: 'gelf'
       options:
         gelf-address: 'udp://localhost:12201'
-        tag: kafka
+        tag: kafka-1
     depends_on:
       - zookeeper
     ports:
       - 9094:9094
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
-      KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:9094
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENERS: INTERNAL://kafka-1:9092,OUTSIDE://kafka-1:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9092,OUTSIDE://host.docker.internal:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:32181 --replication-factor 1 --partitions 1 --topic templates)&) && /etc/confluent/docker/run"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./kafka_data/500:/kafka
+    networks:
+      - ompnw
+
+  kafka-2:
+    image: confluentinc/cp-kafka
+    restart: unless-stopped
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: kafka-2
+    depends_on:
+      - zookeeper
+    ports:
+      - 9095:9094
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
+      KAFKA_LISTENERS: INTERNAL://kafka-2:9092,OUTSIDE://kafka-2:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9092,OUTSIDE://host.docker.internal:9095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:32181 --replication-factor 1 --partitions 1 --topic templates)&) && /etc/confluent/docker/run"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./kafka_data/500:/kafka
+    networks:
+      - ompnw
+
+  kafka-3:
+    image: confluentinc/cp-kafka
+    restart: unless-stopped
+    logging:
+      driver: 'gelf'
+      options:
+        gelf-address: 'udp://localhost:12201'
+        tag: kafka-3
+    depends_on:
+      - zookeeper
+    ports:
+      - 9096:9094
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
+      KAFKA_LISTENERS: INTERNAL://kafka-3:9092,OUTSIDE://kafka-3:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:9092,OUTSIDE://host.docker.internal:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:32181 --replication-factor 1 --partitions 1 --topic templates)&) && /etc/confluent/docker/run"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./kafka_data/500:/kafka
     networks:
       - ompnw
 
@@ -151,12 +211,14 @@ services:
     image: obsidiandynamics/kafdrop
     restart: unless-stopped
     depends_on:
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
     ports:
       - 9001:9001
     environment:
       SERVER_PORT: 9001
-      KAFKA_BROKERCONNECT: "kafka:9092"
+      KAFKA_BROKERCONNECT: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     networks:
       - ompnw

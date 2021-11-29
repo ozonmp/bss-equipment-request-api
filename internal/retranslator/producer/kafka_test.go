@@ -63,7 +63,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
 		EquipmentRequestID: 17,
-		Payload:            &model.EquipmentRequestEventPayload{},
+		Payload:            &model.EquipmentRequest{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -115,7 +115,7 @@ func TestStartAndRemoveByTicker(t *testing.T) {
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
 		EquipmentRequestID: 17,
-		Payload:            &model.EquipmentRequestEventPayload{},
+		Payload:            &model.EquipmentRequest{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -168,7 +168,7 @@ func TestStartAndRemoveByDefer(t *testing.T) {
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
 		EquipmentRequestID: 17,
-		Payload:            &model.EquipmentRequestEventPayload{},
+		Payload:            &model.EquipmentRequest{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -224,7 +224,7 @@ func TestStartAndUnlockByTicker(t *testing.T) {
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
 		EquipmentRequestID: 17,
-		Payload:            &model.EquipmentRequestEventPayload{},
+		Payload:            &model.EquipmentRequest{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)
@@ -277,7 +277,7 @@ func TestStartAndUnlockByDefer(t *testing.T) {
 		Status:             model.Unlocked,
 		CreatedAt:          time.Now(),
 		EquipmentRequestID: 17,
-		Payload:            &model.EquipmentRequestEventPayload{},
+		Payload:            &model.EquipmentRequest{},
 	}
 
 	evensCount := int(config.N * config.BatchSize)

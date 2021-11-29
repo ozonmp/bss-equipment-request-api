@@ -1,5 +1,5 @@
 project:
-  name: Ozon Code Platform Template API
+  name: Ozon Code Platform Business Equipment Request Retranslator
   debug: true
   environment: development
   serviceName: bss_equipment_request_retranslator
@@ -46,8 +46,8 @@ database:
 
 kafka:
   capacity: 512
-  topic: "bss-equipment-request-events-retranslator"
   groupId: "bss-equipment-request-retranslator"
   brokers:
-    - "kafka:9092"
-    - "localhost:9094"
+    - "kafka-1:9092"
+    - "kafka-2:9092"
+    - "kafka-3:9092"

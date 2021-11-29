@@ -75,14 +75,6 @@ type Jaeger struct {
 	Port    string `yaml:"port"`
 }
 
-// Kafka - contains all parameters kafka information.
-type Kafka struct {
-	Capacity uint64   `yaml:"capacity"`
-	Topic    string   `yaml:"topic"`
-	GroupID  string   `yaml:"groupId"`
-	Brokers  []string `yaml:"brokers"`
-}
-
 // Status config for service.
 type Status struct {
 	Port          int    `yaml:"port"`
@@ -105,7 +97,6 @@ type Config struct {
 	Database  Database  `yaml:"database"`
 	Metrics   Metrics   `yaml:"metrics"`
 	Jaeger    Jaeger    `yaml:"jaeger"`
-	Kafka     Kafka     `yaml:"kafka"`
 	Status    Status    `yaml:"status"`
 	Telemetry Telemetry `yaml:"telemetry"`
 }

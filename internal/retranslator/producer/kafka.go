@@ -95,10 +95,12 @@ func (p *producer) Start() {
 						logger.FatalKV(p.ctx, fmt.Sprintf("%s: read from p.events failed", producerLogTag),
 							"err", "unable to read from the channel",
 						)
-						return
 					}
 					if err := p.sender.Send(&event); err != nil {
 						p.addToUnlockBatch(&toUnlockBatch, event.ID)
+						logger.ErrorKV(p.ctx, fmt.Sprintf("%s: sender.Send failed", producerLogTag),
+							"err", err,
+						)
 					} else {
 						p.addToRemoveBatch(&toRemoveBatch, event.ID)
 					}
@@ -115,6 +117,9 @@ func (p *producer) Start() {
 							return
 						}
 						if err := p.sender.Send(&event); err != nil {
+							logger.ErrorKV(p.ctx, fmt.Sprintf("%s: sender.Send failed", producerLogTag),
+								"err", err,
+							)
 							p.addToUnlockBatch(&toUnlockBatch, event.ID)
 						} else {
 							p.addToRemoveBatch(&toRemoveBatch, event.ID)

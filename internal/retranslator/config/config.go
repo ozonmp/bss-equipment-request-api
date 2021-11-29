@@ -82,7 +82,6 @@ type Jaeger struct {
 // Kafka - contains all parameters kafka information.
 type Kafka struct {
 	Capacity uint64   `yaml:"capacity"`
-	Topic    string   `yaml:"topic"`
 	GroupID  string   `yaml:"groupId"`
 	Brokers  []string `yaml:"brokers"`
 }
@@ -105,7 +104,6 @@ type Telemetry struct {
 type Config struct {
 	Project      Project      `yaml:"project"`
 	Retranslator Retranslator `yaml:"retranslator"`
-	Rest         Rest         `yaml:"rest"`
 	Database     Database     `yaml:"database"`
 	Metrics      Metrics      `yaml:"metrics"`
 	Jaeger       Jaeger       `yaml:"jaeger"`

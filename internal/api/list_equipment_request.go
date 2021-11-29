@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ozonmp/bss-equipment-request-api/internal/logger"
+	"github.com/ozonmp/bss-equipment-request-api/internal/model"
 	pb "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipment-request-api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,7 +44,7 @@ func (o *equipmentRequestAPI) ListEquipmentRequestV1(
 		return nil, status.Error(codes.NotFound, "unable to get list of equipment requests")
 	}
 
-	equipmentRequestPb, err := o.convertRepeatedEquipmentRequestsToPb(equipmentRequests)
+	equipmentRequestPb, err := model.ConvertRepeatedEquipmentRequestsToPb(equipmentRequests)
 
 	if err != nil {
 		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert list of EquipmentRequests to Pb message", listEquipmentRequestV1LogTag),

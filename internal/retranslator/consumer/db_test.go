@@ -68,7 +68,7 @@ func TestStartAndGetOneEvent(t *testing.T) {
 			Status:             model.Unlocked,
 			CreatedAt:          time.Now(),
 			EquipmentRequestID: 17,
-			Payload:            &model.EquipmentRequestEventPayload{},
+			Payload:            &model.EquipmentRequest{},
 		},
 	}
 
@@ -139,7 +139,7 @@ func TestStartAndGetSeveralEvent(t *testing.T) {
 			Status:             model.Unlocked,
 			CreatedAt:          time.Now(),
 			EquipmentRequestID: 17,
-			Payload:            &model.EquipmentRequestEventPayload{},
+			Payload:            &model.EquipmentRequest{},
 		},
 		{
 			ID:                 14,
@@ -147,7 +147,7 @@ func TestStartAndGetSeveralEvent(t *testing.T) {
 			Status:             model.Unlocked,
 			CreatedAt:          time.Now(),
 			EquipmentRequestID: 12,
-			Payload:            &model.EquipmentRequestEventPayload{},
+			Payload:            &model.EquipmentRequest{},
 		},
 	}
 

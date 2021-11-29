@@ -69,11 +69,17 @@ func main() {
 	defer tracing.Close()
 
 	eventRepository := repo.NewEventRepo(db)
-	eventSender := sender.NewEventSender(ctx)
+	eventSender, err := sender.NewEventSender(ctx, cfg.Kafka.Brokers)
+	if err != nil {
+		logger.FatalKV(ctx, fmt.Sprintf("%s: sender.NewEventSender failed", retranslatorMainLogTag),
+			"err", err,
+		)
+	}
+
 	retranslator := retranslator.NewRetranslator(ctx, db, cfg.Retranslator, eventRepository, eventSender)
 
 	if err := server.NewRetranslatorServer(retranslator).Start(ctx, &cfg); err != nil {
-		logger.ErrorKV(ctx, fmt.Sprintf("%s: failed creating gRPC server", retranslatorMainLogTag),
+		logger.ErrorKV(ctx, fmt.Sprintf("%s: failed creating retranslator server", retranslatorMainLogTag),
 			"err", err,
 		)
 
