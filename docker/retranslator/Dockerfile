@@ -3,15 +3,14 @@
 ARG GITHUB_PATH=github.com/ozonmp/bss-equipment-request-api
 
 FROM golang:1.16-alpine AS builder
-RUN apk add --update make git protoc protobuf protobuf-dev curl
+RUN apk add --update make git curl
 COPY . /home/${GITHUB_PATH}
 WORKDIR /home/${GITHUB_PATH}
-RUN make deps-go
 RUN make build-retranslator-go
 
 # Retranslator
 
-FROM alpine:latest as server
+FROM alpine:latest as retranslator
 LABEL org.opencontainers.image.source https://${GITHUB_PATH}
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/

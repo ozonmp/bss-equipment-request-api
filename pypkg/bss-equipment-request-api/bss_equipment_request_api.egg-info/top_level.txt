@@ -1,3 +1,4 @@
 google
 ozonmp
+protoc_gen_openapiv2
 validate

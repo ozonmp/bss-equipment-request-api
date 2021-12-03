@@ -68,10 +68,12 @@ It reads protobuf service definitions and generates a reverse-proxy server which
 
 ```sh
 [I] ➜ curl -s -X 'POST' \
-  'http://0.0.0.0:8083/api/v1/equipment_requests/12' \
+  'http://0.0.0.0:8083/api/v1/update/equipment_id' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
+    equipment_request_id: 10,
+    equipmentId: 12
 }' | jq .
 {
   "code": 5,
@@ -86,11 +88,22 @@ Metrics GRPC Server
 
 - http://localhost:9100/metrics
 
+Metrics Retranslator Server
+
+- http://localhost:9103/metrics
+
 ### Status:
 
-Service condition and its information
+GRPS Service condition and its information
 
 - http://localhost:8000
+- - `/live`- Layed whether the server is running
+- - `/ready` - Is it ready to accept requests
+- - `/version` - Version and assembly information
+
+Retransaltor Service condition and its information
+
+- http://localhost:8300
 - - `/live`- Layed whether the server is running
 - - `/ready` - Is it ready to accept requests
 - - `/version` - Version and assembly information
@@ -144,7 +157,7 @@ $ python -m venv .venv
 $ . .venv/bin/activate
 $ make deps
 $ make generate
-$ cd pypkg/omp-template-api
+$ cd pypkg/bss-equipment-request-api
 $ python setup.py install
 $ cd ../..
 $ docker-compose up -d

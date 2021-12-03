@@ -31,74 +31,6 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, client BssEquipmentRequestApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DescribeEquipmentRequestV1Request
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["equipment_request_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "equipment_request_id")
-	}
-
-	protoReq.EquipmentRequestId, err = runtime.Uint64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "equipment_request_id", err)
-	}
-
-	msg, err := client.DescribeEquipmentRequestV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func local_request_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, server BssEquipmentRequestApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DescribeEquipmentRequestV1Request
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["equipment_request_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "equipment_request_id")
-	}
-
-	protoReq.EquipmentRequestId, err = runtime.Uint64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "equipment_request_id", err)
-	}
-
-	msg, err := server.DescribeEquipmentRequestV1(ctx, &protoReq)
-	return msg, metadata, err
-
-}
-
 func request_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, client BssEquipmentRequestApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateEquipmentRequestV1Request
 	var metadata runtime.ServerMetadata
@@ -129,40 +61,6 @@ func local_request_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0(ctx 
 	}
 
 	msg, err := server.CreateEquipmentRequestV1(ctx, &protoReq)
-	return msg, metadata, err
-
-}
-
-func request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, client BssEquipmentRequestApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListEquipmentRequestV1Request
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.ListEquipmentRequestV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func local_request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx context.Context, marshaler runtime.Marshaler, server BssEquipmentRequestApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListEquipmentRequestV1Request
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.ListEquipmentRequestV1(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -275,29 +173,6 @@ func local_request_BssEquipmentRequestApiService_UpdateStatusEquipmentRequestV1_
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBssEquipmentRequestApiServiceHandlerFromEndpoint instead.
 func RegisterBssEquipmentRequestApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BssEquipmentRequestApiServiceServer) error {
 
-	mux.Handle("POST", pattern_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/DescribeEquipmentRequestV1", runtime.WithHTTPPathPattern("/api/v1/equipment_requests/{equipment_request_id}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0(rctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -318,29 +193,6 @@ func RegisterBssEquipmentRequestApiServiceHandlerServer(ctx context.Context, mux
 		}
 
 		forward_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_BssEquipmentRequestApiService_ListEquipmentRequestV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/ListEquipmentRequestV1", runtime.WithHTTPPathPattern("/api/v1/equipment_requests/list"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(rctx, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -454,26 +306,6 @@ func RegisterBssEquipmentRequestApiServiceHandler(ctx context.Context, mux *runt
 // "BssEquipmentRequestApiServiceClient" to call the correct interceptors.
 func RegisterBssEquipmentRequestApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BssEquipmentRequestApiServiceClient) error {
 
-	mux.Handle("POST", pattern_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/DescribeEquipmentRequestV1", runtime.WithHTTPPathPattern("/api/v1/equipment_requests/{equipment_request_id}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -491,26 +323,6 @@ func RegisterBssEquipmentRequestApiServiceHandlerClient(ctx context.Context, mux
 		}
 
 		forward_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_BssEquipmentRequestApiService_ListEquipmentRequestV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/ozonmp.bss_equipment_request_api.v1.BssEquipmentRequestApiService/ListEquipmentRequestV1", runtime.WithHTTPPathPattern("/api/v1/equipment_requests/list"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_BssEquipmentRequestApiService_ListEquipmentRequestV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -578,11 +390,7 @@ func RegisterBssEquipmentRequestApiServiceHandlerClient(ctx context.Context, mux
 }
 
 var (
-	pattern_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "equipment_requests", "equipment_request_id"}, ""))
-
 	pattern_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "equipment_requests", "create"}, ""))
-
-	pattern_BssEquipmentRequestApiService_ListEquipmentRequestV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "equipment_requests", "list"}, ""))
 
 	pattern_BssEquipmentRequestApiService_RemoveEquipmentRequestV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "equipment_requests", "remove"}, ""))
 
@@ -592,11 +400,7 @@ var (
 )
 
 var (
-	forward_BssEquipmentRequestApiService_DescribeEquipmentRequestV1_0 = runtime.ForwardResponseMessage
-
 	forward_BssEquipmentRequestApiService_CreateEquipmentRequestV1_0 = runtime.ForwardResponseMessage
-
-	forward_BssEquipmentRequestApiService_ListEquipmentRequestV1_0 = runtime.ForwardResponseMessage
 
 	forward_BssEquipmentRequestApiService_RemoveEquipmentRequestV1_0 = runtime.ForwardResponseMessage
 

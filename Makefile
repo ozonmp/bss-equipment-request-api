@@ -83,7 +83,7 @@ deps-go:
 	python3 -m pip install grpcio-tools grpclib protobuf --user
 
 .PHONY: build
-build: generate .build
+build: generate .build .build-migration .build-retranslator
 
 .PHONY: build-go
 build-go: generate-go .build
@@ -110,13 +110,13 @@ build-migration-go: .build-migration
     		-o ./bin/migration$(shell go env GOEXE) ./cmd/migration/main.go
 
 .PHONY: build-retranslator-go
-build-retranslator-go: generate-go .build-retranslator
+build-retranslator-go: .build-retranslator
 
 .build-retranslator:
 	go mod download && CGO_ENABLED=0  go build \
     		-tags='no_mysql no_sqlite3' \
     		-ldflags=" \
-    			-X 'github.com/$(SERVICE_PATH)/internal/config.version=$(VERSION)' \
-    			-X 'github.com/$(SERVICE_PATH)/internal/config.commitHash=$(COMMIT_HASH)' \
+    			-X 'github.com/$(SERVICE_PATH)/internal/retranslator/config.version=$(VERSION)' \
+    			-X 'github.com/$(SERVICE_PATH)/internal/retranslator/config.commitHash=$(COMMIT_HASH)' \
     		" \
     		-o ./bin/retranslator$(shell go env GOEXE) ./cmd/retranslator/main.go

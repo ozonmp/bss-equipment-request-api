@@ -7,8 +7,6 @@ import (
 
 const (
 	createEquipmentRequestV1LogTag            = "CreateEquipmentRequestV1"
-	describeEquipmentRequestV1LogTag          = "DescribeEquipmentRequestV1"
-	listEquipmentRequestV1LogTag              = "ListEquipmentRequestV1"
 	removeEquipmentRequestV1LogTag            = "RemoveEquipmentRequestV1"
 	updateEquipmentIDEquipmentRequestV1LogTag = "UpdateEquipmentIDEquipmentRequestV1"
 	updateStatusEquipmentRequestV1LogTag      = "UpdateStatusEquipmentRequestV1"

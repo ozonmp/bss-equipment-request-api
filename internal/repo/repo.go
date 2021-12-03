@@ -27,9 +27,7 @@ const (
 
 // EquipmentRequestRepo is DAO for Equipment Request
 type EquipmentRequestRepo interface {
-	DescribeEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (*model.EquipmentRequest, error)
 	CreateEquipmentRequest(ctx context.Context, equipmentRequest *model.EquipmentRequest, tx *sqlx.Tx) (uint64, error)
-	ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error)
 	RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64, tx *sqlx.Tx) (bool, error)
 	Exists(ctx context.Context, equipmentRequestID uint64) (bool, error)
 	UpdateEquipmentIDEquipmentRequest(ctx context.Context, equipmentRequestID uint64, equipmentID uint64, tx *sqlx.Tx) (bool, error)
@@ -45,36 +43,6 @@ func NewEquipmentRequestRepo(db *sqlx.DB) EquipmentRequestRepo {
 	return &equipmentRequestRepo{
 		db: db,
 	}
-}
-
-func (r *equipmentRequestRepo) DescribeEquipmentRequest(ctx context.Context, equipmentRequestID uint64) (*model.EquipmentRequest, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.DescribeEquipmentRequest")
-	defer span.Finish()
-
-	sb := database.StatementBuilder.
-		Select("*").
-		From(equipmentRequestTable).
-		Where(sq.And{
-			sq.Eq{equipmentRequestIDColumn: equipmentRequestID},
-			sq.Eq{equipmentRequestDeletedAtAtColumn: nil}})
-
-	query, args, err := sb.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	var equipmentRequest model.EquipmentRequest
-	err = r.db.QueryRowxContext(ctx, query, args...).StructScan(&equipmentRequest)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-
-		return nil, errors.Wrap(err, "db.QueryRowxContext()")
-	}
-
-	return &equipmentRequest, nil
 }
 
 func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equipmentRequest *model.EquipmentRequest, tx *sqlx.Tx) (uint64, error) {
@@ -125,32 +93,6 @@ func (r *equipmentRequestRepo) CreateEquipmentRequest(ctx context.Context, equip
 	}
 
 	return id, nil
-}
-
-func (r *equipmentRequestRepo) ListEquipmentRequest(ctx context.Context, limit uint64, offset uint64) ([]model.EquipmentRequest, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "repo.ListEquipmentRequest")
-	defer span.Finish()
-
-	sb := database.StatementBuilder.
-		Select("*").
-		From(equipmentRequestTable).
-		Where(sq.Eq{equipmentRequestDeletedAtAtColumn: nil}).
-		OrderBy(equipmentRequestIDColumn).
-		Limit(limit).
-		Offset(offset)
-
-	query, args, err := sb.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	var equipmentRequests []model.EquipmentRequest
-	err = r.db.SelectContext(ctx, &equipmentRequests, query, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, "db.SelectContext()")
-	}
-
-	return equipmentRequests, nil
 }
 
 func (r *equipmentRequestRepo) RemoveEquipmentRequest(ctx context.Context, equipmentRequestID uint64, tx *sqlx.Tx) (bool, error) {
@@ -303,6 +245,7 @@ func (r *equipmentRequestRepo) UpdateStatusEquipmentRequest(ctx context.Context,
 	}
 
 	affected, err := result.RowsAffected()
+
 	if err != nil {
 		return false, errors.Wrap(err, "repo.RowsAffected()")
 	}

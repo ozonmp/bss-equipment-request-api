@@ -17,6 +17,8 @@ ozonmp/bss_equipment_request_api/__init__.py
 ozonmp/bss_equipment_request_api/v1/__init__.py
 ozonmp/bss_equipment_request_api/v1/bss_equipment_request_api_grpc.py
 ozonmp/bss_equipment_request_api/v1/bss_equipment_request_api_pb2.py
+protoc_gen_openapiv2/__init__.py
+protoc_gen_openapiv2/options/__init__.py
 validate/__init__.py
 validate/validate_grpc.py
 validate/validate_pb2.py

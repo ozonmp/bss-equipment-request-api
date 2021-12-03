@@ -54,44 +54,6 @@
         ]
       }
     },
-    "/api/v1/equipment_requests/list": {
-      "post": {
-        "summary": "ListEquipmentRequestV1 - Get list of all equipment requests",
-        "operationId": "BssEquipmentRequestApiService_ListEquipmentRequestV1",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListEquipmentRequestV1Response"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1ListEquipmentRequestV1Request"
-            }
-          },
-          {
-            "name": "grpc-metadata-log-level",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "BssEquipmentRequestApiService"
-        ]
-      }
-    },
     "/api/v1/equipment_requests/remove": {
       "post": {
         "summary": "RemoveEquipmentRequestV1 - Remove one equipment request",
@@ -117,51 +79,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1RemoveEquipmentRequestV1Request"
-            }
-          },
-          {
-            "name": "grpc-metadata-log-level",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "BssEquipmentRequestApiService"
-        ]
-      }
-    },
-    "/api/v1/equipment_requests/{equipmentRequestId}": {
-      "post": {
-        "summary": "DescribeEquipmentRequestV1 - Describe a equipment request",
-        "operationId": "BssEquipmentRequestApiService_DescribeEquipmentRequestV1",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DescribeEquipmentRequestV1Response"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "equipmentRequestId",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
             }
           },
           {
@@ -324,50 +241,6 @@
         }
       }
     },
-    "v1DescribeEquipmentRequestV1Response": {
-      "type": "object",
-      "properties": {
-        "equipmentRequest": {
-          "$ref": "#/definitions/v1EquipmentRequest"
-        }
-      }
-    },
-    "v1EquipmentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "employeeId": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "equipmentId": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "doneAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "equipmentRequestStatus": {
-          "$ref": "#/definitions/v1EquipmentRequestStatus"
-        }
-      }
-    },
     "v1EquipmentRequestStatus": {
       "type": "string",
       "enum": [
@@ -378,30 +251,6 @@
         "EQUIPMENT_REQUEST_STATUS_CANCELLED"
       ],
       "default": "EQUIPMENT_REQUEST_STATUS_UNSPECIFIED"
-    },
-    "v1ListEquipmentRequestV1Request": {
-      "type": "object",
-      "properties": {
-        "limit": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "offset": {
-          "type": "string",
-          "format": "uint64"
-        }
-      }
-    },
-    "v1ListEquipmentRequestV1Response": {
-      "type": "object",
-      "properties": {
-        "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1EquipmentRequest"
-          }
-        }
-      }
     },
     "v1RemoveEquipmentRequestV1Request": {
       "type": "object",

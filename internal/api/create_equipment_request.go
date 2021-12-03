@@ -24,17 +24,7 @@ func (o *equipmentRequestAPI) CreateEquipmentRequestV1(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	newItem := pb.EquipmentRequest{
-		EquipmentId:            req.EquipmentId,
-		EmployeeId:             req.EmployeeId,
-		CreatedAt:              req.CreatedAt,
-		UpdatedAt:              req.UpdatedAt,
-		DeletedAt:              req.DeletedAt,
-		DoneAt:                 req.DoneAt,
-		EquipmentRequestStatus: req.EquipmentRequestStatus,
-	}
-
-	equipmentRequest, err := model.ConvertPbToEquipmentRequest(&newItem)
+	equipmentRequest, err := model.ConvertCreatePbMessageToEquipmentRequest(req)
 
 	if err != nil {
 		logger.ErrorKV(ctx, fmt.Sprintf("%s: unable to convert Pb message to EquipmentRequest", createEquipmentRequestV1LogTag),

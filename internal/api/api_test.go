@@ -72,47 +72,6 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return listener.Dial()
 }
 
-func Test_DescribeEquipmentRequestV1_EmptyRequest(t *testing.T) {
-	conn, ctx, closeFunc := setUp(t)
-
-	defer closeFunc(conn)
-
-	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
-
-	request := pb.DescribeEquipmentRequestV1Request{}
-
-	equipmentRequest, err := client.DescribeEquipmentRequestV1(ctx, &request)
-
-	require.NotNil(t, err)
-	require.Nil(t, equipmentRequest)
-
-	er, _ := status.FromError(err)
-
-	require.Equal(t, codes.InvalidArgument, er.Code())
-}
-
-func Test_DescribeEquipmentRequestV1_WrongFormat(t *testing.T) {
-	conn, ctx, closeFunc := setUp(t)
-
-	defer closeFunc(conn)
-
-	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
-
-	request := pb.DescribeEquipmentRequestV1Request{
-		EquipmentRequestId: 0,
-	}
-
-	equipmentRequest, err := client.DescribeEquipmentRequestV1(ctx, &request)
-
-	require.NotNil(t, err)
-	require.Nil(t, equipmentRequest)
-
-	er, _ := status.FromError(err)
-
-	require.Equal(t, codes.InvalidArgument, er.Code())
-
-}
-
 func Test_RemoveEquipmentRequestV1_EmptyRequest(t *testing.T) {
 	conn, ctx, closeFunc := setUp(t)
 
@@ -385,69 +344,6 @@ func Test_UpdateStatusEquipmentRequestV1_WrongEquipmentRequestId(t *testing.T) {
 	}
 
 	equipmentRequest, err := client.UpdateStatusEquipmentRequestV1(ctx, &request)
-
-	require.NotNil(t, err)
-	require.Nil(t, equipmentRequest)
-
-	er, _ := status.FromError(err)
-
-	require.Equal(t, codes.InvalidArgument, er.Code())
-}
-
-func Test_ListEquipmentRequestV1_EmptyRequest(t *testing.T) {
-	conn, ctx, closeFunc := setUp(t)
-
-	defer closeFunc(conn)
-
-	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
-
-	request := pb.ListEquipmentRequestV1Request{}
-
-	equipmentRequest, err := client.ListEquipmentRequestV1(ctx, &request)
-
-	require.NotNil(t, err)
-	require.Nil(t, equipmentRequest)
-
-	er, _ := status.FromError(err)
-
-	require.Equal(t, codes.InvalidArgument, er.Code())
-}
-
-func Test_ListEquipmentRequestV1_WrongLimit(t *testing.T) {
-	conn, ctx, closeFunc := setUp(t)
-
-	defer closeFunc(conn)
-
-	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
-
-	request := pb.ListEquipmentRequestV1Request{
-		Limit:  0,
-		Offset: 10,
-	}
-
-	equipmentRequest, err := client.ListEquipmentRequestV1(ctx, &request)
-
-	require.NotNil(t, err)
-	require.Nil(t, equipmentRequest)
-
-	er, _ := status.FromError(err)
-
-	require.Equal(t, codes.InvalidArgument, er.Code())
-}
-
-func Test_ListEquipmentRequestV1_WrongPerPage(t *testing.T) {
-	conn, ctx, closeFunc := setUp(t)
-
-	defer closeFunc(conn)
-
-	client := pb.NewBssEquipmentRequestApiServiceClient(conn)
-
-	request := pb.ListEquipmentRequestV1Request{
-		Limit:  7,
-		Offset: 34,
-	}
-
-	equipmentRequest, err := client.ListEquipmentRequestV1(ctx, &request)
 
 	require.NotNil(t, err)
 	require.Nil(t, equipmentRequest)

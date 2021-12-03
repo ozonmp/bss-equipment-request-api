@@ -27,7 +27,7 @@ func (o *equipmentRequestAPI) UpdateEquipmentIDEquipmentRequestV1(
 	if err != nil {
 		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.UpdateEquipmentIDEquipmentRequest failed", updateEquipmentIDEquipmentRequestV1LogTag),
 			"err", err,
-			"equipmentRequestId", req.EquipmentId,
+			"equipmentRequestId", req.EquipmentRequestId,
 			"equipmentId", req.EquipmentId,
 		)
 
@@ -37,7 +37,7 @@ func (o *equipmentRequestAPI) UpdateEquipmentIDEquipmentRequestV1(
 	if !result {
 		logger.ErrorKV(ctx, fmt.Sprintf("%s: equipmentRequestService.UpdateEquipmentIDEquipmentRequest failed", updateEquipmentIDEquipmentRequestV1LogTag),
 			"err", "unable to update equipment id of equipment request, no rows affected",
-			"equipmentRequestId", req.EquipmentId,
+			"equipmentRequestId", req.EquipmentRequestId,
 			"equipmentId", req.EquipmentId,
 		)
 

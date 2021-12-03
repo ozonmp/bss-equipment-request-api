@@ -10,25 +10,10 @@ option go_package = "github.com/ozonmp/bss-equipment-request-api/pkg/bss-equipme
 
 // BssEquipmentRequestApiService - Service for working with equipment requests
 service BssEquipmentRequestApiService {
-  // DescribeEquipmentRequestV1 - Describe a equipment request
-  rpc DescribeEquipmentRequestV1(DescribeEquipmentRequestV1Request) returns (DescribeEquipmentRequestV1Response) {
-    option (google.api.http) = {
-      post: "/api/v1/equipment_requests/{equipment_request_id}",
-      body: "*"
-    };
-  }
   // CreateEquipmentRequestV1 - Create a new equipment request
   rpc CreateEquipmentRequestV1(CreateEquipmentRequestV1Request) returns (CreateEquipmentRequestV1Response) {
     option (google.api.http) = {
       post: "/api/v1/equipment_requests/create",
-      body: "*"
-    };
-  }
-
-  // ListEquipmentRequestV1 - Get list of all equipment requests
-  rpc ListEquipmentRequestV1(ListEquipmentRequestV1Request) returns (ListEquipmentRequestV1Response) {
-    option (google.api.http) = {
-      post: "/api/v1/equipment_requests/list",
       body: "*"
     };
   }
@@ -58,25 +43,6 @@ service BssEquipmentRequestApiService {
   }
 }
 
-message EquipmentRequest {
-  uint64 id = 1;
-  uint64 employee_id = 2;
-  uint64 equipment_id = 3;
-  google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp updated_at = 5;
-  google.protobuf.Timestamp deleted_at = 6;
-  google.protobuf.Timestamp done_at = 7;
-  EquipmentRequestStatus equipment_request_status = 8;
-}
-
-message DescribeEquipmentRequestV1Request {
-  uint64 equipment_request_id = 1 [(validate.rules).uint64.gt = 0];
-}
-
-message DescribeEquipmentRequestV1Response {
-  EquipmentRequest equipment_request = 1;
-}
-
 enum EquipmentRequestStatus {
   EQUIPMENT_REQUEST_STATUS_UNSPECIFIED = 0;
   EQUIPMENT_REQUEST_STATUS_DO = 1;
@@ -97,15 +63,6 @@ message CreateEquipmentRequestV1Request {
 
 message CreateEquipmentRequestV1Response {
   uint64 equipment_request_id = 1;
-}
-
-message ListEquipmentRequestV1Request {
-  uint64 limit = 1 [(validate.rules).uint64.gt = 0];
-  uint64 offset = 2 [(validate.rules).uint64 = {in: [5, 20, 50, 100, 200]}];
-}
-
-message ListEquipmentRequestV1Response {
-  repeated EquipmentRequest items = 1;
 }
 
 message RemoveEquipmentRequestV1Request {

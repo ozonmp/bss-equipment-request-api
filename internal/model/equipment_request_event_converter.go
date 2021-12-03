@@ -33,46 +33,6 @@ func ConvertEquipmentRequestPayloadToPb(equipmentRequest *EquipmentRequest) *pb.
 	return payload
 }
 
-// ConvertPbToEquipmentRequestPayload - convert protobuf EquipmentRequestPayload message to EquipmentRequest
-func ConvertPbToEquipmentRequestPayload(equipmentRequestPayload *pb.EquipmentRequestPayload) *EquipmentRequest {
-	updatedAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.UpdatedAt)
-	doneAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.DoneAt)
-	deletedAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.DeletedAt)
-
-	return &EquipmentRequest{
-		ID:                     equipmentRequestPayload.Id,
-		EmployeeID:             equipmentRequestPayload.EmployeeId,
-		EquipmentID:            equipmentRequestPayload.EquipmentId,
-		CreatedAt:              equipmentRequestPayload.CreatedAt.AsTime(),
-		UpdatedAt:              updatedAtTime,
-		DoneAt:                 doneAtTime,
-		DeletedAt:              deletedAtTime,
-		EquipmentRequestStatus: EquipmentRequestStatus(equipmentRequestPayload.EquipmentRequestStatus),
-	}
-}
-
-//ConvertPbToEquipmentRequestEvent - convert protobuf EquipmentRequestEvent message to EquipmentRequestEvent
-func ConvertPbToEquipmentRequestEvent(equipmentRequestEvent *pb.EquipmentRequestEvent) *EquipmentRequestEvent {
-	updatedAtTime := ConvertPbTimeToNullableTime(equipmentRequestEvent.UpdatedAt)
-
-	event := &EquipmentRequestEvent{
-		ID:                 equipmentRequestEvent.Id,
-		Type:               EventType(equipmentRequestEvent.Type),
-		Status:             EventStatus(equipmentRequestEvent.Status),
-		EquipmentRequestID: equipmentRequestEvent.EquipmentRequestId,
-		CreatedAt:          equipmentRequestEvent.CreatedAt.AsTime(),
-		UpdatedAt:          updatedAtTime,
-	}
-
-	if equipmentRequestEvent.Payload != nil {
-		payload := ConvertPbToEquipmentRequestPayload(equipmentRequestEvent.Payload)
-
-		event.Payload = payload
-	}
-
-	return event
-}
-
 // ConvertEquipmentRequestEventToPb is a function to convert EquipmentRequestEvent to pb.EquipmentRequestEvent
 func ConvertEquipmentRequestEventToPb(equipmentRequestEvent *EquipmentRequestEvent) (*pb.EquipmentRequestEvent, error) {
 	event := &pb.EquipmentRequestEvent{
@@ -91,4 +51,22 @@ func ConvertEquipmentRequestEventToPb(equipmentRequestEvent *EquipmentRequestEve
 	}
 
 	return event, nil
+}
+
+// ConvertPbToEquipmentRequestPayload - convert protobuf EquipmentRequestPayload message to EquipmentRequest
+func ConvertPbToEquipmentRequestPayload(equipmentRequestPayload *pb.EquipmentRequestPayload) *EquipmentRequest {
+	updatedAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.UpdatedAt)
+	doneAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.DoneAt)
+	deletedAtTime := ConvertPbTimeToNullableTime(equipmentRequestPayload.DeletedAt)
+
+	return &EquipmentRequest{
+		ID:                     equipmentRequestPayload.Id,
+		EmployeeID:             equipmentRequestPayload.EmployeeId,
+		EquipmentID:            equipmentRequestPayload.EquipmentId,
+		CreatedAt:              equipmentRequestPayload.CreatedAt.AsTime(),
+		UpdatedAt:              updatedAtTime,
+		DoneAt:                 doneAtTime,
+		DeletedAt:              deletedAtTime,
+		EquipmentRequestStatus: EquipmentRequestStatus(equipmentRequestPayload.EquipmentRequestStatus),
+	}
 }
