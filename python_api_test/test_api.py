@@ -14,7 +14,7 @@ db_client = DBSelect()
 
 @pytest.mark.parametrize(
     "employee_id, equipment_id, created_at, updated_at, deleted_at, done_at, equipment_request_status",
-    [("18446744073709551615", "15", "2021-12-31T23:44:02.361Z", None, None, None,
+    [("2147483647", "15", "2021-12-31T23:44:02.361Z", None, None, None,
       "EQUIPMENT_REQUEST_STATUS_UNSPECIFIED"),
      ("1", "2", "2021-12-01T00:00:00.000Z", "2021-12-02T00:00:00.000Z", None, None, "EQUIPMENT_REQUEST_STATUS_DO"),
      ("15", "100", "2021-01-01T23:44:02.361Z", None, None, None, "EQUIPMENT_REQUEST_STATUS_IN_PROGRESS"),
@@ -35,7 +35,9 @@ def test_create(employee_id, equipment_id, created_at, updated_at, deleted_at, d
     response = api_client.create(params=data)
     status_code = response.status_code
     response = response.json()
+
     equipment_request_id = db_client.get_last_equipment_request_id(employee_id=employee_id, equipment_id=equipment_id)
+
     assert_that(status_code, equal_to(codes.ok))
     assert_that(response["equipmentRequestId"], equal_to(str(equipment_request_id[0])))
     assert_that(str(equipment_request_id[1]), equal_to(employee_id))
@@ -64,8 +66,9 @@ def test_should_all_equipment_requests(limit, offset):
     status_code = response.status_code
     response = response.json()["items"]
     all_equipment_request = db_client.get_all_equipment_request_id(limit=limit, offset=offset)
-    assert status_code == codes.ok
-    assert len(response) == int(limit)
+
+    assert_that(status_code, equal_to(codes.ok))
+    assert_that(len(response), equal_to(int(limit)))
     for idx in range(len(response)):
         assert int(response[idx]["id"]) == int(all_equipment_request[idx][0])
         assert int(response[idx]["employeeId"]) == int(all_equipment_request[idx][1])
@@ -86,7 +89,8 @@ def test_should_remove(equipment_request_id):
     time = response.headers["Date"]
     response = response.json()
     remove_equipment_request = db_client.get_remove_equipment_request(id=equipment_request_id)
-    assert status_code == codes.ok
+
+    assert_that(status_code, equal_to(codes.ok))
     assert_that(response["removed"], equal_to(True))
     for elem in remove_equipment_request:
         assert_that(str(elem[0]), equal_to(equipment_request_id))
@@ -105,6 +109,7 @@ def test_should_get_equipment_request(equipment_request_id):
     response = api_client.describe_request(params=data)
     status_code = response.status_code
     response = response.json()["equipmentRequest"]
+
     assert_that(status_code, equal_to(codes.ok))
     assert_that(equipment_request_id, equal_to(response["id"]))
 
