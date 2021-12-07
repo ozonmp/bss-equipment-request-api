@@ -1,0 +1,6 @@
+HOST = "192.168.0.104"
+API_PORT = "8083"
+DB_PORT = "5432"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = "postgres"
+POSTGRES_DB = "bss_equipment_request_api"
